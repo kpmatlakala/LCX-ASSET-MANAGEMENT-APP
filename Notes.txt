@@ -1,0 +1,22 @@
+-> Stacks
+{
+	TailWind,
+	HeroUI,
+	Poppins,
+	
+	React.Js -> Next.js  | Native 
+	  
+
+	Supa-base(Databse and Auth),
+	NodeMailer(to send credentials to employees for sign up), 	
+}
+
+
+1. 
+	** Employee(Requester) App (React.Native with Expo) **
+	**Admins and Management: React/Next.js Application with Role-based Routing **
+
+
+
+
+
