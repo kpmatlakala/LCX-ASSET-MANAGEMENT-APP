@@ -12,7 +12,7 @@
 }
 
 
-1. 
+->
 	** Employee(Requester) App (React.Native with Expo) **
 	**Admins and Management: React/Next.js Application with Role-based Routing **
 
