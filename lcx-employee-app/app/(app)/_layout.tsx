@@ -3,22 +3,23 @@ import React from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Drawer } from 'expo-router/drawer';
 
-export default function App() {
+export default function DrawerLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <Drawer>
+      <Drawer >        
         <Drawer.Screen
-          name="index"
-          options={{ title: "🎙️ Home" }}
+          name="Dashboard"
+          options={{ title: "📰 Dashboard" }}
         />
+        {/* <Drawer.Screen
+          name="Account"
+          options={{ title: "👤 Profile" }}
+        /> */}
         <Drawer.Screen
-          name="settings"
+          name="Settings"
           options={{ title: "⚙️ Settings" }}
         />
-        <Drawer.Screen
-          name="profile"
-          options={{ title: "👤 Profile" }}
-        />
+        
       </Drawer>
     </GestureHandlerRootView>
   );

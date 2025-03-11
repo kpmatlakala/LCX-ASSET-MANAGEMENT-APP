@@ -3,7 +3,6 @@ import {
   View,
   Text,
   Button,
-  Image,
   StyleSheet,
   Dimensions,
   ScrollView,
@@ -12,7 +11,7 @@ import {
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import logo from "../../assets/images/lcx-logo.png";
+// import logo from "../../assets/images/lcx-logo.png";
 
 const { width } = Dimensions.get("window");
 
@@ -60,7 +59,7 @@ export default function Onboarding() {
 
   const completeOnboarding = async () => {
     await AsyncStorage.setItem("onboardingComplete", "true");
-    router.replace("/(auth)/login"); // Navigate to login after completing onboarding
+    router.push("/(auth)/Auth"); // Navigate to login after completing onboarding
   };
 
   return (
@@ -73,9 +72,9 @@ export default function Onboarding() {
       >
         {pages.map((page) => (
           <View key={page.id} style={[styles.page, { width }]}>
-            <View style={styles.iconLogo}>
-              {/* Add a logo here, currently using text for simplicity */}
-              <Image src={logo} />
+            <View style={styles.iconLogo}>              
+              {/* <Image src={logo} /> */}
+              <Text>Limpopo Connexion</Text>
             </View>
             <Text style={styles.title}>{page.title}</Text>
             <Text style={styles.description}>{page.description}</Text>
