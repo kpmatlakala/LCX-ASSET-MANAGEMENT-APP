@@ -69,6 +69,7 @@ export default function Auth() {
           autoCapitalize={'none'}
         />
       </View>
+      
       <View style={[styles.verticallySpaced, styles.mt20]}>
         <Button title="Sign in" disabled={loading} onPress={() => signInWithEmail()} />
       </View>

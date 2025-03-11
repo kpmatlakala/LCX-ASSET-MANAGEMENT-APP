@@ -4,14 +4,22 @@ import { StyleSheet, View, Alert } from 'react-native'
 import { Button, Input } from '@rneui/themed'
 import { Session } from '@supabase/supabase-js'
 
-export default function Account({ session }: { session: Session }) {
+export default function Account({ session }: { session: Session }) 
+{
   const [loading, setLoading] = useState(true)
   const [username, setUsername] = useState('')
   const [website, setWebsite] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
+  const [isAdmin, setIsAdmin] = useState(false)
+  
+  const [newUserEmail, setNewUserEmail] = useState('')
+  const [newUserPassword, setNewUserPassword] = useState('')
 
   useEffect(() => {
-    if (session) getProfile()
+    if (session) {
+      getProfile()
+      checkAdmin()
+    }
   }, [session])
 
   async function getProfile() {
@@ -42,32 +50,25 @@ export default function Account({ session }: { session: Session }) {
     }
   }
 
-  async function updateProfile({
-    username,
-    website,
-    avatar_url,
-  }: {
-    username: string
-    website: string
-    avatar_url: string
-  }) {
+  async function checkAdmin() {
+    if (session?.user?.email === 'testuser1@e.mail') { // Replace with actual admin email
+      setIsAdmin(true)
+    }
+  }
+
+  async function createUser() 
+  {
     try {
       setLoading(true)
-      if (!session?.user) throw new Error('No user on the session!')
-
-      const updates = {
-        id: session?.user.id,
-        username,
-        website,
-        avatar_url,
-        updated_at: new Date(),
-      }
-
-      const { error } = await supabase.from('profiles').upsert(updates)
-
-      if (error) {
-        throw error
-      }
+      const { data, error } = await supabase.auth.admin.createUser({
+        email: newUserEmail,
+        password: newUserPassword,
+        email_confirm: true, // Auto-confirm user
+      })
+      if (error) throw error
+      Alert.alert('User created successfully!')
+      setNewUserEmail('')
+      setNewUserPassword('')
     } catch (error) {
       if (error instanceof Error) {
         Alert.alert(error.message)
@@ -79,7 +80,7 @@ export default function Account({ session }: { session: Session }) {
 
   return (
     <View style={styles.container}>
-      <View style={[styles.verticallySpaced, styles.mt20]}>
+      <View style={styles.verticallySpaced}>
         <Input label="Email" value={session?.user?.email} disabled />
       </View>
       <View style={styles.verticallySpaced}>
@@ -88,25 +89,44 @@ export default function Account({ session }: { session: Session }) {
       <View style={styles.verticallySpaced}>
         <Input label="Website" value={website || ''} onChangeText={(text) => setWebsite(text)} />
       </View>
-
-      <View style={[styles.verticallySpaced, styles.mt20]}>
+      <View style={styles.verticallySpaced}>
         <Button
           title={loading ? 'Loading ...' : 'Update'}
-          onPress={() => updateProfile({ username, website, avatar_url: avatarUrl })}
+          onPress={() => {}}
           disabled={loading}
         />
       </View>
-
       <View style={styles.verticallySpaced}>
         <Button title="Sign Out" onPress={() => supabase.auth.signOut()} />
       </View>
+      
+      {isAdmin && (
+        <View>
+          <View style={styles.divider} />
+          <Input
+            label="New User Email"
+            value={newUserEmail}
+            onChangeText={setNewUserEmail}
+            placeholder="Enter email"
+            autoCapitalize="none"
+          />
+          <Input
+            label="New User Password"
+            value={newUserPassword}
+            onChangeText={setNewUserPassword}
+            placeholder="Enter password"
+            secureTextEntry
+          />
+          <Button title="Create User" onPress={createUser} disabled={loading} />
+        </View>
+      )}
     </View>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 40,
+    marginTop: 10,
     padding: 12,
   },
   verticallySpaced: {
@@ -116,5 +136,10 @@ const styles = StyleSheet.create({
   },
   mt20: {
     marginTop: 20,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#ccc',
+    marginVertical: 20,
   },
 })

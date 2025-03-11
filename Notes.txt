@@ -14,6 +14,78 @@
 
 ->
 	** Employee(Requester) App (React.Native with Expo) **
+
+ Steps to Implement Navigation to /app/(app)/account on Sign-in
+Ensure React Navigation is Set Up
+
+If you haven’t installed React Navigation, do it first:
+sh
+Copy
+Edit
+npm install @react-navigation/native
+npm install react-native-screens react-native-safe-area-context react-native-gesture-handler react-native-reanimated react-native-vector-icons
+npm install @react-navigation/stack
+Modify App.tsx to Handle Navigation Dynamically
+
+Update your App.tsx to conditionally switch between Auth.tsx and Account (app/(app)/account).
+tsx
+Copy
+Edit
+import React, { useEffect, useState } from 'react'
+import { NavigationContainer } from '@react-navigation/native'
+import { createStackNavigator } from '@react-navigation/stack'
+import { supabase } from './lib/supabase'
+import Auth from './screens/Auth'
+import Account from './app/(app)/account'  // Update the path to match your project structure
+
+const Stack = createStackNavigator()
+
+export default function App() {
+  const [session, setSession] = useState(null)
+
+  useEffect(() => {
+    // Check if user is already signed in
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+    })
+
+    // Listen for authentication state changes
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+    })
+
+    return () => authListener.subscription.unsubscribe()
+  }, [])
+
+  return (
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {session ? (
+          <Stack.Screen name="Account" component={Account} />
+        ) : (
+          <Stack.Screen name="Auth" component={Auth} />
+        )}
+      </Stack.Navigator>
+    </NavigationContainer>
+  )
+}
+Ensure Auth.tsx Does Not Handle Navigation Explicitly
+
+Your Auth.tsx does not need to manually navigate because App.tsx dynamically switches based on authentication status.
+Ensure Account.tsx Exists in app/(app)/account.tsx
+
+If your Account.tsx is not inside app/(app)/, move it there or update the import path in App.tsx.
+🛠 How This Works
+✅ If a user signs in, session is updated → The app automatically navigates to "app/(app)/account".
+
+✅ If a user logs out, session becomes null → The app switches back to the Auth.tsx screen.
+
+This ensures seamless authentication-based navigation! 🚀
+
+Would you like me to refine it further based on your setup?
+
+
+
 	**Admins and Management: React/Next.js Application with Role-based Routing **
 
 
@@ -23,3 +95,5 @@ Profile Schema
 {
 	
 }
+
+
