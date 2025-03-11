@@ -1,4 +1,16 @@
-import { Text, View } from "react-native";
+import { useState, useEffect } from 'react'
+import { ActivityIndicator, View } from 'react-native'
+import { Session } from '@supabase/supabase-js'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+
+import Onboarding from './(onboarding)/onboarding'
+import { supabase } from '@/lib/supabase'
+import Auth from '@/components/Auth'
+import Account from '@/components/Account'
+
+
+
+
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null)
@@ -43,14 +55,8 @@ export default function App() {
   }
 
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Text>Edit app/index.tsx to edit this screen.</Text>
+    <View style={{ flex: 1 }}>
+      {session && session.user ? <Account key={session.user.id} session={session} /> : <Auth />}
     </View>
   );
 }

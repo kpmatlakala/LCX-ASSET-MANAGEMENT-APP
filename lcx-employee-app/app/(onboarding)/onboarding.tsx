@@ -2,16 +2,15 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  Button,
+  Pressable,
   StyleSheet,
   Dimensions,
-  ScrollView,Image
+  ScrollView,
 } from "react-native";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import logo from "../../assets/images/lcx-logo.png";
-import {  } from "react-native";
 
 const { width } = Dimensions.get("window");
 
@@ -74,7 +73,7 @@ export default function Onboarding() {
           <View key={page.id} style={[styles.page, { width }]}>
             <View style={styles.iconLogo}>
               {/* Add a logo here, currently using text for simplicity */}
-              <Image source={logo} />
+              <Image src={logo} />
             </View>
             <Text style={styles.title}>{page.title}</Text>
             <Text style={styles.description}>{page.description}</Text>
