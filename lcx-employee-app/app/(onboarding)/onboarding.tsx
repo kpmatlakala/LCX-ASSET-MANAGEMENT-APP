@@ -2,11 +2,13 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  Pressable,
+  Button,
+  Image,
   StyleSheet,
   Dimensions,
   ScrollView,
 } from "react-native";
+
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
