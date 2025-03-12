@@ -1,12 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import { Alert, StyleSheet, View, AppState } from 'react-native'
 import { supabase } from '../../lib/supabase'
 import { Button, Input } from '@rneui/themed'
 
-// Tells Supabase Auth to continuously refresh the session automatically if
-// the app is in the foreground. When this is added, you will continue to receive
-// `onAuthStateChange` events with the `TOKEN_REFRESHED` or `SIGNED_OUT` event
-// if the user's session is terminated. This should only be registered once.
+// Automatically refresh the session if the app is in the foreground
 AppState.addEventListener('change', (state) => {
   if (state === 'active') {
     supabase.auth.startAutoRefresh()
@@ -15,65 +12,85 @@ AppState.addEventListener('change', (state) => {
   }
 })
 
-export default function Auth() {
+const Auth = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
 
-  async function signInWithEmail() {
-    setLoading(true)
-    const { error } = await supabase.auth.signInWithPassword({
-      email: email,
-      password: password,
-    })
+  // Generalized sign-in/signup handler
+  const handleAuth = useCallback(
+    async (action: 'signIn' | 'signUp') => {
+      setLoading(true)
 
-    if (error) Alert.alert(error.message)
-    setLoading(false)
-  }
+      let response;
+      let errorMessage = '';
 
-  async function signUpWithEmail() {
-    setLoading(true)
-    const { data: { session }, error, } = await supabase.auth.signUp({ email: email, password: password, })
-    if (error) Alert.alert(error.message)
+      if (action === 'signIn') {
+        const { error } = await supabase.auth.signInWithPassword({ email, password })
+        if (error) errorMessage = error.message
+      } else if (action === 'signUp') {
+        const { data: { user, session }, error } = await supabase.auth.signUp({ email, password })
+        
+        if (error) {
+          errorMessage = error.message
+        } else if (user) {
+          // Insert user data into the 'users' table
+          const { error: dbError } = await supabase.from('users').insert([
+            {
+              userId: user.id,
+              email: user.email,
+              first_name: '',
+              last_name: '',
+              phone: '',
+              role: 'employee', // Default role
+              created_at: new Date().toISOString(),
+            },
+          ])
 
-      
-    if (!session) Alert.alert('Please check your inbox for email verification!')
-    setLoading(false)
-  }
+          if (dbError) {
+            errorMessage = dbError.message
+          } else if (!session) {
+            errorMessage = 'Please check your inbox for email verification!'
+          }
+        }
+      }
+
+      if (errorMessage) {
+        Alert.alert(errorMessage)
+      }
+
+      setLoading(false)
+    },
+    [email, password]
+  )
 
   return (
     <View style={styles.container}>
-      <View style={[styles.verticallySpaced, styles.mt20]}>
-        <Input
-          label="Email"
-          leftIcon={{ type: 'font-awesome', name: 'envelope' }}
-          onChangeText={(text) => setEmail(text)}
-          value={email}
-          placeholder="email@address.com"
-          autoCapitalize={'none'}
-        />
-      </View>
-      <View style={styles.verticallySpaced}>
-        <Input
-          label="Password"
-          leftIcon={{ type: 'font-awesome', name: 'lock' }}
-          onChangeText={(text) => setPassword(text)}
-          value={password}
-          secureTextEntry={true}
-          placeholder="Password"
-          autoCapitalize={'none'}
-        />
-      </View>
-      
-      <View style={[styles.verticallySpaced, styles.mt20]}>
-        <Button title="Sign in" disabled={loading} onPress={() => signInWithEmail()} />
-      </View>
-      <View style={styles.verticallySpaced}>
-        <Button title="Sign up" disabled={loading} onPress={() => signUpWithEmail()} />
+      <InputField label="Email" icon="envelope" value={email} onChange={setEmail} />
+      <InputField label="Password" icon="lock" value={password} onChange={setPassword} secureTextEntry />
+
+      <View style={styles.buttonContainer}>
+        <Button title="Sign in" disabled={loading} onPress={() => handleAuth('signIn')} />
+        <Button title="Sign up" disabled={loading} onPress={() => handleAuth('signUp')} />
       </View>
     </View>
   )
 }
+
+// Reusable InputField component
+const InputField = ({ label, icon, value, onChange, secureTextEntry = false }) => (
+  <View style={styles.verticallySpaced}>
+    <Input
+      label={label}
+      leftIcon={{ type: 'font-awesome', name: icon }}
+      onChangeText={onChange}
+      value={value}
+      placeholder={`${label}@address.com`}
+      autoCapitalize="none"
+      secureTextEntry={secureTextEntry}
+    />
+  </View>
+)
 
 const styles = StyleSheet.create({
   container: {
@@ -85,7 +102,10 @@ const styles = StyleSheet.create({
     paddingBottom: 4,
     alignSelf: 'stretch',
   },
-  mt20: {
-    marginTop: 20,
+  buttonContainer: {
+    marginTop: 16,
+    gap:16
   },
 })
+
+export default Auth
