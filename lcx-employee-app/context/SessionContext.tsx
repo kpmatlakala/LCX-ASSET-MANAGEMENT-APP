@@ -40,7 +40,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  console.log(session);
+  // console.log(session);
   
 
   return (

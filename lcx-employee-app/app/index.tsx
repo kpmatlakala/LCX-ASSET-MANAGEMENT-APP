@@ -1,33 +1,48 @@
-import { useEffect, useState } from 'react';
-import { useRouter } from 'expo-router';
-import { useSession } from '@/context/SessionContext';
-import { ActivityIndicator, View } from 'react-native';
+import { useEffect, useState } from "react";
+import { View, ActivityIndicator } from "react-native";
+import { useRouter } from "expo-router";
+import { supabase } from "../lib/supabase";
 
 export default function Index() {
   const router = useRouter();
-  const { session } = useSession();  // Get the session from context
-  const [loading, setLoading] = useState(true);  // Loading state
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Avoid navigating before session state is available
-    if (session === undefined) return;
+    // Check session on mount
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) 
+      {
+        router.push("/(app)/Profile"); // Redirect if logged in
+      } else {
+        router.push("/(auth)/Auth"); // Redirect to login page
+      }
+      setLoading(false);
+    };
 
-    if (session) {
-      router.replace('/(app)/Dashboard'); // Redirect to Dashboard if user is logged in
-    } else {
-      router.replace('/(auth)/Auth'); // Redirect to Auth if no session
-    }
+    checkSession();
 
-    setLoading(false); // Hide loading state after checking session
-  }, [session, router]);
+    // Listen for auth state changes
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        router.push("/(app)/Profile"); // Redirect after login
+      } else {
+        router.push("/(auth)/Auth"); // Redirect after logout
+      }
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe(); // Cleanup listener
+    };
+  }, []);
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="black" />
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" />
       </View>
     );
   }
 
-  return null; // This screen should not render anything directly
+  return null; // No UI needed, only navigation logic
 }

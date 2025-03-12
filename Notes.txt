@@ -14,10 +14,29 @@
 
 ->
 	** Employee(Requester) App (React.Native with Expo) **
-
+	Employee-Managed Personal & General Info (Editable on First Login)
+	*These fields are empty initially and must be updated on first login:
+		phone_number (TEXT) – Contact for notifications
+		address (TEXT) – Home address (for tracking assigned assets)
+		profile_picture (TEXT) – URL (optional)
+		emergency_contact_name (TEXT) – Who to call in case of emergency
+		emergency_contact_phone (TEXT) – Emergency contact number
+		preferred_language (TEXT) – UI & notifications language
+		notification_preferences (JSON) – Email/SMS/push settings
 
 
 	** Admins and Management: React/Next.js Application with Role-based Routing **
+	Admin-Managed Employment Info (Set on Registration)
+	*These fields should be pre-filled when the admin registers an employee.
+		id (UUID) – Auto-linked to Supabase Auth
+		email (TEXT) – Login credential
+		employee_id (TEXT, Unique) – Official company employee number
+		full_name (TEXT) – Legal name
+		department (TEXT) – E.g., IT, HR, Operations
+		position (TEXT) – Job role/title
+		office_location (TEXT) – Physical workplace
+		date_joined (DATE) – When they started
+		employment_status (TEXT) – (Active, Resigned, On Leave, etc.)
 
 
 

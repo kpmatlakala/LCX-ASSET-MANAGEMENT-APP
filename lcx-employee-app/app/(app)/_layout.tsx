@@ -11,14 +11,14 @@ export default function DrawerLayout() {
           name="Dashboard"
           options={{ title: "📰 Dashboard" }}
         />
-        {/* <Drawer.Screen
-          name="Account"
-          options={{ title: "👤 Profile" }}
-        /> */}
         <Drawer.Screen
+          name="Profile"
+          options={{ title: "👤 Profile" }}
+        />
+        {/* <Drawer.Screen
           name="Settings"
           options={{ title: "⚙️ Settings" }}
-        />
+        /> */}
         
       </Drawer>
     </GestureHandlerRootView>
