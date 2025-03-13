@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { SafeAreaView } from "react-native-safe-area-context";
-import { AppState, Alert, Text, View, Image, ScrollView } from 'react-native';
+import { AppState, Alert, Text, View, Image, ScrollView, StatusBar } from 'react-native';
 import { supabase } from '../../lib/supabase';
 
 import { images } from "@/constants";
@@ -77,6 +77,7 @@ const Auth = () => {
 
   return (
     <SafeAreaView className="bg-[#f5f8dc] flex-1">
+      <StatusBar backgroundColor="#f5f8dc" barStyle="dark-content" />
       <ScrollView>
         <View className="flex-1 px-6 py-8 bg-white rounded-3xl mx-4 my-4 relative min-h-[85vh]">
           <View className="items-center">
