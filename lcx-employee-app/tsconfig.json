@@ -12,6 +12,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts"
-  ]
+    "expo-env.d.ts",
+    "nativewind-env.d.ts"
+, "components/FormField.tsx", "components/CustomButton.tsx", "tailwind.config.js", "metro.config.js", "babel.config.js"  ]
 }

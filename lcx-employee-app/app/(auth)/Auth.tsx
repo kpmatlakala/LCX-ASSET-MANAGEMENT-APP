@@ -1,7 +1,12 @@
-import React, { useState, useCallback } from 'react'
-import { Alert, StyleSheet, View, AppState } from 'react-native'
-import { supabase } from '../../lib/supabase'
-import { Button, Input } from '@rneui/themed'
+import React, { useState, useCallback } from 'react';
+import { SafeAreaView } from "react-native-safe-area-context";
+import { AppState, Alert, Text, View, Image, ScrollView } from 'react-native';
+import { supabase } from '../../lib/supabase';
+
+import { images } from "@/constants";
+import FormField from "@/components/FormField";
+import CustomButton from "@/components/CustomButton";
+import { Link, router } from 'expo-router';
 
 // Automatically refresh the session if the app is in the foreground
 AppState.addEventListener('change', (state) => {
@@ -25,17 +30,23 @@ const Auth = () => {
       let response;
       let errorMessage = '';
 
-      if (action === 'signIn') {
+      if (action === 'signIn') 
+      {
         const { error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) errorMessage = error.message
-      } else if (action === 'signUp') {
+      } 
+      else if (action === 'signUp') 
+      {
         const { data: { user, session }, error } = await supabase.auth.signUp({ email, password })
         
-        if (error) {
+        if (error) 
+        {
           errorMessage = error.message
-        } else if (user) {
+        } 
+        else if (user) 
+        {
           // Insert user data into the 'users' table
-          const { error: dbError } = await supabase.from('users').insert([
+          const { error: dbError } = await supabase.from('employees').insert([
             {
               userId: user.id,
               email: user.email,
@@ -65,19 +76,73 @@ const Auth = () => {
   )
 
   return (
-    <View style={styles.container}>
-      <InputField label="Email" icon="envelope" value={email} onChange={setEmail} />
-      <InputField label="Password" icon="lock" value={password} onChange={setPassword} secureTextEntry />
+    <SafeAreaView className="bg-[#f5f8dc] flex-1">
+      <ScrollView>
+        <View className="flex-1 px-6 py-8 bg-white rounded-3xl mx-4 my-4 relative min-h-[85vh]">
+          <View className="items-center">
+            <Image
+              source={images.Logo}
+              resizeMode="contain"
+              className="w-[170px] h-[80px] mb-8"
+            />
+          </View>
+          
+          <Text className="text-2xl font-semibold text-headings mb-1">Welcome Back</Text>
+          <Text className="text-base font-semibold text-texts mb-8">Sign in to continue</Text>
 
-      <View style={styles.buttonContainer}>
-        <Button title="Sign in" disabled={loading} onPress={() => handleAuth('signIn')} />
-        <Button title="Sign up" disabled={loading} onPress={() => handleAuth('signUp')} />
-      </View>
-    </View>
+          <FormField
+            title="Email"
+            value={email}
+            handleChangeText={setEmail}
+            otherStyles="mb-5"
+            placeholder="Enter your email"
+            keyboardType="email-address"
+          />
+          
+          <FormField
+            title="Password"
+            value={password}
+            handleChangeText={setPassword}
+            otherStyles="mb-2"
+            placeholder="Enter your password"
+            isPassword={true}
+          />
+          
+          <Text 
+            className="text-right text-primary font-semibold mb-6"
+            onPress={() => router.push("/forgot-password")}
+          >
+            Forgot Password
+          </Text>
+
+          <CustomButton
+            title="Continue"
+            handlePress={() => handleAuth('signIn')}
+            containerStyles="mb-6"
+            isLoading={loading}
+          />
+
+          {/* <View className="flex-row justify-center mb-10">
+            <Text className="text-texts font-semibold">Don't have an account? </Text>
+            <Link href="/signup" asChild>
+              <Text className="font-semibold text-primary">Sign Up</Text>
+            </Link>
+          </View> */}
+
+          <CustomButton
+            title="Signup"
+            handlePress={() => handleAuth('signUp')}
+            containerStyles="mb-6"            
+            isLoading={loading}
+          />
+          
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+    
   )
 }
 
-// Reusable InputField component
 const InputField = ({ label, icon, value, onChange, secureTextEntry = false }) => (
   <View style={styles.verticallySpaced}>
     <Input
@@ -91,21 +156,5 @@ const InputField = ({ label, icon, value, onChange, secureTextEntry = false }) =
     />
   </View>
 )
-
-const styles = StyleSheet.create({
-  container: {
-    marginTop: 40,
-    padding: 12,
-  },
-  verticallySpaced: {
-    paddingTop: 4,
-    paddingBottom: 4,
-    alignSelf: 'stretch',
-  },
-  buttonContainer: {
-    marginTop: 16,
-    gap:16
-  },
-})
 
 export default Auth

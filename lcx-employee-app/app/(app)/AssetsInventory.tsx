@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, ScrollView, SafeAreaView, StatusBar, TouchableOpacity, Image, TextInput } from 'react-native';
 import { Ionicons, Feather, MaterialIcons, AntDesign } from '@expo/vector-icons';
 
+import { images } from "@/constants";
+
 export default function AssetInventoryScreen() {
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = 4;
@@ -139,9 +141,9 @@ export default function AssetInventoryScreen() {
         
         <View style={styles.logo}>
           <Image 
-            source={require('@/assets/images/lcx-logo.png')} 
+            source={images.Logo}
             style={styles.logoImage}
-            defaultSource={require('@/assets/images/placeholder.png')}
+            // defaultSource={require('@/assets/images/placeholder.png')}
           />
         </View>
         
