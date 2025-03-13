@@ -37,7 +37,7 @@ const signin = () => {
             <Image
               source={images.Logo}
               resizeMode="contain"
-              className="w-[170px] h-[80px] mb-8"
+              className="w-[170px] h-[100px] mb-8"
             />
           </View>
           
@@ -71,9 +71,10 @@ const signin = () => {
 
           <CustomButton
             title="Continue"
-            handlePress={submit}
+            handlePress={() => {
+              router.push("/RequestAsset");
+            }}
             containerStyles="mb-6"
-            className={`bg-black`}
             isLoading={isSubmitting}
           />
 

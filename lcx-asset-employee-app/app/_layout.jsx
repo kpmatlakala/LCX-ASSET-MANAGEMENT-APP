@@ -29,6 +29,8 @@ const _Rootlayout = () => {
     <Stack>
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+      <Stack.Screen name="RequestAsset" options={{headerShown: false}}/>
+      <Stack.Screen name="ReturnForm" options={{headerShown: false}} />
     </Stack>
   );
 };
