@@ -14,5 +14,5 @@
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
     "nativewind-env.d.ts"
-, "components/FormField.tsx", "components/CustomButton.tsx", "tailwind.config.js", "metro.config.js", "babel.config.js"  ]
+, "components/FormField.tsx", "components/CustomButton.tsx", "tailwind.config.js", "metro.config.js", "babel.config.js", "../_/_RequestAsset.tsx", "../_/_Account.tsx"  ]
 }
