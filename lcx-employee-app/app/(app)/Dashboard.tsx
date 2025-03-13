@@ -1,15 +1,22 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, SafeAreaView, StatusBar, Image } from 'react-native';
 import { FontAwesome5, Ionicons } from '@expo/vector-icons';
+import { useAssets } from '@/context/AssetContext';
 
 export default function AssetManagementDashboard() {
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const { assets, fetchAssets } = useAssets();
+  const [filteredAssets, setFilteredAssets] = useState([]);
+
+  useEffect(() => {
+    setFilteredAssets(assets); // Update when assets change
+  }, [assets])
 
   // Demo data
-  const assets = [
-    { id: 'MBP2023-001', name: 'MacBook Pro', category: 'Laptops', status: 'Available' },
-    { id: 'IP14-023', name: 'iPhone 14', category: 'Phones', status: 'Available' },
-  ];
+  // const assets = [
+  //   { id: 'MBP2023-001', name: 'MacBook Pro', category: 'Laptops', status: 'Available' },
+  //   { id: 'IP14-023', name: 'iPhone 14', category: 'Phones', status: 'Available' },
+  // ];
 
   const notifications = [
     { 
@@ -21,9 +28,9 @@ export default function AssetManagementDashboard() {
     }
   ];
 
-  const filteredAssets = selectedCategory === 'All' 
-    ? assets 
-    : assets.filter(asset => asset.category === selectedCategory);
+  // const filteredAssets = selectedCategory === 'All' 
+  //   ? assets 
+  //   : assets.filter(asset => asset.asset_category === selectedCategory);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -56,7 +63,7 @@ export default function AssetManagementDashboard() {
             <FontAwesome5 name="box" size={24} color="#b0c652" />
             <Text style={styles.statLabel}>Total Assets</Text>
           </View>
-          <Text style={styles.statValue}>3</Text>
+          <Text style={styles.statValue}>{assets.length}</Text>
         </View>
         
         <View style={styles.statCard}>
@@ -104,10 +111,10 @@ export default function AssetManagementDashboard() {
       {/* Asset List */}
       <ScrollView style={styles.assetListContainer}>
         {filteredAssets.map(asset => (
-          <View key={asset.id} style={styles.assetCard}>
+          <View key={asset.asset_id} style={styles.assetCard}>
             <View>
-              <Text style={styles.assetName}>{asset.name}</Text>
-              <Text style={styles.assetId}>{asset.id}</Text>
+              <Text style={styles.assetName}>{asset.asset_name}</Text>
+              <Text style={styles.assetId}>{asset.asset_category}</Text>
             </View>
             <View>
               <Text style={styles.assetStatus}>{asset.status}</Text>
