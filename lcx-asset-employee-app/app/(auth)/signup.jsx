@@ -47,7 +47,7 @@ const signup = () => {
             <Image
               source={images.Logo}
               resizeMode="contain"
-              className="w-[170px] h-[80px] mb-6"
+              className="w-[170px] h-[100px] mb-6"
             />
           </View>
           
