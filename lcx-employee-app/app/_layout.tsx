@@ -33,6 +33,7 @@ export default function RootLayout() {
         <Stack.Screen name="(auth)/Auth" options={{ headerShown: false }} />
         <Stack.Screen name="(onboarding)/onboarding" options={{ headerShown: false }} />
         <Stack.Screen name="(app)/Dashboard" options={{ headerShown: false }} />
+        <Stack.Screen name="details" options={{ headerShown: false }} /> {/* Entry point */}
       </Stack>
     // </SessionProvider>
   );

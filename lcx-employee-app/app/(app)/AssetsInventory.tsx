@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, ScrollView, SafeAreaView, StatusBar, TouchableO
 import { Ionicons, Feather, MaterialIcons, AntDesign } from '@expo/vector-icons';
 
 import { images } from "@/constants";
+import { router, useRouter } from 'expo-router';
 
 export default function AssetInventoryScreen() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -110,6 +111,8 @@ export default function AssetInventoryScreen() {
   const handleAssetReview = (assetId) => {
     // Implementation would go here
     console.log(`Reviewing asset ${assetId}`);
+
+    router.push("/details");
   };
 
   // Handle check availability
