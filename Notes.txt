@@ -81,10 +81,10 @@ CREATE TABLE assets (
 );
 
 
--- Asset requests table to track all requests
+`-- Asset requests table to track all requests
 CREATE TABLE asset_requests (
     request_id SERIAL PRIMARY KEY,
-    employee_id INTEGER NOT NULL REFERENCES employees(employee_id),
+    employee_id TEXT NOT NULL REFERENCES employees(employee_id),
     asset_id INTEGER NOT NULL REFERENCES assets(asset_id),
     request_date TIMESTAMPTZ DEFAULT NOW(),
     purpose TEXT NOT NULL,
@@ -98,7 +98,7 @@ CREATE TABLE asset_requests (
     return_condition TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
-);
+);`
 
 -- Asset assignments table to track current and historical assignments
 CREATE TABLE asset_movement (

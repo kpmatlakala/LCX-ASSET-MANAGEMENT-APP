@@ -45,16 +45,24 @@ const Auth = () => {
         } 
         else if (user) 
         {
-          // Insert user data into the 'users' table
+          // Generate a unique employee ID (you might want to customize this)
+          const employeeId = `EMP-${Math.floor(100000 + Math.random() * 900000)}`;
+          
+          // Insert user data into the 'employees' table
           const { error: dbError } = await supabase.from('employees').insert([
             {
-              userId: user.id,
+              id: user.id,                       // References auth.users(id)
               email: user.email,
-              first_name: '',
-              last_name: '',
-              phone: '',
-              role: 'employee', // Default role
-              created_at: new Date().toISOString(),
+              employee_id: employeeId,           // Unique employee ID
+              full_name: '',                     // To be filled later
+              department: '',                    // Required field - placeholder
+              position: '',                      // Required field - placeholder
+              office_location: '',               // Required field - placeholder
+              date_joined: new Date().toISOString().split('T')[0], // Current date in YYYY-MM-DD format
+              employment_status: 'Active',    // Default status
+              
+              // Employee-managed fields are left empty as they'll be updated on first login
+              // System fields will use their default values
             },
           ])
 
