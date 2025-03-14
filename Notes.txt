@@ -14,12 +14,13 @@
 
 ->
 	** Employee(Requester) App (React.Native with Expo) **
-	Note: 	we disable email confirmation <- Auth
-		Row_Level-Security <- Table	
+	Note: 
+		- we disable email confirmation <- Auth
+		- Row-Level-Security <- Table	
 
 
 -- Employees table to store employee information
--- First, create a more comprehensive employees table
+-- First, create a more comprehensive employees table *
 CREATE TABLE employees (
     -- Admin-managed fields (set during registration)
     id UUID PRIMARY KEY REFERENCES auth.users(id),
@@ -47,7 +48,7 @@ CREATE TABLE employees (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Create a table for user roles
+-- Create a table for user roles --
 CREATE TABLE user_roles (
     id SERIAL PRIMARY KEY,
     user_id UUID REFERENCES auth.users(id),
@@ -56,7 +57,7 @@ CREATE TABLE user_roles (
     UNIQUE(user_id, role)
 );
 
--- Assets table to store all company assets
+-- Assets table to store all company assets *
 CREATE TABLE assets (
     asset_id SERIAL PRIMARY KEY,
     asset_name TEXT NOT NULL,
@@ -81,7 +82,7 @@ CREATE TABLE assets (
 );
 
 
-`-- Asset requests table to track all requests
+-- Asset requests table to track all requests *
 CREATE TABLE asset_requests (
     request_id SERIAL PRIMARY KEY,
     employee_id TEXT NOT NULL REFERENCES employees(employee_id),
@@ -128,7 +129,7 @@ CREATE TABLE approval_hierarchy (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Notifications table for system notifications
+-- Notifications table for system notifications *
 CREATE TABLE notifications (
     notification_id SERIAL PRIMARY KEY,
     employee_id INTEGER NOT NULL REFERENCES employees(employee_id),
@@ -138,7 +139,7 @@ CREATE TABLE notifications (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Maintenance records table for tracking asset maintenance
+-- Maintenance records table for tracking asset maintenance ------
 CREATE TABLE maintenance_records (
     maintenance_id SERIAL PRIMARY KEY,
     asset_id INTEGER NOT NULL REFERENCES assets(asset_id),
@@ -167,13 +168,32 @@ Additional Features:
 4. Historical Data: All tables include creation and update timestamps for audit trails.
 5. Flexible Approval Process: The system allows for different approval requirements based on department, asset type, and value.
 
-// <View style={styles.container}>
-    //   <InputField label="Email" icon="envelope" value={email} onChange={setEmail} />
-    //   <InputField label="Password" icon="lock" value={password} onChange={setPassword} secureTextEntry />
+*Notes
+- client | employee -> update 
+	- onboarding(from Tumi) |
+	- login screen(from Tumi) | 
+	- profile screen(from Eliot) | 
+	- include email verification on employee signin and submit assetrequest
+	- use a tab-navigation-layout instead of a drawer-navigation
+	- dashboard
+		{ 
+			- remove notification?!
+				[ try push notification | toaster alert notification ]
+			- --- add a calendar view for upcoming asset returns ---
+			- displaying assets from Server
+				- ability to perform action on selected asset.
+				- navigation: 	-> to selected Asset Details on action "Review"
+								-> to RequestAsset form on action "Request Asset"
+								-> to Assets/inventory screen on press "Show More Assets"
+		}
+	- notifications screen
+	- assets inventory screen
+	- request asset form/screen
+	- asset details screen
+	- pending assets | my assets
 
-    //   <View style={styles.buttonContainer}>
-    //     <Button title="Sign in" disabled={loading} onPress={() => handleAuth('signIn')} />
-    //     <Button title="Sign up" disabled={loading} onPress={() => handleAuth('signUp')} />
-    //   </View>
-    // </View>
-// Reusable InputField component
+	
+
+- admin | management system 
+	-> clone and merge with main (from frankie)
+	-> update

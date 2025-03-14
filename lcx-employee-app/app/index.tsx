@@ -12,11 +12,11 @@ export default function Index() {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) 
-      {
-        router.push("/(app)/Profile"); // Redirect if logged in
-      } else {
-        router.push("/(auth)/Auth"); // Redirect to login page
-      }
+      { // Redirect if logged in
+        router.push("/(app)/Profile"); 
+      } // Redirect to login page
+      else { router.push("/(auth)/Auth"); }
+      
       setLoading(false);
     };
 
@@ -24,16 +24,15 @@ export default function Index() {
 
     // Listen for auth state changes
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        router.push("/(app)/Profile"); // Redirect after login
-      } else {
-        router.push("/(auth)/Auth"); // Redirect after logout
-      }
+      if (session) 
+      { // Redirect after login
+        router.push("/(app)/Profile"); 
+      } // Redirect after logout
+      else { router.push("/(auth)/Auth"); }
     });
 
-    return () => {
-      authListener.subscription.unsubscribe(); // Cleanup listener
-    };
+    // Cleanup listener
+    return () => { authListener.subscription.unsubscribe(); };
   }, []);
 
   if (loading) {
