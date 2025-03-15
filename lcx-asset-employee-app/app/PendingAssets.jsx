@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   Text,
   View,
@@ -6,13 +7,12 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { images } from "../constants";
 import CustomButton from "../components/CustomButton";
 import { Feather } from "@expo/vector-icons";
-import { AddCircle, ArrowRight2, DirectInbox, Notification, User } from "iconsax-react-native";
+import { Notification, User, DirectInbox } from "iconsax-react-native";
 
 const PendingAssets = () => {
   const [pendingAssets, setPendingAssets] = useState([
@@ -39,6 +39,8 @@ const PendingAssets = () => {
     },
   ]);
 
+  const [selectedTab, setSelectedTab] = useState("All Requests");
+
   const getStatusColor = (status) => {
     switch (status) {
       case "Pending Approval":
@@ -51,6 +53,14 @@ const PendingAssets = () => {
         return "text-gray-600";
     }
   };
+
+  const filteredAssets = pendingAssets.filter((asset) => {
+    if (selectedTab === "All Requests") return true;
+    if (selectedTab === "Pending") return asset.status === "Pending Approval";
+    if (selectedTab === "Approved")
+      return asset.status === "Pending Collection";
+    return false;
+  });
 
   const renderAssetItem = ({ item }) => (
     <TouchableOpacity
@@ -75,7 +85,6 @@ const PendingAssets = () => {
             color="#666"
             className="mt-2"
           />
-          {/* <ArrowRight2 size="20" color="#666"/> */}
         </View>
       </View>
     </TouchableOpacity>
@@ -107,34 +116,67 @@ const PendingAssets = () => {
           {/* Page Title */}
           <View className="flex-row justify-between items-center mb-6">
             <Text className="text-xl font-bold">Pending Approvals</Text>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               className="flex-row items-center"
               onPress={() => router.push("/request-assets")}
             >
               <Text className="text-[#A9BE28] font-medium mr-1">
                 Request New
-              </Text>
+              // </Text>
               <Feather name="plus-circle" size={18} color="#A9BE28" />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
 
           {/* Filter Tabs */}
           <View className="flex-row mb-6">
-            <TouchableOpacity className="mr-4 pb-2 border-b-2 border-black">
-              <Text className="text-base font-medium">All Requests</Text>
+            <TouchableOpacity
+              className={`mr-4 pb-2 ${
+                selectedTab === "All Requests" ? "border-b-2 border-black" : ""
+              }`}
+              onPress={() => setSelectedTab("All Requests")}
+            >
+              <Text
+                className={`text-base font-medium ${
+                  selectedTab === "All Requests" ? "text-black" : "text-texts"
+                }`}
+              >
+                All Requests
+              </Text>
             </TouchableOpacity>
-            <TouchableOpacity className="mr-4 pb-2">
-              <Text className="text-base text-texts">Pending</Text>
+            <TouchableOpacity
+              className={`mr-4 pb-2 ${
+                selectedTab === "Pending" ? "border-b-2 border-black" : ""
+              }`}
+              onPress={() => setSelectedTab("Pending")}
+            >
+              <Text
+                className={`text-base font-medium ${
+                  selectedTab === "Pending" ? "text-black" : "text-texts"
+                }`}
+              >
+                Pending
+              </Text>
             </TouchableOpacity>
-            <TouchableOpacity className="pb-2">
-              <Text className="text-base text-texts">Approved</Text>
+            <TouchableOpacity
+              className={`pb-2 ${
+                selectedTab === "Approved" ? "border-b-2 border-black" : ""
+              }`}
+              onPress={() => setSelectedTab("Approved")}
+            >
+              <Text
+                className={`text-base font-medium ${
+                  selectedTab === "Approved" ? "text-black" : "text-texts"
+                }`}
+              >
+                Approved
+              </Text>
             </TouchableOpacity>
           </View>
 
           {/* Pending Assets List */}
-          {pendingAssets.length > 0 ? (
+          {filteredAssets.length > 0 ? (
             <FlatList
-              data={pendingAssets}
+              data={filteredAssets}
               renderItem={renderAssetItem}
               keyExtractor={(item) => item.id}
               scrollEnabled={false}
@@ -143,7 +185,7 @@ const PendingAssets = () => {
             <View className="items-center justify-center py-12">
               <Feather name="inbox" size={56} color="#CCCCCC" />
               <DirectInbox size="32" color="#CCCCCC" />
-              <Text className="text-lg text-texts mt-4">No pending assets</Text>
+              <Text className="text-lg text-texts mt-4">No assets found</Text>
             </View>
           )}
 
