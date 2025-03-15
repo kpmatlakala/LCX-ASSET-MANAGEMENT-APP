@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { images } from "../constants";
 import CustomButton from "../components/CustomButton";
+import { Notification, TickCircle, User } from "iconsax-react-native";
 
 const ReturnForm = () => {
   const [assetCondition, setAssetCondition] = useState("Fair");
@@ -26,12 +27,23 @@ const ReturnForm = () => {
       <ScrollView>
         <View className="flex-1 px-6 py-8 bg-white rounded-3xl mx-4 my-4">
           {/* Header with Logo */}
-          <View className="items-center mb-8">
+          <View className="flex-row justify-between items-center pt-4 pb-6">
             <Image
               source={images.Logo}
               resizeMode="contain"
               className="w-[170px] h-[100px]"
             />
+            <View className="flex-row">
+              <TouchableOpacity className="mr-4 relative">
+                <Notification size="24" color="#4d4d4d" />
+                <View className="w-4 h-4 bg-red-500 rounded-full absolute -top-1 -right-1 items-center justify-center">
+                  <Text className="text-white text-xs font-bold">1</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <User size="24" color="#4d4d4d" />
+              </TouchableOpacity>
+            </View>
           </View>
 
           {/* Assets assigned section */}
@@ -55,9 +67,9 @@ const ReturnForm = () => {
                 className="flex-row items-center py-2"
                 onPress={() => setAssetCondition(condition)}
               >
-                <View className={`w-5 h-5 border rounded mr-3 items-center justify-center ${assetCondition === condition ? 'border-black' : 'border-texts'}`}>
+                <View className={`w-5 h-5 border rounded-full mr-3 items-center justify-center ${assetCondition === condition ? 'border-[#c6d567] bg-[#c6d567]' : 'border-texts'}`}>
                   {assetCondition === condition && (
-                    <View className="w-3 h-3 bg-black rounded-sm" />
+                    <TickCircle size="16" color="#fff" variant="Bold"/>
                   )}
                 </View>
                 <Text className="text-base">{condition}</Text>
@@ -83,7 +95,9 @@ const ReturnForm = () => {
           {/* Submit Button */}
           <CustomButton
             title="Submit"
-            handlePress={submitReturn}
+            handlePress={() => {
+              router.push("/Verify")
+            }}
             isLoading={isSubmitting}
           />
         </View>

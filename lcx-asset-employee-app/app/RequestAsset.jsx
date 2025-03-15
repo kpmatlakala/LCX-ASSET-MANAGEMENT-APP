@@ -59,13 +59,13 @@ const RequestAssets = () => {
             />
             <View className="flex-row">
               <TouchableOpacity className="mr-4 relative">
-                <Notification size="24" color="#333" />
+                <Notification size="24" color="#4d4d4d" />
                 <View className="w-4 h-4 bg-red-500 rounded-full absolute -top-1 -right-1 items-center justify-center">
                   <Text className="text-white text-xs font-bold">1</Text>
                 </View>
               </TouchableOpacity>
               <TouchableOpacity>
-                <User size="24" color="#333" />
+                <User size="24" color="#4d4d4d" />
               </TouchableOpacity>
             </View>
           </View>

@@ -8,11 +8,7 @@ import Svg, { Path } from "react-native-svg";
 
 const index = () => {
   return (
-    <SafeAreaView className="bg-white h-full">
-      <StatusBar
-        backgroundColor="#b8ca41"
-        barStyle="dark-content"
-      />
+    <SafeAreaView className="h-full">
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <Svg
           xmlns="http://www.w3.org/2000/svg"
@@ -44,6 +40,7 @@ const index = () => {
           />
         </View>
       </ScrollView>
+      <StatusBar backgroundColor="#b8ca41" barStyle="dark-content" />
     </SafeAreaView>
   );
 };

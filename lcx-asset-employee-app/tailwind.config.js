@@ -9,7 +9,9 @@ module.exports = {
         primary: "#b8ca41",
         headings: '#4d4d4d',
         texts: '#b3b3b3',
-        secondary: '#8e8d8e'
+        secondary: '#8e8d8e',
+        orange: '#D97706',
+        
       }
     },
   },
