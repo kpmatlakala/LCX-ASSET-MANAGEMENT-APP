@@ -31,8 +31,7 @@ const _Rootlayout = () => {
       <Stack.Screen name="(auth)" options={{ headerShown: false }} />
       <Stack.Screen name="RequestAsset" options={{headerShown: false}}/>
       <Stack.Screen name="ReturnForm" options={{headerShown: false}} />
-      <Stack.Screen name="Verify" options={{headerShown: false}} />
-      <Stack.Screen name="PendingAssets" options={{headerShown: false}}/>
+      <Stack.Screen name="Pending" options={{headerShown:false}} />
     </Stack>
   );
 };
