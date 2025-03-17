@@ -1,60 +1,61 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, SafeAreaView, StatusBar, Image } from 'react-native';
-import { FontAwesome5, Ionicons } from '@expo/vector-icons';
-import { useAssets } from '@/context/AssetContext';
+import React, { useEffect, useState } from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  ScrollView,
+  SafeAreaView,
+  StatusBar,
+  Modal,
+  Image,
+} from "react-native";
+import { FontAwesome5, Ionicons } from "@expo/vector-icons";
+import { useAssets } from "@/context/AssetContext";
 
 export default function AssetManagementDashboard() {
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const { assets, fetchAssets } = useAssets();
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const { assets } = useAssets();
   const [filteredAssets, setFilteredAssets] = useState([]);
-
-  useEffect(() => {
-    setFilteredAssets(assets); // Update when assets change
-  }, [assets])
-
-  // Demo data
-  // const assets = [
-  //   { id: 'MBP2023-001', name: 'MacBook Pro', category: 'Laptops', status: 'Available' },
-  //   { id: 'IP14-023', name: 'iPhone 14', category: 'Phones', status: 'Available' },
-  // ];
+  const [isModalVisible, setModalVisible] = useState(false); // State for modal visibility
 
   const notifications = [
-    { 
-      id: 1, 
-      title: 'Request Approved', 
-      message: 'Dell XPS 15 Laptop request approved',
-      subtext: 'Please wait Patiently for dispatch',
-      time: '10 minutes ago' 
-    }
+    {
+      id: 1,
+      title: "Request Approved",
+      message: "Dell XPS 15 Laptop request approved",
+      subtext: "Please wait patiently for dispatch",
+      time: "10 minutes ago",
+    },
+    {
+      id: 2,
+      title: "Request Pending",
+      message: "MacBook Pro request is pending approval",
+      subtext: "Please check back later",
+      time: "1 hour ago",
+    },
   ];
 
-  // const filteredAssets = selectedCategory === 'All' 
-  //   ? assets 
-  //   : assets.filter(asset => asset.asset_category === selectedCategory);
+  useEffect(() => {
+    // Automatically show the modal when the user signs in
+    setModalVisible(true);
+  }, []); // Empty dependency array ensures this runs only once when the component mounts
+
+  useEffect(() => {
+    setFilteredAssets(assets); // Update filtered assets when assets change
+  }, [assets]);
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor="#e8eac6" barStyle="dark-content" />
-      
-      {/* Header with Logo */}
-      {/* <View style={styles.header}>
-        <View style={styles.logo}>
-          <Image 
-            source={require('@/assets/images/lcx-logo.png')} 
-            style={styles.logoImage}
-            // Fallback if you don't have the actual logo
-            defaultSource={require('@/assets/images/placeholder.png')}
-          />
-        </View>        
-      </View> */}
 
       {/* Dashboard Title */}
       <Text style={styles.dashboardTitle}>Dashboard</Text>
 
       {/* Stats Cards - Now horizontally scrollable */}
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false} 
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
         style={styles.statsScrollContainer}
         contentContainerStyle={styles.statsContentContainer}
       >
@@ -65,7 +66,7 @@ export default function AssetManagementDashboard() {
           </View>
           <Text style={styles.statValue}>{assets.length}</Text>
         </View>
-        
+
         <View style={styles.statCard}>
           <View style={styles.statHeader}>
             <Ionicons name="time-outline" size={24} color="#b0c652" />
@@ -73,7 +74,7 @@ export default function AssetManagementDashboard() {
           </View>
           <Text style={styles.statValue}>1</Text>
         </View>
-        
+
         <View style={styles.statCard}>
           <View style={styles.statHeader}>
             <Ionicons name="time-outline" size={24} color="#b0c652" />
@@ -81,36 +82,40 @@ export default function AssetManagementDashboard() {
           </View>
           <Text style={styles.statValue}>1</Text>
         </View>
-
       </ScrollView>
 
       {/* Asset Categories */}
       <Text style={styles.sectionTitle}>Asset Categories</Text>
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false} 
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
         style={styles.categoriesContainer}
       >
-        {['All', 'Laptops', 'Phones', 'Other'].map(category => (
-          <TouchableOpacity 
+        {["All", "Laptops", "Phones", "Other"].map((category) => (
+          <TouchableOpacity
             key={category}
             style={[
               styles.categoryButton,
-              selectedCategory === category && styles.categoryButtonActive
+              selectedCategory === category && styles.categoryButtonActive,
             ]}
             onPress={() => setSelectedCategory(category)}
           >
-            <Text style={[
-              styles.categoryButtonText,
-              selectedCategory === category && styles.categoryButtonTextActive
-            ]}>{category}</Text>
+            <Text
+              style={[
+                styles.categoryButtonText,
+                selectedCategory === category &&
+                  styles.categoryButtonTextActive,
+              ]}
+            >
+              {category}
+            </Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
 
       {/* Asset List */}
       <ScrollView style={styles.assetListContainer}>
-        {filteredAssets.map(asset => (
+        {filteredAssets.map((asset) => (
           <View key={asset.asset_id} style={styles.assetCard}>
             <View>
               <Text style={styles.assetName}>{asset.asset_name}</Text>
@@ -121,26 +126,49 @@ export default function AssetManagementDashboard() {
             </View>
           </View>
         ))}
-        
+
         <TouchableOpacity style={styles.showMoreButton}>
           <Text style={styles.showMoreText}>Show More Assets</Text>
         </TouchableOpacity>
       </ScrollView>
 
-      {/* Notifications */}
-      <Text style={styles.sectionTitle}>Notifications</Text>
-      <ScrollView style={styles.notificationsContainer}>
-        {notifications.map(notification => (
-          <View key={notification.id} style={styles.notificationCard}>
-            <View>
-              <Text style={styles.notificationTitle}>{notification.title}</Text>
-              <Text style={styles.notificationMessage}>{notification.message}</Text>
-              <Text style={styles.notificationSubtext}>{notification.subtext}</Text>
-            </View>
-            <Text style={styles.notificationTime}>{notification.time}</Text>
+      {/* Notifications Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isModalVisible}
+        onRequestClose={() => setModalVisible(false)} // Close modal on back button press
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Recent Notifications</Text>
+            <ScrollView style={styles.notificationsContainer}>
+              {notifications.map((notification) => (
+                <View key={notification.id} style={styles.notificationCard}>
+                  <Text style={styles.notificationTitle}>
+                    {notification.title}
+                  </Text>
+                  <Text style={styles.notificationMessage}>
+                    {notification.message}
+                  </Text>
+                  <Text style={styles.notificationSubtext}>
+                    {notification.subtext}
+                  </Text>
+                  <Text style={styles.notificationTime}>
+                    {notification.time}
+                  </Text>
+                </View>
+              ))}
+            </ScrollView>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
           </View>
-        ))}
-      </ScrollView>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -148,113 +176,113 @@ export default function AssetManagementDashboard() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f7e8',
+    backgroundColor: "#f5f7e8",
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 8,    
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    padding: 16,
   },
   logo: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   logoImage: {
     width: 180,
     height: 80,
-    resizeMode: 'contain',
+    resizeMode: "contain",
   },
   notificationIcon: {
-    position: 'relative',
+    position: "relative",
   },
   badge: {
-    position: 'absolute',
-    right: 0,
-    top: 0,
-    backgroundColor: '#d13838',
+    position: "absolute",
+    right: -6,
+    top: -6,
+    backgroundColor: "#d13838",
     borderRadius: 12,
     width: 16,
     height: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     zIndex: 1,
   },
   badgeText: {
-    color: 'white',
-    fontSize: 8,
-    fontWeight: 'bold',
+    color: "white",
+    fontSize: 10,
+    fontWeight: "bold",
   },
   dashboardTitle: {
     fontSize: 21,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginHorizontal: 20,
-    marginTop: 8,
+    marginTop: 4,
   },
   statsScrollContainer: {
     marginTop: 8,
-    paddingVertical: 8
+    paddingVertical: 8,
   },
   statsContentContainer: {
     paddingHorizontal: 20,
   },
   statCard: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 10,
     padding: 12,
     paddingBottom: 25,
     width: 150,
-    height:86,
+    height: 86,
     marginRight: 15,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
   },
   statHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 16,
-    color: '#666',
+    color: "#666",
     marginLeft: 8,
   },
   statValue: {
     fontSize: 32,
-    fontWeight: 'bold',
-    color: '#0d1a31',
+    fontWeight: "bold",
+    color: "#0d1a31",
   },
   sectionTitle: {
     fontSize: 21,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginHorizontal: 20,
     marginTop: 8,
     marginBottom: 4,
   },
   categoriesContainer: {
-    paddingHorizontal: 15,    
+    paddingHorizontal: 15,
   },
   categoryButton: {
-    height:36,
+    height: 36,
     paddingHorizontal: 16,
     paddingVertical: 6,
     borderRadius: 25,
     marginHorizontal: 5,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
   },
   categoryButtonActive: {
-    backgroundColor: '#0d1a31',
+    backgroundColor: "#0d1a31",
   },
   categoryButtonText: {
     fontSize: 16,
-    color: '#666',
+    color: "#666",
   },
   categoryButtonTextActive: {
-    color: '#fff',
+    color: "#fff",
   },
   assetListContainer: {
     marginHorizontal: 20,
@@ -263,14 +291,14 @@ const styles = StyleSheet.create({
     // backgroundColor:'#000',
   },
   assetCard: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 10,
     padding: 15,
     marginBottom: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    shadowColor: '#000',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
@@ -278,40 +306,38 @@ const styles = StyleSheet.create({
   },
   assetName: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   assetId: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
     marginTop: 4,
   },
   assetStatus: {
-    color: '#5eb354',
+    color: "#5eb354",
   },
-  showMoreButton: {    
+  showMoreButton: {
     padding: 8,
-    alignItems: 'center',
-    backgroundColor: 'lightgray',
+    alignItems: "center",
+    backgroundColor: "lightgray",
     borderTopWidth: 1,
-    borderTopColor: '#eee',
+    borderTopColor: "#eee",
     borderBottomLeftRadius: 18,
-    borderBottomRightRadius: 18
+    borderBottomRightRadius: 18,
   },
   showMoreText: {
     fontSize: 16,
-    color: '#333',
+    color: "#333",
   },
   notificationsContainer: {
-    marginHorizontal: 20,
-    marginTop: 8,
-    marginBottom: 8,
+    maxHeight: 300,
   },
   notificationCard: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 15,
+    backgroundColor: "#f9f9f9",
+    borderRadius: 8,
+    padding: 10,
     marginBottom: 10,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
@@ -319,22 +345,56 @@ const styles = StyleSheet.create({
   },
   notificationTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   notificationMessage: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
     marginTop: 4,
   },
   notificationSubtext: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: 12,
+    color: "#999",
     marginTop: 2,
   },
   notificationTime: {
     fontSize: 12,
-    color: '#999',
+    color: "#999",
     marginTop: 8,
-    alignSelf: 'flex-end',
+    alignSelf: "flex-end",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    width: "90%",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  closeButton: {
+    marginTop: 10,
+    backgroundColor: "#d13838",
+    padding: 10,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  closeButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
