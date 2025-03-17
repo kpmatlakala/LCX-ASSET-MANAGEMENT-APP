@@ -3,6 +3,12 @@ import { supabase } from "@/lib/supabase";
 import { Session } from "@supabase/supabase-js";
 
 interface Asset {
+  asset_type: any;
+  location: ReactNode;
+  condition: ReactNode;
+  updated_at: ReactNode;
+  asset_category: any;
+  asset_sn: any;
   asset_id: number;
   asset_code: string;
   asset_name: string;
