@@ -131,29 +131,7 @@ export default function AssetInventoryScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar backgroundColor="#e8eac6" barStyle="dark-content" />
-      
-      {/* Header with Menu, Logo and Profile */}
-      <View style={styles.header}>
-        {/* <TouchableOpacity>
-          <Feather name="menu" size={28} color="#333" />
-        </TouchableOpacity> */}
-        
-        <View style={styles.logo}>
-          <Image 
-            source={images.Logo}
-            style={styles.logoImage}
-            // defaultSource={require('@/assets/images/placeholder.png')}
-          />
-        </View>
-        
-        {/* <View style={styles.notificationIcon}>
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>3</Text>
-          </View>
-          <Ionicons name="person-circle-outline" size={32} color="#333" />
-        </View> */}
-      </View>
+      <StatusBar backgroundColor="#fff" barStyle="dark-content" />
 
       {/* Assets Inventory section title */}
       <View style={styles.inventoryHeader}>
@@ -367,7 +345,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#e8eac6',
+    backgroundColor: '#fff',
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
   },

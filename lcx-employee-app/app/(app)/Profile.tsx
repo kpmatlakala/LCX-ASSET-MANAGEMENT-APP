@@ -286,7 +286,7 @@ const Profile = () => {
           emergency_contact_name: emergencyContactName,
           emergency_contact_phone: emergencyContactPhone,
           preferred_language: preferredLanguage,
-          is_first_login: false, 
+          is_first_login: false,
           updated_at: new Date().toISOString(),
         })
         .eq("id", user.id);
@@ -361,11 +361,8 @@ const Profile = () => {
     >
       <SafeAreaView style={styles.safeArea}>
         <ScrollView style={styles.scrollView}>
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>Employee Profile</Text>
-          </View>
-
           <View style={styles.profileContainer}>
+            {/* Avatar Section */}
             <View style={styles.avatarContainer}>
               <TouchableOpacity
                 onPress={handleProfilePictureOptions}
@@ -396,11 +393,10 @@ const Profile = () => {
                   </View>
                 )}
               </TouchableOpacity>
-              <Text style={styles.userName}>{fullName}</Text>
-              <View style={styles.roleBadge}>
-                <Text style={styles.roleText}>{position}</Text>
-              </View>
             </View>
+
+            {/* Move Employee Profile Title Here */}
+            <Text style={styles.headerTitle}>Employee Profile</Text>
 
             {/* Company Information - Read-only */}
             <View style={styles.formContainer}>
@@ -511,7 +507,7 @@ const Profile = () => {
                 value={phoneNumber}
                 onChangeText={(text) => {
                   // Basic phone formatting
-                  const cleaned = text.replace(/[^0-9]/g, ""); 
+                  const cleaned = text.replace(/[^0-9]/g, "");
                   let formatted = cleaned;
 
                   if (cleaned.length > 0) {
@@ -661,7 +657,7 @@ const styles = StyleSheet.create({
   backgroundImage: {
     flex: 1,
     width: "100%",
-    backgroundColor: "#f5f7e8", 
+    backgroundColor: "#fff",
   },
   safeArea: {
     flex: 1,
@@ -673,7 +669,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f5f7e8", 
+    backgroundColor: "#fff",
   },
   header: {
     flexDirection: "row",
@@ -686,9 +682,9 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     color: "#333",
-  },
-  signOutButton: {
-    padding: 8,
+    textAlign: "center",
+    marginTop: 20, 
+    marginBottom: 40, 
   },
   profileContainer: {
     flex: 1,
@@ -704,7 +700,7 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50, // Makes the avatar round
-    backgroundColor: "#b8ca41", // Updated background color
+    backgroundColor: "#b8ca41", // Changed from green to light gray
     justifyContent: "center",
     alignItems: "center",
   },
@@ -715,7 +711,7 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: "#b8ca41", // Match avatar background
+    backgroundColor: "#f5f7e8",
     justifyContent: "center",
     alignItems: "center",
   },

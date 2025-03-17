@@ -10,7 +10,8 @@ import {
   Modal,
   Image,
 } from "react-native";
-import { FontAwesome5, Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { Box, Clock, Danger } from "iconsax-react-native";
 import { useAssets } from "@/context/AssetContext";
 
 export default function AssetManagementDashboard() {
@@ -52,36 +53,63 @@ export default function AssetManagementDashboard() {
       {/* Dashboard Title */}
       <Text style={styles.dashboardTitle}>Dashboard</Text>
 
-      {/* Stats Cards - Now horizontally scrollable */}
+      {/* Enhanced Stats Cards - Now with gradients */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         style={styles.statsScrollContainer}
         contentContainerStyle={styles.statsContentContainer}
       >
-        <View style={styles.statCard}>
-          <View style={styles.statHeader}>
-            <FontAwesome5 name="box" size={24} color="#b0c652" />
-            <Text style={styles.statLabel}>Total Assets</Text>
-          </View>
-          <Text style={styles.statValue}>{assets.length}</Text>
-        </View>
+        <TouchableOpacity activeOpacity={0.9}>
+          <LinearGradient
+            colors={["#b8ca41", "#a6b83d"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.statCardGradient}
+          >
+            <View style={styles.statIconContainer}>
+              <Box size={24} color="white" variant="Bold" />
+            </View>
+            <View style={styles.statContent}>
+              <Text style={styles.statValue}>{assets.length}</Text>
+              <Text style={styles.statLabel}>Total Assets</Text>
+            </View>
+          </LinearGradient>
+        </TouchableOpacity>
 
-        <View style={styles.statCard}>
-          <View style={styles.statHeader}>
-            <Ionicons name="time-outline" size={24} color="#b0c652" />
-            <Text style={styles.statLabel}>Pending</Text>
-          </View>
-          <Text style={styles.statValue}>1</Text>
-        </View>
+        <TouchableOpacity activeOpacity={0.9}>
+          <LinearGradient
+            colors={["#FF6B6B", "#ee5a5a"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.statCardGradient}
+          >
+            <View style={styles.statIconContainer}>
+              <Clock size={24} color="white" variant="Bold" />
+            </View>
+            <View style={styles.statContent}>
+              <Text style={styles.statValue}>1</Text>
+              <Text style={styles.statLabel}>Pending</Text>
+            </View>
+          </LinearGradient>
+        </TouchableOpacity>
 
-        <View style={styles.statCard}>
-          <View style={styles.statHeader}>
-            <Ionicons name="time-outline" size={24} color="#b0c652" />
-            <Text style={styles.statLabel}>Overdue</Text>
-          </View>
-          <Text style={styles.statValue}>1</Text>
-        </View>
+        <TouchableOpacity activeOpacity={0.9}>
+          <LinearGradient
+            colors={["#4a90e2", "#357dcb"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.statCardGradient}
+          >
+            <View style={styles.statIconContainer}>
+              <Danger size={24} color="white" variant="Bold" />
+            </View>
+            <View style={styles.statContent}>
+              <Text style={styles.statValue}>1</Text>
+              <Text style={styles.statLabel}>Overdue</Text>
+            </View>
+          </LinearGradient>
+        </TouchableOpacity>
       </ScrollView>
 
       {/* Asset Categories */}
@@ -246,13 +274,38 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontSize: 16,
-    color: "#666",
-    marginLeft: 8,
+    color: "#fff",
   },
   statValue: {
     fontSize: 32,
     fontWeight: "bold",
-    color: "#0d1a31",
+    color: "#fff",
+  },
+  statCardGradient: {
+    borderRadius: 10,
+    padding: 12,
+    width: 150,
+    height: 86,
+    marginRight: 15,
+    justifyContent: "space-between",
+    alignItems: "center",
+    flexDirection: "row",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  statIconContainer: {
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    borderRadius: 20,
+    padding: 8,
+    alignSelf: "flex-start",
+  },
+  statContent: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "flex-end",
   },
   sectionTitle: {
     fontSize: 21,
@@ -285,10 +338,9 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   assetListContainer: {
-    
     marginHorizontal: 20,
     marginTop: 4,
-    height:300,
+    height: 400,
     // backgroundColor:'#000',
   },
   assetCard: {
