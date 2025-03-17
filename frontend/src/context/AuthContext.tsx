@@ -49,8 +49,8 @@ export default function Authprovider({ children }: Children): ReactElement {
                 setCurrentUser(userData.data as unknown as User)
                 setIsAuthenticated(true);
 
-            } catch (error) {
-                console.log(error)
+            } catch (error: any) {
+                console.log(error.message)
             } finally {
                 setIsLoading(false);
             }

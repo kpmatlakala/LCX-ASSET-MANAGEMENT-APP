@@ -78,12 +78,66 @@ export default function useSupabaseDB() {
   const getAllAssets = async (): Promise<void | any> => {
     const { data, error } = await supabase.from("assets").select("*");
 
-    if(error) {
-        console.log(error);
-        return null
+    if (error) {
+      console.log(error);
+      return null;
     }
-    return data
+    return data;
   };
 
-  return { uploadAsset, isLoading, getAllAssets, assets, isFetchingAssets };
+  const getRequests = async (): Promise<void | any> => {
+    const { data: assetRequests, error: assetRequestsError } = await supabase
+      .from("asset_requests")
+      .select("*");
+
+    if (assetRequestsError) {
+      console.log(assetRequestsError);
+      return null;
+    }
+
+    const employeeIds = assetRequests.map(
+      (request: any) => request.employee_id
+    );
+    const { data: employees, error: employeesError } = await supabase
+      .from("employees")
+      .select("*")
+      .in("employee_id", employeeIds);
+
+    if (employeesError) {
+      console.log(employeesError);
+      return null;
+    }
+
+    const assetIds = assetRequests.map((request: any) => request.asset_id);
+    const { data: assets, error: assetsError } = await supabase
+      .from("assets")
+      .select("*")
+      .in("asset_id", assetIds);
+
+    if (assetsError) {
+      console.log(assetsError);
+      return null;
+    }
+
+    const requestsByEmployee = assetRequests.map((request: any) => {
+      const employee = employees.find((emp: any) => emp.employee_id === request.employee_id);
+      const asset = assets?.find((ast: any) => ast.asset_id === request.asset_id);
+      return {
+        ...request,
+        employee,
+        asset
+      };
+    });
+
+    return requestsByEmployee;
+  };
+
+  return {
+    uploadAsset,
+    isLoading,
+    getAllAssets,
+    assets,
+    isFetchingAssets,
+    getRequests,
+  };
 }

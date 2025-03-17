@@ -2,8 +2,12 @@ import { ReactElement } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Briefcase05Icon, DeliveryBox02Icon, GridViewIcon } from "@hugeicons/core-free-icons";
 import { Profile2User } from "iconsax-react";
+import { useLocation } from "react-router-dom";
 
 export default function SideBar(): ReactElement {
+
+    const { pathname } = useLocation();
+
     return (
         <aside className="border-r w-[18dvw] fixed top-0 bottom-0 left-0 bg-white">
             <div>
