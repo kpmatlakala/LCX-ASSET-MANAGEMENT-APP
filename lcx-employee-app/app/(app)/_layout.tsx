@@ -1,68 +1,40 @@
-// app.js (or App.tsx)
 import React from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Drawer } from "expo-router/drawer";
-import { Image, Pressable, Text, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { StyleSheet } from "react-native";
-import { Notification, User } from "iconsax-react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { Notification, User, Home2, ClipboardText, Note } from "iconsax-react-native";
+import { router } from "expo-router";
 
 export default function DrawerLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <Drawer>
+      <Drawer screenOptions={{drawerActiveBackgroundColor:"#f5f7e8", drawerInactiveBackgroundColor:"#fff"}}>
         <Drawer.Screen
           name="Dashboard"
           options={{
             title: "",
-            drawerLabel: "📰 Dashboard",
-            // headerStyle: { backgroundColor: '#e8eac6', },
-            headerStyle: { backgroundColor: "#4CAF50" },
-            headerTintColor: "#FFFFFF",
+            drawerLabel: () => (
+              <View style={styles.drawerLabel}>
+                <Home2 size="24" color="#000" />
+                <Text style={styles.drawerLabelText}>Dashboard</Text>
+              </View>
+            ),
+            headerStyle: { backgroundColor: "white", height: 100 },
+            headerTintColor: "#000",
             headerShadowVisible: false,
             headerRight: () => (
-              <View style={styles.header}>
-                {/* Header with Logo */}
-                {/* <View style={styles.header}>
-                  <View style={styles.logo}>
-                    <Image 
-                      source={require('@/assets/images/lcx-logo.png')} 
-                      style={styles.logoImage}
-                      // Fallback if you don't have the actual logo
-                      defaultSource={require('@/assets/images/placeholder.png')}
-                    />
-                  </View>        
-                </View> */}
-
-                <View style={styles.notificationIcon}>
-                  <View style={styles.badge}>
-                    <Text style={styles.badgeText}>3</Text>
+              <View style={styles.headerRight}>
+                <TouchableOpacity onPress={() => router.push("/Notifications")}>
+                  <View>
+                    <Notification size="24" color="#000" style={styles.iconSpacing} />
+                    <View style={styles.badge}>
+                      <Text style={styles.badgeText}>3</Text>
+                    </View>
                   </View>
-                  <Pressable
-                    style={{ marginRight: 10 }}
-                    onPress={() => {
-                      alert("pressed notification icon");
-                    }}
-                  >
-                    {/* <Ionicons name="notifications" size={24} color="white" /> */}
-                    <Notification size="24" color="#333" />
-                  </Pressable>
-                </View>
-
-                <View style={styles.notificationIcon}>
-                  <View style={styles.badge}>
-                    <Text style={styles.badgeText}>3</Text>
-                  </View>
-
-                  <Pressable
-                    style={{ marginRight: 10 }}
-                    onPress={() => { alert("pressed profile icon"); }}
-                  >
-                    {/* <Ionicons name="person-circle-outline" size={32} color="#333" /> */}
-                    <User size="24" color="#333" />
-                  </Pressable>
-                </View>
-
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => console.log("User clicked")}>
+                  <User size="24" color="#000" />
+                </TouchableOpacity>
               </View>
             ),
           }}
@@ -72,57 +44,30 @@ export default function DrawerLayout() {
           name="AssetsInventory"
           options={{
             title: "",
-            drawerLabel: "📦 Assets / Inventory",
-            // headerStyle: { backgroundColor: '#e8eac6', },
-            headerStyle: { backgroundColor: "#4CAF50" },
-            headerTintColor: "#FFFFFF",
-            headerShadowVisible: false,
-            headerRight: () => (
-              <View style={styles.header}>
-                {/* Header with Logo */}
-                {/* <View style={styles.header}>
-                  <View style={styles.logo}>
-                    <Image 
-                      source={require('@/assets/images/lcx-logo.png')} 
-                      style={styles.logoImage}
-                      // Fallback if you don't have the actual logo
-                      defaultSource={require('@/assets/images/placeholder.png')}
-                    />
-                  </View>        
-                </View> */}
-
-                <View style={styles.notificationIcon}>
-                  <View style={styles.badge}>
-                    <Text style={styles.badgeText}>3</Text>
-                  </View>
-                  <Pressable
-                    style={{ marginRight: 10 }}
-                    onPress={() => {
-                      alert("pressed notification icon");
-                    }}
-                  >
-                    {/* <Ionicons name="notifications" size={24} color="white" /> */}
-                    <Notification size="24" color="#333" />
-                  </Pressable>
-                </View>
-
-                <View style={styles.notificationIcon}>
-                  <View style={styles.badge}>
-                    <Text style={styles.badgeText}>3</Text>
-                  </View>
-                  <Pressable
-                    style={{ marginRight: 10 }}
-                    onPress={() => {
-                      alert("pressed profile icon");
-                    }}
-                  >
-                    {/* <Ionicons name="person-circle-outline" size={32} color="#333" /> */}
-                    <User size="24" color="#333" />
-                  </Pressable>
-                </View>
-
+            drawerLabel: () => (
+              <View style={styles.drawerLabel}>
+                <ClipboardText size="24" color="#000" />
+                <Text style={styles.drawerLabelText}>Assets / Inventory</Text>
               </View>
             ),
+            headerStyle: { backgroundColor: "white", height: 100 },
+            headerTintColor: "#000",
+            headerShadowVisible: false,
+            headerRight: () => (
+              <View style={styles.headerRight}>
+                <TouchableOpacity onPress={() => router.push("/(app)/Notifications")}>
+                  <View>
+                    <Notification size="24" color="#000" style={styles.iconSpacing} />
+                    <View style={styles.badge}>
+                      <Text style={styles.badgeText}>3</Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => console.log("User clicked")}>
+                  <User size="24" color="#000" />
+                </TouchableOpacity>
+              </View>
+            )
           }}
         />
 
@@ -130,163 +75,114 @@ export default function DrawerLayout() {
           name="RequestAsset"
           options={{
             title: "",
-            drawerLabel: "📦 Request Asset",
-            // headerStyle: { backgroundColor: '#e8eac6', },
-            headerStyle: { backgroundColor: "#4CAF50" },
-            headerTintColor: "#FFFFFF",
-            headerShadowVisible: false,
-            headerRight: () => (
-              <View style={styles.header}>
-                {/* Header with Logo */}
-                {/* <View style={styles.header}>
-                  <View style={styles.logo}>
-                    <Image 
-                      source={require('@/assets/images/lcx-logo.png')} 
-                      style={styles.logoImage}
-                      // Fallback if you don't have the actual logo
-                      defaultSource={require('@/assets/images/placeholder.png')}
-                    />
-                  </View>        
-                </View> */}
-
-                <View style={styles.notificationIcon}>
-                  <View style={styles.badge}>
-                    <Text style={styles.badgeText}>3</Text>
-                  </View>
-                  <Pressable style={{ marginRight: 10 }}
-                    onPress={()=> {alert("pressed notification icon")}}
-                  >
-                    {/* <Ionicons name="notifications" size={24} color="white" /> */}                    
-                   <Notification size="24" color="#333" />
-                  </Pressable>                  
-                </View>                
-
-                <View style={styles.notificationIcon}>
-                  <View style={styles.badge}>
-                    <Text style={styles.badgeText}>3</Text>
-                  </View>
-                  <Pressable style={{ marginRight: 10 }}
-                    onPress={()=> {alert("pressed profile icon")}}
-                  >
-                    {/* <Ionicons name="person-circle-outline" size={32} color="#333" /> */}
-                    <User size="24" color="#333" />
-                  </Pressable>                  
-                </View>     
-
+            drawerLabel: () => (
+              <View style={styles.drawerLabel}>
+                <Note size="24" color="#000" />
+                <Text style={styles.drawerLabelText}>Request Asset</Text>
               </View>
             ),
-          }}
-        />
-
-        <Drawer.Screen
-          name="PendingApprovals"
-          options={{
-            title: "",
-            drawerLabel: "📦 Pending Approvals",
-            // headerStyle: { backgroundColor: '#e8eac6', },
-            headerStyle: { backgroundColor: "#4CAF50" },
-            headerTintColor: "#FFFFFF",
+            headerStyle: { backgroundColor: "white", height: 100 },
+            headerTintColor: "#000",
             headerShadowVisible: false,
             headerRight: () => (
-              <View style={styles.header}>
-                {/* Header with Logo */}
-                {/* <View style={styles.header}>
-                  <View style={styles.logo}>
-                    <Image 
-                      source={require('@/assets/images/lcx-logo.png')} 
-                      style={styles.logoImage}
-                      // Fallback if you don't have the actual logo
-                      defaultSource={require('@/assets/images/placeholder.png')}
-                    />
-                  </View>        
-                </View> */}
-
-                <View style={styles.notificationIcon}>
-                  <View style={styles.badge}>
-                    <Text style={styles.badgeText}>3</Text>
+              <View style={styles.headerRight}>
+                <TouchableOpacity onPress={() => router.push("/Notifications")}>
+                  <View>
+                    <Notification size="24" color="#000" style={styles.iconSpacing} />
+                    <View style={styles.badge}>
+                      <Text style={styles.badgeText}>3</Text>
+                    </View>
                   </View>
-                  <Pressable style={{ marginRight: 10 }}
-                    onPress={()=> {alert("pressed notification icon")}}
-                  >
-                    {/* <Ionicons name="notifications" size={24} color="white" /> */}                    
-                   <Notification size="24" color="#333" />
-                  </Pressable>                  
-                </View>                
-
-                <View style={styles.notificationIcon}>
-                  <View style={styles.badge}>
-                    <Text style={styles.badgeText}>3</Text>
-                  </View>
-                  <Pressable style={{ marginRight: 10 }}
-                    onPress={()=> {alert("pressed profile icon")}}
-                  >
-                    {/* <Ionicons name="person-circle-outline" size={32} color="#333" /> */}
-                    <User size="24" color="#333" />
-                  </Pressable>                  
-                </View>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => console.log("User clicked")}>
+                  <User size="24" color="#000" />
+                </TouchableOpacity>
               </View>
-            ),
+            )
           }}
         />
 
         <Drawer.Screen
           name="Profile"
           options={{
-            title: "👤 Profile",
-            headerStyle: {
-              backgroundColor: "#4CAF50",
-            },
-            headerTintColor: "#FFFFFF",
+            title: "",
+            drawerLabel: () => (
+              <View style={styles.drawerLabel}>
+                <User size="24" color="#000" />
+                <Text style={styles.drawerLabelText}>Profile</Text>
+              </View>
+            ),
+            headerStyle: { backgroundColor: "white", height: 100 },
+            headerTintColor: "#000",
+            headerShadowVisible: false,
+            headerRight: () => (
+              <View style={styles.headerRight}>
+                <TouchableOpacity onPress={() => router.push("/Notifications")}>
+                  <View>
+                    <Notification size="24" color="#000" style={styles.iconSpacing} />
+                    <View style={styles.badge}>
+                      <Text style={styles.badgeText}>3</Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            )
           }}
         />
 
         <Drawer.Screen
           name="Notifications"
           options={{
-            title: "🔔 Notifications",
-            headerStyle: {
-              backgroundColor: "#4CAF50",
-            },
-            headerTintColor: "#FFFFFF",
+            title: "",
+            drawerLabel: () => (
+              <View style={styles.drawerLabel}>
+                <Notification size="24" color="#000" />
+                <Text style={styles.drawerLabelText}>Notifications</Text>
+              </View>
+            ),
+            headerStyle: { backgroundColor: "white", height: 100 },
+            headerTintColor: "#000",
+            headerShadowVisible: false,
+            headerRight: () => (
+              <View style={styles.headerRight}>
+                <TouchableOpacity onPress={() => console.log("User clicked")}>
+                  <User size="24" color="#000" />
+                </TouchableOpacity>
+              </View>
+            )
           }}
         />
-        {/* <Drawer.Screen
-          name="Settings"
-          options={{ title: "⚙️ Settings" }}
-        /> */}
       </Drawer>
     </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
-  header: {
+  drawerLabel: {
     flexDirection: "row",
     alignItems: "center",
-    paddingRight: 10,
   },
-  logo: {
+  drawerLabelText: {
+    marginLeft: 10,
+    fontSize: 16,
+    color: "#333",
+  },
+  headerRight: {
+    flexDirection: "row",
+    alignItems: "center",
     marginRight: 10,
   },
-  logoImage: {
-    width: 40,
-    height: 40,
-    resizeMode: "contain",
-  },
-  notificationIcon: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginLeft: 10,
+  iconSpacing: {
+    marginRight: 15,
   },
   badge: {
     position: "absolute",
     top: -5,
-    right: -5,
+    right:5,
     backgroundColor: "red",
     borderRadius: 10,
-    padding: 2,
-    minWidth: 20,
-    minHeight: 20,
+    width: 20,
+    height: 20,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -294,6 +190,5 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 12,
     fontWeight: "bold",
-    textAlign: "center",
   },
 });
