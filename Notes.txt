@@ -92,7 +92,7 @@ CREATE TABLE asset_requests (
     destination TEXT NOT NULL,
     expected_return_date DATE,
     status TEXT CHECK (status IN ('Pending', 'Approved', 'Rejected', 'Cancelled', 'Returned')) DEFAULT 'Pending',
-    approver_id INTEGER REFERENCES employees(employee_id),
+    approver_id TEXT REFERENCES employees(employee_id),
     approval_date TIMESTAMPTZ,
     rejection_reason TEXT,
     return_date TIMESTAMPTZ,
@@ -105,7 +105,7 @@ CREATE TABLE asset_requests (
 CREATE TABLE asset_movement (
     movement_id SERIAL PRIMARY KEY,
     asset_id INTEGER NOT NULL REFERENCES assets(asset_id),
-    employee_id INTEGER NOT NULL REFERENCES employees(employee_id),
+    employee_id TEXT NOT NULL REFERENCES employees(employee_id),
     request_id INTEGER NOT NULL REFERENCES asset_requests(request_id),
     assigned_date TIMESTAMPTZ DEFAULT NOW(),
     expected_return_date DATE,
@@ -132,7 +132,7 @@ CREATE TABLE approval_hierarchy (
 -- Notifications table for system notifications *
 CREATE TABLE notifications (
     notification_id SERIAL PRIMARY KEY,
-    employee_id INTEGER NOT NULL REFERENCES employees(employee_id),
+    employee_id TEXT NOT NULL REFERENCES employees(employee_id),
     request_id INTEGER REFERENCES asset_requests(request_id),
     message TEXT NOT NULL,
     is_read BOOLEAN DEFAULT FALSE,
