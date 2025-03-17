@@ -103,7 +103,7 @@ const RequestAssets = () => {
   };
 
   return (
-    <SafeAreaView className="bg-[#f5f8dc] flex-1">
+    <SafeAreaView className="bg-white flex-1">
       <ScrollView>
         <View className="flex-1 px-4 pb-8 bg-white rounded-3xl mx-4 my-4 relative">
           <View className="flex-row justify-center items-center pt-4 pb-6">

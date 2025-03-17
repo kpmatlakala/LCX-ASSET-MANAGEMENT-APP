@@ -176,7 +176,7 @@ export default function AssetManagementDashboard() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f7e8",
+    backgroundColor: "#fff",
   },
   header: {
     flexDirection: "row",
@@ -258,11 +258,11 @@ const styles = StyleSheet.create({
     fontSize: 21,
     fontWeight: "bold",
     marginHorizontal: 20,
-    marginTop: 8,
-    marginBottom: 4,
+    marginBottom: 8, // Reduced marginBottom to decrease spacing
   },
   categoriesContainer: {
     paddingHorizontal: 15,
+    marginTop: 0, // Optional: Adjust marginTop to fine-tune spacing
   },
   categoryButton: {
     height: 36,
@@ -285,9 +285,10 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   assetListContainer: {
+    
     marginHorizontal: 20,
     marginTop: 4,
-    height: 250,
+    height:300,
     // backgroundColor:'#000',
   },
   assetCard: {

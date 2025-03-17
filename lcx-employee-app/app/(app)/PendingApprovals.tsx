@@ -1,218 +1,198 @@
-import React from 'react';
+import React, { useState } from "react";
 import {
-  View,
   Text,
-  StyleSheet,
-  SafeAreaView,
-  Image,
-  ScrollView,
+  View,
+  FlatList,
   TouchableOpacity,
-} from 'react-native';
+  ScrollView,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { router } from "expo-router";
+import { Feather } from "@expo/vector-icons";
+import { Notification, User, DirectInbox } from "iconsax-react-native";
 
-const PendingApprovalsScreen = () => {
-  return (
-    <SafeAreaView style={styles.container}>
-      {/* Upper curved background */}
-      <View style={styles.upperCurve} />
-      
-      {/* Logo */}
-      <View style={styles.logoContainer}>
-        {/* 
-            <Image
-                source={require('./assets/limpopo-logo.png')}
-                style={styles.logo}
-                resizeMode="contain"
-            /> 
-        */}
-        <View style={styles.logoTextContainer}>
-          <Text style={styles.logoTextMain}>LIMPOPO</Text>
-          <Text style={styles.logoTextSub}>CONNEXION</Text>
-          <Text style={styles.tagline}>building a future knowledge society</Text>
+interface Asset {
+  id: string;
+  name: string;
+  code: string;
+  requestDate: string;
+  status: string;
+}
+
+const PendingApprovalsScreen: React.FC = () => {
+  const [pendingAssets, setPendingAssets] = useState<Asset[]>([
+    {
+      id: "1",
+      name: "MacBook Pro",
+      code: "MBP2023-001",
+      requestDate: "12 Mar 2025",
+      status: "Pending Approval",
+    },
+    {
+      id: "2",
+      name: "Dell XPS 15 Laptop",
+      code: "DXP2023-003",
+      requestDate: "10 Mar 2025",
+      status: "Processing",
+    },
+    {
+      id: "3",
+      name: 'iPad Pro 12.9"',
+      code: "IPP2023-007",
+      requestDate: "09 Mar 2025",
+      status: "Pending Collection",
+    },
+  ]);
+
+  const [selectedTab, setSelectedTab] = useState<string>("All Requests");
+
+  const getStatusColor = (status: string): string => {
+    switch (status) {
+      case "Pending Approval":
+        return "text-yellow-600";
+      case "Processing":
+        return "text-blue-600";
+      case "Pending Collection":
+        return "text-green-600";
+      default:
+        return "text-gray-600";
+    }
+  };
+
+  const filteredAssets = pendingAssets.filter((asset) => {
+    if (selectedTab === "All Requests") return true;
+    if (selectedTab === "Pending") return asset.status === "Pending Approval";
+    if (selectedTab === "Approved")
+      return asset.status === "Pending Collection";
+    return false;
+  });
+
+  const renderAssetItem = ({ item }: { item: Asset }) => (
+    <TouchableOpacity
+      className="border border-texts rounded-lg p-4 mb-4"
+      onPress={() => router.push(`/asset-details/${item.id}`)}
+    >
+      <View className="flex-row justify-between items-center">
+        <View>
+          <Text className="text-base font-semibold">{item.name}</Text>
+          <Text className="text-sm text-gray-500">{item.code}</Text>
+          <Text className="text-sm text-texts mt-2">
+            Requested: {item.requestDate}
+          </Text>
+        </View>
+        <View className="items-end">
+          <Text className={`${getStatusColor(item.status)} font-medium`}>
+            {item.status}
+          </Text>
+          <Feather
+            name="chevron-right"
+            size={20}
+            color="#666"
+            className="mt-2"
+          />
         </View>
       </View>
-      
-      {/* Content */}
-      <ScrollView style={styles.content}>
-        <Text style={styles.sectionTitle}>pending approvals</Text>
-        <Text style={styles.subTitle}>Full 3 request waiting</Text>
-        
-        {/* Pending Approvals Section */}
-        <View style={styles.requestCard}>
-          <Text style={styles.itemName}>MacBoo-k Pro</Text>
-          <View style={styles.requestDetails}>
-            <Text style={styles.detailText}>From: Thabo Mokoena</Text>
+    </TouchableOpacity>
+  );
+
+  return (
+    <SafeAreaView className="bg-white flex-1">
+      <ScrollView>
+        <View className="flex-1 px-4 pb-8 bg-white rounded-3xl mx-4 my-4 relative">
+          <View className="flex-row justify-between items-center pt-4 pb-6">
+            <View className="flex-row">
+              <TouchableOpacity className="mr-4 relative">
+                <Notification size="24" color="#4d4d4d" />
+                <View className="w-4 h-4 bg-red-500 rounded-full absolute -top-1 -right-1 items-center justify-center">
+                  <Text className="text-white text-xs font-bold">1</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <User size="24" color="#4d4d4d" />
+              </TouchableOpacity>
+            </View>
           </View>
-          <View style={styles.requestDetails}>
-            <Text style={styles.detailText}>To: Marketing (Floor 3)</Text>
-            <Text style={styles.timeText}>submited yesterday</Text>
+
+          {/* Page Title */}
+          <View className="flex-row justify-between items-center mb-6">
+            <Text className="text-xl font-bold">Pending Approvals</Text>
           </View>
-        </View>
-        
-        <View style={styles.requestCard}>
-          <Text style={styles.itemName}>iphone 6</Text>
-          <View style={styles.requestDetails}>
-            <Text style={styles.detailText}>From: Thabo Mokoena</Text>
-          </View>
-          <View style={styles.requestDetails}>
-            <Text style={styles.detailText}>To: Marketing (Floor 3)</Text>
-            <Text style={styles.timeText}>submitted today</Text>
-          </View>
-        </View>
-        
-        {/* Recent Approvals Section */}
-        <Text style={[styles.sectionTitle, {marginTop: 30}]}>Recent Approvals</Text>
-        
-        <View style={styles.requestCard}>
-          <View style={styles.requestDetails}>
-            <Text style={styles.itemName}>Chair</Text>
-            <TouchableOpacity style={styles.approveButton}>
-              <Text style={styles.approveButtonText}>approved</Text>
+
+          {/* Filter Tabs */}
+          <View className="flex-row mb-6">
+            <TouchableOpacity
+              className={`mr-4 pb-2 ${
+                selectedTab === "All Requests" ? "border-b-2 border-black" : ""
+              }`}
+              onPress={() => setSelectedTab("All Requests")}
+            >
+              <Text
+                className={`text-base font-medium ${
+                  selectedTab === "All Requests" ? "text-black" : "text-texts"
+                }`}
+              >
+                All Requests
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className={`mr-4 pb-2 ${
+                selectedTab === "Pending" ? "border-b-2 border-black" : ""
+              }`}
+              onPress={() => setSelectedTab("Pending")}
+            >
+              <Text
+                className={`text-base font-medium ${
+                  selectedTab === "Pending" ? "text-black" : "text-texts"
+                }`}
+              >
+                Pending
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className={`pb-2 ${
+                selectedTab === "Approved" ? "border-b-2 border-black" : ""
+              }`}
+              onPress={() => setSelectedTab("Approved")}
+            >
+              <Text
+                className={`text-base font-medium ${
+                  selectedTab === "Approved" ? "text-black" : "text-texts"
+                }`}
+              >
+                Approved
+              </Text>
             </TouchableOpacity>
           </View>
-          <Text style={styles.timeText}>approved 2 hours ago</Text>
-        </View>
-        
-        <View style={styles.requestCard}>
-          <View style={styles.requestDetails}>
-            <Text style={styles.itemName}>Laptop</Text>
-            <TouchableOpacity style={styles.rejectButton}>
-              <Text style={styles.rejectButtonText}>reject</Text>
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.timeText}>rejected 2 hours ago</Text>
+
+          {/* Pending Assets List */}
+          {filteredAssets.length > 0 ? (
+            <FlatList
+              data={filteredAssets}
+              renderItem={renderAssetItem}
+              keyExtractor={(item) => item.id}
+              scrollEnabled={false}
+            />
+          ) : (
+            <View className="items-center justify-center py-12">
+              <Feather name="inbox" size={56} color="#CCCCCC" />
+              <DirectInbox size="32" color="#CCCCCC" />
+              <Text className="text-lg text-texts mt-4">No assets found</Text>
+            </View>
+          )}
+
+          {/* Request Assets Button */}
+          {/* <View className="mt-4">
+            <CustomButton
+              title="View All Assets"
+              handlePress={() => router.push("/all-assets")}
+              containerStyles="bg-gray-200"
+              textStyles="text-black"
+            />
+          </View> */}
         </View>
       </ScrollView>
-      
-      {/* Lower curved background */}
-      <View style={styles.lowerCurve} />
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#e9efc0',
-  },
-  upperCurve: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 200,
-    backgroundColor: 'white',
-    borderBottomLeftRadius: 200,
-    borderBottomRightRadius: 200,
-    transform: [{scaleX: 1.5}],
-    zIndex: -1,
-  },
-  logoContainer: {
-    alignItems: 'center',
-    marginTop: 30,
-    marginBottom: 40,
-  },
-  logo: {
-    width: 120,
-    height: 120,
-  },
-  logoTextContainer: {
-    alignItems: 'center',
-  },
-  logoTextMain: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#555',
-  },
-  logoTextSub: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#a3bb2e',
-    marginTop: -8,
-  },
-  tagline: {
-    fontSize: 12,
-    color: '#555',
-    marginTop: 4,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 16,
-  },
-  sectionTitle: {
-    fontSize: 28,
-    fontWeight: '600',
-    color: '#555',
-    marginBottom: 5,
-  },
-  subTitle: {
-    fontSize: 20,
-    color: '#999',
-    marginBottom: 20,
-  },
-  requestCard: {
-    backgroundColor: 'white',
-    borderRadius: 15,
-    padding: 20,
-    marginBottom: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  itemName: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#222',
-    marginBottom: 10,
-  },
-  requestDetails: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 5,
-  },
-  detailText: {
-    fontSize: 16,
-    color: '#666',
-  },
-  timeText: {
-    fontSize: 14,
-    color: '#888',
-    fontStyle: 'italic',
-  },
-  approveButton: {
-    backgroundColor: '#b5cd32',
-    paddingVertical: 8,
-    paddingHorizontal: 20,
-    borderRadius: 20,
-  },
-  approveButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  rejectButton: {
-    backgroundColor: '#000',
-    paddingVertical: 8,
-    paddingHorizontal: 20,
-    borderRadius: 20,
-  },
-  rejectButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  lowerCurve: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 300,
-    backgroundColor: 'white',
-    borderTopLeftRadius: 200,
-    borderTopRightRadius: 200,
-    transform: [{scaleX: 1.5}],
-    zIndex: -1,
-  },
-});
 
 export default PendingApprovalsScreen;

@@ -169,7 +169,7 @@ export default function NotificationsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f7e8',
+    backgroundColor: '#fff',
   },
   header: {
     flexDirection: 'row',
