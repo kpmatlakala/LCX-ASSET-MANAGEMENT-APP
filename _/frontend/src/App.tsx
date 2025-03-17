@@ -20,7 +20,7 @@ function App() {
 
   return (
     <Routes>
-        <Route index element={<Navigate to="/signin"/>}/>
+        <Route index element={!isAuthenticated ? <Home /> : <Navigate to={"/dashboard"}/>}/>
         <Route path="/signin" element={isAuthenticated ? <Navigate to={"/dashboard"}/> : <Signin />}/>
         <Route path="/otpverification" element={email ? <OneTimeVerification /> : isAuthenticated ? <Navigate to={"/dashboard"}/> : <Navigate to={"/signin"}/>}/>
         <Route path="/dashboard/*" element={isAuthenticated ? <Dashboard /> : <Navigate to={"/signin"}/>}>

@@ -101,7 +101,7 @@ CREATE TABLE asset_requests (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );`
 
--- Asset assignments table to track current and historical assignments
+`-- Asset assignments table to track current and historical assignments
 CREATE TABLE asset_movement (
     movement_id SERIAL PRIMARY KEY,
     asset_id INTEGER NOT NULL REFERENCES assets(asset_id),
@@ -116,7 +116,7 @@ CREATE TABLE asset_movement (
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
-);
+);  `
 
 -- Approval hierarchy table for managing who can approve what
 CREATE TABLE approval_hierarchy (
@@ -197,3 +197,18 @@ Additional Features:
 - admin | management system 
 	-> clone and merge with main (from frankie)
 	-> update
+
+
+-Asset movement {
+    movement within the building(temp),
+    outside, permanent movement out
+}
+
+on AddAsset{
+remove-type
+damaged->Disposal
+}
+
+Assets Vs inventory
+- assets are the physical items
+- inventory is the list of assets

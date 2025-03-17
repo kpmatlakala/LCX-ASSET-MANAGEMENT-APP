@@ -25,23 +25,24 @@ import {
   Textarea,
   Tooltip,
   useDisclosure,
-  Avatar,
 } from "@heroui/react";
 import {
+  CheckmarkCircle01Icon,
   CheckmarkCircle02Icon,
   DeliveryBox02Icon,
   DeliveryReturn02Icon,
   InformationCircleIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Add, Calendar, Timer } from "iconsax-react";
-import { ReactElement, useContext, useState } from "react";
+import { ArrowDown2, Calendar, Timer } from "iconsax-react";
+import { ReactElement, useContext, useEffect, useState } from "react";
 import { Authcontext } from "@/context/AuthContext";
 import { FileUploader } from "react-drag-drop-files";
 import useSupabaseDB from "@/hooks/useSupabaseDB";
 import { SupabaseAssetSchema } from "@/interfaces/interfaces";
 import { useQuery } from "@tanstack/react-query";
 import {
+  assetTypes,
   categories,
   conditions,
   fileTypes,
@@ -49,7 +50,6 @@ import {
 import { getTodayFullDate, greetUser } from "@/utils/dateUtils";
 import DashboardPending from "@/components/dashboardLoading";
 import emptyStateIllustration from "@/assets/images/nothing.svg";
-import RequestDetailsModal from "@/components/requestDetails";
 
 interface AssetFormData {
   assetName: string;
@@ -72,18 +72,14 @@ const categoryToAssetTypes = {
 
 export default function Overview(): ReactElement {
   const { currentUser } = useContext(Authcontext);
-  const {
-    uploadAsset,
-    isLoading,
-    getAllAssets,
-    getRequests,
-  } = useSupabaseDB();
+  const { uploadAsset, isLoading, getAllAssets, isFetchingAssets } =
+    useSupabaseDB();
 
+  const [assets, setAssets] = useState<any[]>([]);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [requestModalIsOpen, setRequestModalOpen] = useState<boolean>(false);
-  const [requestModalData, setModalData] = useState<any>("");
 
+  // New state object to store all form data
   const [formData, setFormData] = useState<AssetFormData>({
     assetName: "",
     assetCode: "",
@@ -108,12 +104,6 @@ export default function Overview(): ReactElement {
     refetchInterval: 10000,
   });
 
-  const queryRequests = useQuery({
-    queryKey: ["requests"],
-    queryFn: getRequests,
-    refetchInterval: 10000,
-  });
-
   const handleSubmit = async () => {
     const res = await uploadAsset(formData);
     if (res === "success") {
@@ -122,20 +112,13 @@ export default function Overview(): ReactElement {
     }
   };
 
-  if (queryAssets.isPending || queryRequests.isPending) {
+  if (queryAssets.isPending) {
     return <DashboardPending />;
   }
 
   const availableAssets = queryAssets.data.filter(
     (asset: SupabaseAssetSchema) => asset.status === "Available"
   );
-
-  
-    const pendingRequests = queryRequests.data.filter((asset: any) => {
-      return asset.status === "Pending";
-    });
-    
-  
 
   const groupAssetsByName = () => {
     const groupedAssets: { [key: string]: SupabaseAssetSchema[] } = {};
@@ -160,7 +143,8 @@ export default function Overview(): ReactElement {
     return (availableCount / assets.length) * 100;
   };
 
-  const filteredAssetTypes = categoryToAssetTypes[formData.categories as keyof typeof categoryToAssetTypes] || [];
+  const filteredAssetTypes =
+    categoryToAssetTypes[formData.categories ] || [];
 
   return (
     <section className="pb-5">
@@ -176,8 +160,6 @@ export default function Overview(): ReactElement {
                 className="bg-black text-white px-4"
                 radius="sm"
                 onPress={onOpen}
-                startContent={<Add size={24} color="white"/>}
-                variant="shadow"
               >
                 New Asset
               </Button>
@@ -205,7 +187,7 @@ export default function Overview(): ReactElement {
                 <p className="text-4xl py-2">
                   {(queryAssets.data?.length ?? 0) < 10
                     ? `0${queryAssets.data?.length ?? 0}`
-                    : (queryAssets.data?.length ?? 0)}
+                    : queryAssets.data?.length ?? 0}
                 </p>
               </div>
             </div>
@@ -229,7 +211,7 @@ export default function Overview(): ReactElement {
                 <p className="text-4xl py-2">
                   {(availableAssets?.length ?? 0) < 10
                     ? `0${availableAssets?.length ?? 0}`
-                    : (availableAssets?.length ?? 0)}
+                    : availableAssets?.length ?? 0}
                 </p>
               </div>
             </div>
@@ -246,11 +228,7 @@ export default function Overview(): ReactElement {
                 <HugeiconsIcon icon={InformationCircleIcon} />
               </div>
               <div>
-                <p className="text-4xl py-2">
-                {(pendingRequests?.length ?? 0) < 10
-                    ? `0${pendingRequests?.length ?? 0}`
-                    : (pendingRequests?.length ?? 0)}
-                </p>
+                <p className="text-4xl py-2">235</p>
               </div>
             </div>
           </Card>
@@ -279,7 +257,7 @@ export default function Overview(): ReactElement {
           <div className="grid grid-cols-12 gap-5">
             <Card className="col-span-7 p-3" shadow="sm" radius="sm">
               <div className="flex justify-between">
-                <p className="px-5 ">Request Over Time</p>
+                <p className="px-10 text-xl">Request Over Time</p>
                 <Dropdown shadow="sm">
                   <DropdownTrigger>
                     <Button
@@ -305,62 +283,29 @@ export default function Overview(): ReactElement {
               </div>
             </Card>
             <Card className="col-span-5 h-full" shadow="sm" radius="sm">
-              <p className="px-5 pt-3">Recent Asset Requests</p>
-              {queryRequests.isPending && <p>Loading...</p>}
-              {!queryRequests.isPending && (
-                <Table title="ref" shadow="none" selectionMode="single" color="primary" selectionBehavior="toggle">
-                  <TableHeader>
-                    <TableColumn>User</TableColumn>
-                    <TableColumn>Asset</TableColumn>
-                    <TableColumn>Status</TableColumn>
-                  </TableHeader>
-                  <TableBody>
-                    {queryRequests.data.map((reqs: any, i: any) => (
-                      <TableRow
-                        key={i}
-                        title={reqs.asset.full_name}
-                        onClick={() => {
-                          setModalData({
-                            ...reqs,
-                            employee: reqs.employee,
-                            asset: reqs.asset
-                          })
-                          setRequestModalOpen(true);
-                        }}
-                        className="pb-10"
-                      >
-                        <TableCell className="text-gray-400 py-3">
-                          <div className="flex gap-1">
-                            <Avatar />
-                            <div>
-                              <p className="text-sm w-[6rem] truncate">{reqs.employee.full_name}</p>
-                              <p className="text-tiny w-[6rem] truncate">{reqs.employee.email}</p>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-gray-400 py-4">
-                          {reqs.asset.asset_name}
-                        </TableCell>
-                        <TableCell className="text-tiny text-gray-400">
-                          <p
-                            className={`text-center rounded-full border ${
-                              reqs.status === "Approved"
-                                ? "text-success-500 bg-success-100 border-success-500"
-                                : reqs.status === "Pending"
-                                  ? "text-warning-500 bg-warning-100 border-warning-500"
-                                  : reqs.status === "Rejected"
-                                    ? "text-danger-500 bg-danger-100 border-danger-500"
-                                    : "text-gray-500 bg-gray-100 border-gray-500"
-                            }`}
-                          >
-                            {reqs.status}
-                          </p>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
+              <p className="px-5 py-3">Recent Asset Requests</p>
+              <Table title="ref" shadow="none">
+                <TableHeader>
+                  <TableColumn>User</TableColumn>
+                  <TableColumn>Asset</TableColumn>
+                  <TableColumn>Status</TableColumn>
+                </TableHeader>
+                <TableBody
+                  emptyContent={
+                    <div className="flex justify-center items-center my-[5rem]">
+                      <div className="">
+                        <Image
+                          src={emptyStateIllustration}
+                          className="h-[8rem] object-cover"
+                        />
+                        <p className="text-center">No asset requests yet</p>
+                      </div>
+                    </div>
+                  }
+                >
+                  {[]}
+                </TableBody>
+              </Table>
             </Card>
           </div>
         </div>
@@ -471,6 +416,7 @@ export default function Overview(): ReactElement {
                           </SelectItem>
                         ))}
                       </Select>
+                      
                     </div>
                     <div className="flex gap-4">
                       <Select
@@ -510,6 +456,7 @@ export default function Overview(): ReactElement {
                           </SelectItem>
                         ))}
                       </Select>
+                      
                     </div>
                     <div>
                       <FileUploader
@@ -562,7 +509,6 @@ export default function Overview(): ReactElement {
             )}
           </ModalContent>
         </Modal>
-        <RequestDetailsModal isOpen={requestModalIsOpen} data={requestModalData} onClose={setRequestModalOpen}/>
       </div>
     </section>
   );
