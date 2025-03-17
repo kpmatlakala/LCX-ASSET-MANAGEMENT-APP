@@ -4,9 +4,9 @@ import { Session } from "@supabase/supabase-js";
 
 interface Asset {
   asset_type: any;
-  location: ReactNode;
-  condition: ReactNode;
-  updated_at: ReactNode;
+  location: string;
+  condition: string;
+  updated_at: any;
   asset_category: any;
   asset_sn: any;
   asset_id: number;
