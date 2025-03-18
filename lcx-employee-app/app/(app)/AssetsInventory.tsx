@@ -364,6 +364,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f7e8',
+    fontFamily: 'Poppins-Regular',
   },
   header: {
     flexDirection: 'row',
@@ -402,6 +403,8 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 12,
     fontWeight: 'bold',
+    fontFamily: 'Poppins-Regular',
+
   },
   inventoryHeader: {
     flexDirection: 'row',
@@ -414,6 +417,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 28,
     fontWeight: 'bold',
+    fontFamily: 'Poppins-Regular',
   },
   searchFilterContainer: {
     flexDirection: 'row',
@@ -453,7 +457,7 @@ const styles = StyleSheet.create({
   filterButtonText: {
     fontSize: 14,
     color: '#666',
-    marginRight: 5,
+    marginRight: 5,fontFamily: 'Poppins-Regular',
   },
   filterDropdownMenu: {
     position: 'absolute',
@@ -479,6 +483,7 @@ const styles = StyleSheet.create({
   filterOptionText: {
     fontSize: 14,
     color: '#333',
+    fontFamily: 'Poppins-Regular',
   },
   assetsContainer: {
     marginHorizontal: 20,
@@ -530,6 +535,7 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 12,
     fontWeight: 'bold',
+    fontFamily: 'Poppins-Regular',
   },
   assetSummary: {
     marginTop: 5,
@@ -603,12 +609,14 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#333',
     marginLeft: 5,
+    fontFamily: 'Poppins-Regular',
   },
   requestButton: {
     backgroundColor: '#0d1a31',
   },
   requestButtonText: {
     color: '#fff',
+    fontFamily: 'Poppins-Regular',
   },
   paginationContainer: {
     flexDirection: 'row',
@@ -635,9 +643,10 @@ const styles = StyleSheet.create({
   },
   paginationButtonText: {
     fontSize: 16,
-    color: '#666',
+    color: '#666',fontFamily: 'Poppins-Regular',
   },
   paginationButtonTextActive: {
     color: '#fff',
+    fontFamily: 'Poppins-Regular',
   },
 });

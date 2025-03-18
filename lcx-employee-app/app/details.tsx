@@ -7,19 +7,21 @@ import {
   TouchableOpacity, 
   TextInput,
   SafeAreaView,
-  FlatList
+  FlatList,
+  Modal
 } from 'react-native';
 import { MaterialIcons, MaterialCommunityIcons, Ionicons, Feather } from '@expo/vector-icons';
 
 const AssetManagementScreen = () => {
   const [currentPage, setCurrentPage] = useState(5);
+  const [modalVisible, setModalVisible] = useState(false);
   
   // Sample data for assets
   const assets = [
-    { id: 1, description: "DELL XPS 15 Laptop", holder: "Manager", serialNumber: "QZF0196567", condition: "Good", employeeName: "TurnAzis", status: "Approved" },
-    { id: 2, description: "DELL XPS 15 Laptop", holder: "Manager", serialNumber: "QZF0196567", condition: "Good", employeeName: "TurnAzis", status: "Approved" },
-    { id: 3, description: "Asus Vivobook", holder: "Manager", serialNumber: "16076963", condition: "Good", employeeName: "TurnAzis", status: "Failed" },
-    { id: 4, description: "Asus Vivobook", holder: "Manager", serialNumber: "16076964", condition: "Good", employeeName: "TurnAzis", status: "Failed" }
+    { id: 1, description: "DELL XPS 15 Laptop", holder: "Manager", serialNumber: "QZF0196567", condition: "Good", date: "01/02/2023", status: "Approved" },
+    { id: 2, description: "DELL XPS 15 Laptop", holder: "Manager", serialNumber: "QZF0196567", condition: "Good", date: "01/05/2024", status: "Approved" },
+    { id: 3, description: "Asus Vivobook", holder: "Manager", serialNumber: "16076963", condition: "Good", date: "01/02/2023", status: "Failed" },
+    { id: 4, description: "Asus Vivobook", holder: "Manager", serialNumber: "16076964", condition: "Good", date: "01/03/2024", status: "Failed" }
   ];
 
   const renderStatusBadge = (status) => {
@@ -45,18 +47,65 @@ const AssetManagementScreen = () => {
   const renderAssetItem = ({ item }) => (
     <View style={styles.tableRow}>
       <Text style={[styles.tableCell, styles.descriptionCell]}>{item.description}</Text>
-      <Text style={[styles.tableCell, styles.holderCell]}>{item.holder}</Text>
-      <Text style={[styles.tableCell, styles.serialCell]}>{item.serialNumber}</Text>
+      {/* <Text style={[styles.tableCell, styles.holderCell]}>{item.holder}</Text> */}
+      {/* <Text style={[styles.tableCell, styles.serialCell]}>{item.serialNumber}</Text> */}
       <Text style={[styles.tableCell, styles.conditionCell]}>{item.condition}</Text>
-      <Text style={[styles.tableCell, styles.employeeCell]}>{item.employeeName}</Text>
+      <Text style={[styles.tableCell, styles.employeeCell]}>{item.date}</Text>
       <View style={[styles.tableCell, styles.statusCell]}>
         {renderStatusBadge(item.status)}
       </View>
+      
     </View>
   );
 
+  // Function to handle cancel request
+  const handleCancelRequest = () => {
+    // Add your logic to cancel the request here
+    console.log("Request cancelled");
+    setModalVisible(false);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
+      {/* Cancel Request Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Cancel Request</Text>
+              <TouchableOpacity onPress={() => setModalVisible(false)}>
+                <MaterialIcons name="close" size={24} color="#666" />
+              </TouchableOpacity>
+            </View>
+            
+            <Text style={styles.modalText}>
+              Are you sure you want to cancel your request for this asset?
+            </Text>
+            
+            <View style={styles.modalActions}>
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.cancelButton]}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.cancelButtonText}>No</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.confirmButton]}
+                onPress={handleCancelRequest}
+              >
+                <Text style={styles.confirmButtonText}>Yes, Cancel Request</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       <ScrollView>
         {/* Header */}
         <View style={styles.header}>
@@ -91,10 +140,10 @@ const AssetManagementScreen = () => {
               <MaterialIcons name="file-download" size={16} color="#666" />
               <Text style={styles.exportButtonText}>Export PDF</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.exportButton}>
+            {/* <TouchableOpacity style={styles.exportButton}>
               <MaterialIcons name="file-upload" size={16} color="#666" />
               <Text style={styles.exportButtonText}>Import CSV</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         </View>
 
@@ -103,9 +152,12 @@ const AssetManagementScreen = () => {
           <View style={styles.assetInfoHeader}>
             <Text style={styles.assetInfoTitle}>Asset Information</Text>
             <View style={styles.assetInfoActions}>
-              <TouchableOpacity style={styles.updateButton}>
-                <MaterialIcons name="edit" size={14} color="white" />
-                <Text style={styles.updateButtonText}>Update</Text>
+              <TouchableOpacity 
+                style={styles.updateButton} 
+                onPress={() => setModalVisible(true)}
+              >
+                <MaterialIcons name="edit" size={14} color="white" marginRight={5} marginBottom={2}/>
+                <Text style={styles.updateButtonText}>Cancel request</Text>
               </TouchableOpacity>
               <TouchableOpacity>
                 <MaterialIcons name="more-vert" size={20} color="#666" />
@@ -161,12 +213,11 @@ const AssetManagementScreen = () => {
         <View style={styles.tableContainer}>
           {/* Table Header */}
           <View style={[styles.tableRow, styles.tableHeader]}>
-            <Text style={[styles.tableHeaderCell, styles.descriptionCell]}>Description</Text>
-            <Text style={[styles.tableHeaderCell, styles.holderCell]}>Holder</Text>
-            <Text style={[styles.tableHeaderCell, styles.serialCell]}>Serial Number</Text>
-            <Text style={[styles.tableHeaderCell, styles.conditionCell]}>Asset Condition</Text>
-            <Text style={[styles.tableHeaderCell, styles.employeeCell]}>Employee's Name</Text>
+            <Text style={[styles.tableHeaderCell, styles.descriptionCell]}>Description</Text>            
+            <Text style={[styles.tableHeaderCell, styles.conditionCell]}>Asset Condition</Text>    
+            <Text style={[styles.tableHeaderCell, styles.statusCell]}>Date</Text>      
             <Text style={[styles.tableHeaderCell, styles.statusCell]}>Status</Text>
+            
           </View>
           
           {/* Table Content */}
@@ -222,12 +273,12 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-     fontFamily: 'Poppins-Regular'
+    fontFamily: 'Poppins-Regular'
   },
   headerDate: {
     fontSize: 12,
     color: '#666',
-     fontFamily: 'Poppins-Regular'
+    fontFamily: 'Poppins-Regular'
   },
   profileIcon: {
     width: 40,
@@ -236,7 +287,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#E8F5E9',
     justifyContent: 'center',
     alignItems: 'center',
-     
   },
   breadcrumb: {
     paddingHorizontal: 16,
@@ -245,6 +295,7 @@ const styles = StyleSheet.create({
   breadcrumbText: {
     fontSize: 12,
     color: '#666',
+    fontFamily: 'Poppins-Regular'
   },
   actionsContainer: {
     flexDirection: 'row',
@@ -265,7 +316,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
     marginLeft: 4,
-     fontFamily: 'Poppins-Regular'
+    fontFamily: 'Poppins-Regular'
   },
   searchContainer: {
     flexDirection: 'row',
@@ -279,6 +330,7 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     width: 100,
     fontSize: 12,
+    fontFamily: 'Poppins-Regular'
   },
   exportContainer: {
     flexDirection: 'row',
@@ -292,6 +344,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
     marginLeft: 4,
+    fontFamily: 'Poppins-Regular'
   },
   assetInfoCard: {
     backgroundColor: 'white',
@@ -309,12 +362,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 16,
-     fontFamily: 'Poppins-Regular'
   },
   assetInfoTitle: {
     fontSize: 16,
     fontWeight: '600',
-     fontFamily: 'Poppins-Regular'
+    fontFamily: 'Poppins-Regular'
   },
   assetInfoActions: {
     flexDirection: 'row',
@@ -327,17 +379,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 4,
-    marginRight: 10, fontFamily: 'Poppins-Regular'
+    marginRight: 10,
   },
   updateButtonText: {
     fontSize: 12,
     color: 'white',
     marginLeft: 4,
-     fontFamily: 'Poppins-Regular'
+    fontFamily: 'Poppins-Regular'
   },
   assetInfoContent: {
     flexDirection: 'row',
-     fontFamily: 'Poppins-Regular'
   },
   infoColumn: {
     flex: 1,
@@ -349,11 +400,14 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
     marginBottom: 2,
+    fontFamily: 'Poppins-Regular'
   },
   infoValue: {
     fontSize: 14,
+    fontFamily: 'Poppins-Regular'
   },
   tableContainer: {
+    padding: 8,
     marginHorizontal: 16,
     marginBottom: 16,
     backgroundColor: 'white',
@@ -363,33 +417,32 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
-     fontFamily: 'Poppins-Regular'
   },
   tableRow: {
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderBottomColor: '#EEEEEE',
     paddingVertical: 10,
-     fontFamily: 'Poppins-Regular'
   },
   tableHeader: {
     backgroundColor: '#F9F9F9',
     borderTopLeftRadius: 8,
     borderTopRightRadius: 8,
-     fontFamily: 'Poppins-Regular'
   },
   tableHeaderCell: {
     fontWeight: '600',
     fontSize: 12,
     color: '#666',
-    paddingHorizontal: 8,
+    paddingHorizontal: 2,
+    fontFamily: 'Poppins-Regular'
   },
   tableCell: {
-    fontSize: 12,
-    paddingHorizontal: 8,
+    fontSize: 11,
+    paddingHorizontal: 2,
+    fontFamily: 'Poppins-Regular'
   },
   descriptionCell: {
-    flex: 2,
+    flex: 1.5,
   },
   holderCell: {
     flex: 1,
@@ -406,7 +459,6 @@ const styles = StyleSheet.create({
   statusCell: {
     flex: 1,
     justifyContent: 'center',
-    fontSize: 10,
   },
   badge: {
     paddingHorizontal: 8,
@@ -417,7 +469,7 @@ const styles = StyleSheet.create({
   badgeText: {
     fontSize: 10,
     color: '#333',
-     fontFamily: 'Poppins-Regular'
+    fontFamily: 'Poppins-Regular'
   },
   pagination: {
     flexDirection: 'row',
@@ -439,12 +491,76 @@ const styles = StyleSheet.create({
   paginationButtonText: {
     fontSize: 12,
     color: '#666',
-     fontFamily: 'Poppins-Regular'
+    fontFamily: 'Poppins-Regular'
   },
   activePaginationButtonText: {
     color: 'white',
-     fontFamily: 'Poppins-Regular'
+    fontFamily: 'Poppins-Regular'
   },
+  // Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 8,
+    padding: 20,
+    width: '100%',
+    maxWidth: 400,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    fontFamily: 'Poppins-Regular'
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    fontFamily: 'Poppins-Regular'
+  },
+  modalText: {
+    fontSize: 14,
+    color: '#333',
+    marginBottom: 20,
+    fontFamily: 'Poppins-Regular'
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  modalButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderRadius: 4,
+    marginLeft: 10,
+  },
+  cancelButton: {
+    backgroundColor: '#F5F5F5',
+  },
+  confirmButton: {
+    backgroundColor: '#F44336',
+  },
+  cancelButtonText: {
+    color: '#333',
+    fontSize: 14,
+    fontFamily: 'Poppins-Regular'
+  },
+  confirmButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontFamily: 'Poppins-Regular'
+  }
 });
 
 export default AssetManagementScreen;
