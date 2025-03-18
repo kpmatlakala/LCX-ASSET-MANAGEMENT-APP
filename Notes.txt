@@ -199,7 +199,7 @@ Additional Features:
 	-> update
 
 
--Asset movement {
+- RequestAsset ->4 Asset movement {
     movement within the building(temp),
     outside, permanent movement out
 }
@@ -213,3 +213,15 @@ Assets Vs inventory
 - assets are the physical items
 - inventory is the list of assets
 
+asset categories{
+    IT_equipment
+    office_equipment:
+    VSet: 
+    fiber: manhole, domjoint,
+    furniture:
+}
+
+receive and tag
+when capture-> descr, tag|barcode ,serial, aquisationDate, price, lifeSpan(warranty/ guarantee)
+asset_holder/destination(holder, office_number, location and address)
+asset_verification, condition

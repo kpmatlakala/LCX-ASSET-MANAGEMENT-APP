@@ -219,7 +219,12 @@ export default function AssetManagementDashboard() {
                 
                 {/* Action Buttons */}
                 <View style={styles.actionButtons}>
-                  <TouchableOpacity style={styles.actionButton}>
+                  <TouchableOpacity style={styles.actionButton}
+                    onPress={() => router.push({
+                      pathname: "/AssetDetails",
+                      params: { assetId: asset.asset_id }
+                    })}
+                  >
                     <Text style={styles.actionButtonText}>Review Details</Text>
                   </TouchableOpacity>
                   

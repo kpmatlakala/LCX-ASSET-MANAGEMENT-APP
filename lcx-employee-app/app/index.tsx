@@ -26,7 +26,7 @@ export default function Index() {
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) 
       { // Redirect after login
-        router.push("/(app)/Dashboard"); 
+        router.push("/(app)/Profile"); 
       } // Redirect after logout
       else { router.push("/(auth)/Auth"); }
     });

@@ -21,6 +21,7 @@ import {
 import { images } from "@/constants";
 import ReturnForm from "@/components/ReturnForm";
 import { router } from "expo-router";
+import { useAssets } from "@/context/AssetContext";
 
 interface Asset {
   id: number;
@@ -35,6 +36,7 @@ interface Asset {
 }
 
 export default function AssetInventoryScreen() {
+  const {assets}=useAssets();
   const [currentPage, setCurrentPage] = useState<number>(1);
   const totalPages = 4;
   const [selectedFilter, setSelectedFilter] = useState<string>("All...");
@@ -45,63 +47,63 @@ export default function AssetInventoryScreen() {
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
 
   // Sample assets data with more details
-  const assets: Asset[] = [
-    {
-      id: 1,
-      name: "Dell XPS 15 Laptop",
-      status: "Available",
-      category: "Computer/Laptop",
-      serialNumber: "DX15-7890-A",
-      location: "IT Department",
-      condition: "New",
-      acquisitionDate: "15/01/2025",
-      lastUpdated: "10 minutes ago",
-    },
-    {
-      id: 2,
-      name: "Dell XPS 19 Laptop",
-      status: "Assigned",
-      category: "Computer/Laptop",
-      serialNumber: "DX19-5432-B",
-      location: "Finance Department",
-      condition: "Good",
-      acquisitionDate: "20/12/2024",
-      lastUpdated: "1 hour ago",
-    },
-    {
-      id: 3,
-      name: "HP Laser Printer",
-      status: "Available",
-      category: "Printer/Scanner",
-      serialNumber: "HPL-2345-C",
-      location: "Admin Office",
-      condition: "Good",
-      acquisitionDate: "05/11/2024",
-      lastUpdated: "2 days ago",
-    },
-    {
-      id: 4,
-      name: "Samsung S22 Ultra",
-      status: "Maintenance",
-      category: "Mobile Device",
-      serialNumber: "SS22-1234-D",
-      location: "IT Support",
-      condition: "Under Repair",
-      acquisitionDate: "10/10/2024",
-      lastUpdated: "1 week ago",
-    },
-    {
-      id: 5,
-      name: "Logitech MX Master Mouse",
-      status: "Available",
-      category: "Accessories",
-      serialNumber: "LMX-8765-E",
-      location: "IT Store",
-      condition: "New",
-      acquisitionDate: "25/02/2025",
-      lastUpdated: "5 minutes ago",
-    },
-  ];
+  // const assets: Asset[] = [
+  //   {
+  //     id: 1,
+  //     name: "Dell XPS 15 Laptop",
+  //     status: "Available",
+  //     category: "Computer/Laptop",
+  //     serialNumber: "DX15-7890-A",
+  //     location: "IT Department",
+  //     condition: "New",
+  //     acquisitionDate: "15/01/2025",
+  //     lastUpdated: "10 minutes ago",
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "Dell XPS 19 Laptop",
+  //     status: "Assigned",
+  //     category: "Computer/Laptop",
+  //     serialNumber: "DX19-5432-B",
+  //     location: "Finance Department",
+  //     condition: "Good",
+  //     acquisitionDate: "20/12/2024",
+  //     lastUpdated: "1 hour ago",
+  //   },
+  //   {
+  //     id: 3,
+  //     name: "HP Laser Printer",
+  //     status: "Available",
+  //     category: "Printer/Scanner",
+  //     serialNumber: "HPL-2345-C",
+  //     location: "Admin Office",
+  //     condition: "Good",
+  //     acquisitionDate: "05/11/2024",
+  //     lastUpdated: "2 days ago",
+  //   },
+  //   {
+  //     id: 4,
+  //     name: "Samsung S22 Ultra",
+  //     status: "Maintenance",
+  //     category: "Mobile Device",
+  //     serialNumber: "SS22-1234-D",
+  //     location: "IT Support",
+  //     condition: "Under Repair",
+  //     acquisitionDate: "10/10/2024",
+  //     lastUpdated: "1 week ago",
+  //   },
+  //   {
+  //     id: 5,
+  //     name: "Logitech MX Master Mouse",
+  //     status: "Available",
+  //     category: "Accessories",
+  //     serialNumber: "LMX-8765-E",
+  //     location: "IT Store",
+  //     condition: "New",
+  //     acquisitionDate: "25/02/2025",
+  //     lastUpdated: "5 minutes ago",
+  //   },
+  // ];
 
   // Filter options
   const filterOptions: string[] = [
@@ -157,14 +159,14 @@ export default function AssetInventoryScreen() {
 
   // Handle asset request - now opens the modal
   const handleAssetRequest = (assetId: number): void => {
-    const asset = assets.find((a) => a.id === assetId);
+    const asset = assets.find((a) => a.asset_id === assetId);
     if (asset) 
     {
       setSelectedAsset(asset);
       setModalVisible(true);
       router.push({
         pathname: "/(app)/RequestAsset",
-        params: { assetId: asset.id.toString() }
+        params: { assetId: asset.asset_id.toString() }
       });
     }    
   };
@@ -190,9 +192,9 @@ export default function AssetInventoryScreen() {
   // Filter assets based on search query and selected filter
   const filteredAssets = assets.filter((asset) => {
     const matchesSearch =
-      asset.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      asset.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      asset.serialNumber.toLowerCase().includes(searchQuery.toLowerCase());
+      asset.asset_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      asset.asset_category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      asset.asset_sn.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesFilter =
       selectedFilter === "All..." || asset.status === selectedFilter;
@@ -261,12 +263,12 @@ export default function AssetInventoryScreen() {
       {/* Assets List */}
       <ScrollView style={styles.assetsContainer}>
         {filteredAssets.map((asset) => (
-          <View key={asset.id} style={styles.assetCard}>
+          <View key={asset.asset_id} style={styles.assetCard}>
             {/* Asset Card Header */}
             <View style={styles.assetCardHeader}>
               <View style={[styles.assetNameContainer, 
                 { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "space-between" }]}> 
-                <Text style={styles.assetName}>{asset.name}</Text>
+                <Text style={styles.assetName}>{asset.asset_name}</Text>
                 <View
                   style={[
                     styles.statusBadge,
@@ -296,24 +298,24 @@ export default function AssetInventoryScreen() {
               <View style={styles.assetInfoRow}>
                 <View style={styles.assetInfoItem}>
                   <Text style={styles.assetInfoLabel}>Category:</Text>
-                  <Text style={styles.assetInfoValue}>{asset.category}</Text>
+                  <Text style={styles.assetInfoValue}>{asset.asset_category}</Text>
                 </View>
 
                 <View style={styles.assetInfoItem}>
                   <Text style={styles.assetInfoLabel}>Serial No:</Text>
                   <Text style={styles.assetInfoValue}>
-                    {asset.serialNumber}
+                    {asset.asset_sn}
                   </Text>
                 </View>
               </View>
               <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
                 <Text style={styles.assetLastUpdated}>
-                Last updated: {asset.lastUpdated}
+                Last updated: {asset.updated_at}
                 </Text>
-                <TouchableOpacity onPress={() => toggleAssetDetails(asset.id)}>
+                <TouchableOpacity onPress={() => toggleAssetDetails(asset.asset_id)}>
                   <Feather
                     name={
-                      expandedAssetId === asset.id ? "chevron-up" : "chevron-down"
+                      expandedAssetId === asset.asset_id ? "chevron-up" : "chevron-down"
                     }
                     size={24}
                     color="#666"
@@ -324,7 +326,7 @@ export default function AssetInventoryScreen() {
             </View>
 
             {/* Expanded Details and Actions */}
-            {expandedAssetId === asset.id && (
+            {expandedAssetId === asset.asset_id && (
               <View style={styles.expandedContent}>
                 <View style={styles.divider} />
 
@@ -332,22 +334,22 @@ export default function AssetInventoryScreen() {
                 <View style={styles.expandedDetails}>
                   <View style={styles.detailRow}>
                     <View style={styles.detailItem}>
-                      <Text style={styles.detailLabel}>Location:</Text>
-                      <Text style={styles.detailValue}>{asset.location}</Text>
+                      <Text style={styles.detailLabel}>Description:</Text>
+                      <Text style={styles.detailValue}>{asset.description}</Text>
                     </View>
                     <View style={styles.detailItem}>
                       <Text style={styles.detailLabel}>Condition:</Text>
                       <Text style={styles.detailValue}>{asset.condition}</Text>
                     </View>
                   </View>
-                  <View style={styles.detailRow}>
+                  {/* <View style={styles.detailRow}>
                     <View style={styles.detailItem}>
                       <Text style={styles.detailLabel}>Acquisition Date:</Text>
                       <Text style={styles.detailValue}>
                         {asset.acquisitionDate}
                       </Text>
                     </View>
-                  </View>
+                  </View> */}
                 </View>
 
                 <View style={styles.divider} />
@@ -356,7 +358,7 @@ export default function AssetInventoryScreen() {
                 <View style={styles.actionButtons}>
                   <TouchableOpacity
                     style={styles.actionButton}
-                    onPress={() => handleAssetReview(asset.id)}
+                    onPress={() => handleAssetReview(asset.asset_id)}
                   >
                     <Feather name="eye" size={16} color="#333" />
                     <Text style={styles.actionButtonText}>Review</Text>
@@ -365,7 +367,7 @@ export default function AssetInventoryScreen() {
                   {asset.status === "Available" && (
                     <TouchableOpacity
                       style={[styles.actionButton, styles.requestButton]}
-                      onPress={() => handleAssetRequest(asset.id)}
+                      onPress={() => handleAssetRequest(asset.asset_id)}
                     >
                       <Feather name="shopping-cart" size={16} color="#fff" />
                       <Text
@@ -381,7 +383,7 @@ export default function AssetInventoryScreen() {
 
                   <TouchableOpacity
                     style={styles.actionButton}
-                    onPress={() => handleCheckAvailability(asset.id)}
+                    onPress={() => handleCheckAvailability(asset.asset_id)}
                   >
                     <Feather name="calendar" size={16} color="#333" />
                     <Text style={styles.actionButtonText}>
