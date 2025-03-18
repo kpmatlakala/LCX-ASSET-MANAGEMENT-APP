@@ -72,17 +72,6 @@ export default function NotificationsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor="#e8eac6" barStyle="dark-content" />
-      
-      {/* Header with Menu, Logo and Profile */}
-      <View style={styles.header}> 
-        <View style={styles.logo}>
-          <Image 
-            source={images.Logo} 
-            style={styles.logoImage}
-            // defaultSource={require('@/assets/images/placeholder.png')}
-          />
-        </View>   
-      </View>
 
       {/* Notifications section with dropdown */}
       <View style={styles.notificationHeader}>

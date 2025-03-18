@@ -106,11 +106,11 @@ const RequestAssets = () => {
     <SafeAreaView className="bg-white flex-1">
       <ScrollView>
         <View className="flex-1 px-4 pb-8 bg-white rounded-3xl mx-4 my-4 relative">
-          <View className="flex-row justify-center items-center pt-4 pb-6">
+          {/* <View className="flex-row justify-center items-center pt-4 pb-6">
             <Image source={images.Logo} resizeMode="contain" className="w-[170px] h-[100px]" />
-          </View>
+          </View> */}
 
-          <Text className="text-xl font-bold mb-4">Request Asset</Text>
+          <Text className="text-3xl font-bold mb-5">Request Asset</Text>
 
           {/* Asset selection */}
           <View className="mb-6">

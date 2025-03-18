@@ -1,19 +1,34 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, SafeAreaView, StatusBar, TouchableOpacity, Image, TextInput } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, SafeAreaView, StatusBar, TouchableOpacity, Image, TextInput, Modal } from 'react-native';
 import { Ionicons, Feather, MaterialIcons, AntDesign } from '@expo/vector-icons';
 
 import { images } from "@/constants";
+import ReturnForm from '@/components/ReturnForm';
+
+interface Asset {
+  id: number;
+  name: string;
+  status: string;
+  category: string;
+  serialNumber: string;
+  location: string;
+  condition: string;
+  acquisitionDate: string;
+  lastUpdated: string;
+}
 
 export default function AssetInventoryScreen() {
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const totalPages = 4;
-  const [selectedFilter, setSelectedFilter] = useState('All...');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [expandedAssetId, setExpandedAssetId] = useState(null);
-  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState<string>('All...');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [expandedAssetId, setExpandedAssetId] = useState<number | null>(null);
+  const [showFilterDropdown, setShowFilterDropdown] = useState<boolean>(false);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
 
   // Sample assets data with more details
-  const assets = [
+  const assets: Asset[] = [
     { 
       id: 1, 
       name: 'Dell XPS 15 Laptop',
@@ -72,27 +87,27 @@ export default function AssetInventoryScreen() {
   ];
 
   // Filter options
-  const filterOptions = ['All...', 'Available', 'Assigned', 'Maintenance', 'Reserved'];
+  const filterOptions: string[] = ['All...', 'Available', 'Assigned', 'Maintenance', 'Reserved'];
 
   // For pagination functionality
-  const handlePageChange = (page) => {
+  const handlePageChange = (page: number): void => {
     setCurrentPage(page);
   };
 
-  const goToPreviousPage = () => {
+  const goToPreviousPage = (): void => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
     }
   };
 
-  const goToNextPage = () => {
+  const goToNextPage = (): void => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
     }
   };
 
   // Toggle expanded asset details
-  const toggleAssetDetails = (assetId) => {
+  const toggleAssetDetails = (assetId: number): void => {
     if (expandedAssetId === assetId) {
       setExpandedAssetId(null);
     } else {
@@ -100,20 +115,29 @@ export default function AssetInventoryScreen() {
     }
   };
 
-  // Handle asset request
-  const handleAssetRequest = (assetId) => {
-    // Implementation would go here
-    console.log(`Requested asset ${assetId}`);
+  // Handle asset request - now opens the modal
+  const handleAssetRequest = (assetId: number): void => {
+    const asset = assets.find(a => a.id === assetId);
+    if (asset) {
+      setSelectedAsset(asset);
+      setModalVisible(true);
+    }
+  };
+
+  // Handle modal close
+  const handleCloseModal = (): void => {
+    setModalVisible(false);
+    setSelectedAsset(null);
   };
 
   // Handle asset review
-  const handleAssetReview = (assetId) => {
+  const handleAssetReview = (assetId: number): void => {
     // Implementation would go here
     console.log(`Reviewing asset ${assetId}`);
   };
 
   // Handle check availability
-  const handleCheckAvailability = (assetId) => {
+  const handleCheckAvailability = (assetId: number): void => {
     // Implementation would go here
     console.log(`Checking availability for asset ${assetId}`);
   };
@@ -269,7 +293,7 @@ export default function AssetInventoryScreen() {
                       onPress={() => handleAssetRequest(asset.id)}
                     >
                       <Feather name="shopping-cart" size={16} color="#fff" />
-                      <Text style={[styles.actionButtonText, styles.requestButtonText]}>Request Asset</Text>
+                      <Text style={[styles.actionButtonText, styles.requestButtonText]}>Return Asset</Text>
                     </TouchableOpacity>
                   )}
                   
@@ -331,6 +355,37 @@ export default function AssetInventoryScreen() {
           />
         </TouchableOpacity>
       </View>
+
+      {/* Modal with ReturnForm */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={handleCloseModal}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Return Asset</Text>
+              <TouchableOpacity onPress={handleCloseModal}>
+                <AntDesign name="close" size={24} color="#333" />
+              </TouchableOpacity>
+            </View>
+            
+            {/* Pass the selected asset to ReturnForm if needed */}
+            {selectedAsset && (
+              <View style={styles.modalBody}>
+                <ReturnForm 
+                  // You can pass any props needed to ReturnForm
+                  assetName={selectedAsset.name}
+                  assetId={selectedAsset.serialNumber}
+                  onClose={handleCloseModal}
+                />
+              </View>
+            )}
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -614,5 +669,35 @@ const styles = StyleSheet.create({
   },
   paginationButtonTextActive: {
     color: '#fff',
+  },
+  // Modal styles
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    flex: 1,
+    marginTop: 60,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+    overflow: 'hidden',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    backgroundColor: '#f9f9f9',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  modalBody: {
+    flex: 1,
   },
 });

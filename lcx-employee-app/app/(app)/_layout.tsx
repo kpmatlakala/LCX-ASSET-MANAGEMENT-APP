@@ -10,6 +10,7 @@ import {
   Note,
   Logout,
   NotificationStatus,
+  LogoutCurve,
 } from "iconsax-react-native";
 import { router } from "expo-router";
 import {
@@ -45,13 +46,12 @@ export default function DrawerLayout() {
                 ]);
               }}
             >
-              <Logout size="24" color="white" />
+              <LogoutCurve size="24" color="white" />
               <Text style={styles.logoutButtonText}>Logout</Text>
             </TouchableOpacity>
           </View>
         )}
-      >
-        <Drawer.Screen
+      >        <Drawer.Screen
           name="Dashboard"
           options={{
             title: "",

@@ -72,14 +72,14 @@ export default function AssetManagementDashboard() {
             </View>
             <View style={styles.statContent}>
               <Text style={styles.statValue}>{assets.length}</Text>
-              <Text style={styles.statLabel}>Total Assets</Text>
+              <Text style={styles.statLabel}>Borrowed Assets</Text>
             </View>
           </LinearGradient>
         </TouchableOpacity>
 
         <TouchableOpacity activeOpacity={0.9}>
           <LinearGradient
-            colors={["#FF6B6B", "#ee5a5a"]}
+            colors={["#4a90e2", "#357dcb"]} 
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={styles.statCardGradient}
@@ -96,7 +96,7 @@ export default function AssetManagementDashboard() {
 
         <TouchableOpacity activeOpacity={0.9}>
           <LinearGradient
-            colors={["#4a90e2", "#357dcb"]}
+            colors={["#FF6B6B", "#ee5a5a"]} //"
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={styles.statCardGradient}
@@ -372,7 +372,6 @@ const styles = StyleSheet.create({
   showMoreButton: {
     padding: 8,
     alignItems: "center",
-    backgroundColor: "lightgray",
     borderTopWidth: 1,
     borderTopColor: "#eee",
     borderBottomLeftRadius: 18,

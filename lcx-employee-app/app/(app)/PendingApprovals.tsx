@@ -99,23 +99,9 @@ const PendingApprovalsScreen: React.FC = () => {
     <SafeAreaView className="bg-white flex-1">
       <ScrollView>
         <View className="flex-1 px-4 pb-8 bg-white rounded-3xl mx-4 my-4 relative">
-          <View className="flex-row justify-between items-center pt-4 pb-6">
-            <View className="flex-row">
-              <TouchableOpacity className="mr-4 relative">
-                <Notification size="24" color="#4d4d4d" />
-                <View className="w-4 h-4 bg-red-500 rounded-full absolute -top-1 -right-1 items-center justify-center">
-                  <Text className="text-white text-xs font-bold">1</Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <User size="24" color="#4d4d4d" />
-              </TouchableOpacity>
-            </View>
-          </View>
-
           {/* Page Title */}
           <View className="flex-row justify-between items-center mb-6">
-            <Text className="text-xl font-bold">Pending Approvals</Text>
+            <Text className="text-3xl font-bold mb-4">Pending Approvals</Text>
           </View>
 
           {/* Filter Tabs */}
