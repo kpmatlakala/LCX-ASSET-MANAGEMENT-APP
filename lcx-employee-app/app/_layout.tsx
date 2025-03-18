@@ -36,7 +36,8 @@ export default function RootLayout() {
         <Stack.Screen name="(onboarding)/onboarding" options={{ headerShown: false }} />   
         <Stack.Screen name="(app)/Dashboard" options={{ headerShown: false }} />
         <Stack.Screen name="(app)/Notifications" options={{ headerShown: false }} />
-        <Stack.Screen name="(app)/AssetsInventory" options={{ headerShown: false }} />        
+        <Stack.Screen name="(app)/AssetsInventory" options={{ headerShown: false }} />   
+        <Stack.Screen name="(app)/PendingApprovals" options={{ headerShown: false }} />     
       </Stack>
     </AssetProvider>
     // </SessionProvider>
