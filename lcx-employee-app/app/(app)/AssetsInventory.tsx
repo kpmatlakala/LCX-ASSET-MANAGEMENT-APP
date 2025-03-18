@@ -20,6 +20,7 @@ import {
 
 import { images } from "@/constants";
 import ReturnForm from "@/components/ReturnForm";
+import { router } from "expo-router";
 
 interface Asset {
   id: number;
@@ -157,10 +158,15 @@ export default function AssetInventoryScreen() {
   // Handle asset request - now opens the modal
   const handleAssetRequest = (assetId: number): void => {
     const asset = assets.find((a) => a.id === assetId);
-    if (asset) {
+    if (asset) 
+    {
       setSelectedAsset(asset);
       setModalVisible(true);
-    }
+      router.push({
+        pathname: "/(app)/RequestAsset",
+        params: { assetId: asset.id.toString() }
+      });
+    }    
   };
 
   // Handle modal close
@@ -258,12 +264,13 @@ export default function AssetInventoryScreen() {
           <View key={asset.id} style={styles.assetCard}>
             {/* Asset Card Header */}
             <View style={styles.assetCardHeader}>
-              <View style={styles.assetNameContainer}>
+              <View style={[styles.assetNameContainer, 
+                { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "space-between" }]}> 
                 <Text style={styles.assetName}>{asset.name}</Text>
                 <View
                   style={[
                     styles.statusBadge,
-                    {
+                    {                  
                       backgroundColor: getStatusStyles(asset.status)
                         .backgroundColor,
                       borderColor: getStatusStyles(asset.status).borderColor,
@@ -279,19 +286,9 @@ export default function AssetInventoryScreen() {
                     }}
                   >
                     {asset.status}
-                  </Text>
+                  </Text>                  
                 </View>
-              </View>
-
-              <TouchableOpacity onPress={() => toggleAssetDetails(asset.id)}>
-                <Feather
-                  name={
-                    expandedAssetId === asset.id ? "chevron-up" : "chevron-down"
-                  }
-                  size={24}
-                  color="#666"
-                />
-              </TouchableOpacity>
+              </View>              
             </View>
 
             {/* Summary Info Always Visible */}
@@ -309,9 +306,21 @@ export default function AssetInventoryScreen() {
                   </Text>
                 </View>
               </View>
-              <Text style={styles.assetLastUpdated}>
+              <View style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+                <Text style={styles.assetLastUpdated}>
                 Last updated: {asset.lastUpdated}
-              </Text>
+                </Text>
+                <TouchableOpacity onPress={() => toggleAssetDetails(asset.id)}>
+                  <Feather
+                    name={
+                      expandedAssetId === asset.id ? "chevron-up" : "chevron-down"
+                    }
+                    size={24}
+                    color="#666"
+                  />
+                </TouchableOpacity>
+              </View>
+             
             </View>
 
             {/* Expanded Details and Actions */}
@@ -365,7 +374,7 @@ export default function AssetInventoryScreen() {
                           styles.requestButtonText,
                         ]}
                       >
-                        Return Asset
+                        Request Asset
                       </Text>
                     </TouchableOpacity>
                   )}

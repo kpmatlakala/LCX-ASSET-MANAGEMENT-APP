@@ -13,6 +13,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { Box, Clock, Danger, ArrowDown2, ArrowUp2 } from "iconsax-react-native";
 import { useAssets } from "@/context/AssetContext";
+import { router } from "expo-router";
 
 export default function AssetManagementDashboard() {
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -187,7 +188,7 @@ export default function AssetManagementDashboard() {
                   <View style={styles.detailRow}>
                     <View style={styles.detailItem}>
                       <Text style={styles.detailLabel}>Serial Number:</Text>
-                      <Text style={styles.detailValue}>{asset.serial_number || "N/A"}</Text>
+                      <Text style={styles.detailValue}>{asset.asset_sn || "N/A"}</Text>
                     </View>
                     <View style={styles.detailItem}>
                       <Text style={styles.detailLabel}>Condition:</Text>
@@ -195,7 +196,7 @@ export default function AssetManagementDashboard() {
                     </View>
                   </View>
                   
-                  <View style={styles.detailRow}>
+                  {/* <View style={styles.detailRow}>
                     <View style={styles.detailItem}>
                       <Text style={styles.detailLabel}>Checkout Date:</Text>
                       <Text style={styles.detailValue}>{asset.checkout_date || "N/A"}</Text>
@@ -204,7 +205,7 @@ export default function AssetManagementDashboard() {
                       <Text style={styles.detailLabel}>Return Date:</Text>
                       <Text style={styles.detailValue}>{asset.return_date || "N/A"}</Text>
                     </View>
-                  </View>
+                  </View> */}
                   
                   <View style={styles.detailRow}>
                     <View style={styles.detailItem}>
@@ -222,8 +223,14 @@ export default function AssetManagementDashboard() {
                     <Text style={styles.actionButtonText}>Review Details</Text>
                   </TouchableOpacity>
                   
-                  <TouchableOpacity style={[styles.actionButton, styles.primaryButton]}>
-                    <Text style={[styles.actionButtonText, styles.primaryButtonText]}>Return Asset</Text>
+                  <TouchableOpacity 
+                    style={[styles.actionButton, styles.primaryButton]}
+                    onPress={() => router.push({
+                      pathname: "/(app)/RequestAsset",
+                      params: { assetId: asset.asset_id }
+                    })}
+                  >
+                    <Text style={[styles.actionButtonText, styles.primaryButtonText]}>Request Asset</Text>
                   </TouchableOpacity>
                 </View>
               </View>

@@ -9,7 +9,7 @@ import {
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { images } from "@/constants";
 import FormField from "@/components/FormField";
 import CustomButton from "@/components/CustomButton";
@@ -18,6 +18,11 @@ import { useAssets } from '@/context/AssetContext';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 const RequestAssets = () => {
+
+  const params = useLocalSearchParams();
+  const assetIdFromParams = params.assetId;
+  console.log("selected asset:", assetIdFromParams);
+  // Alert.alert(assetIdFromParams);
   const { assets, requestAsset } = useAssets();
 
   const [search, setSearch] = useState("");
@@ -33,7 +38,15 @@ const RequestAssets = () => {
   useEffect(() => {
     // Initialize filtered assets with all available assets
     setFilteredAssets(assets);
-  }, [assets]);
+    
+    // If an asset ID was passed in the params, find and select that asset
+    if (assetIdFromParams) {
+      const preselectedAsset = assets.find(asset => asset.asset_id === assetIdFromParams);
+      if (preselectedAsset) {
+        setSelectedAsset(preselectedAsset);
+      }
+    }
+  }, [assets, assetIdFromParams]);
 
   const handleInputChange = (field, value) => {
     switch (field) {
