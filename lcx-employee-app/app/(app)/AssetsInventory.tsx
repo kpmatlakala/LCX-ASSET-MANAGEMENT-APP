@@ -213,24 +213,18 @@ export default function AssetInventoryScreen() {
             {/* Asset Card Header */}
             <View style={styles.assetCardHeader}>
               <View style={styles.assetNameContainer}>
-                <Text style={styles.assetName}>{asset.name}</Text>
-                <View style={[styles.statusBadge, 
-                  asset.status === 'Available' ? styles.statusAvailable : 
-                  asset.status === 'Assigned' ? styles.statusAssigned :
-                  asset.status === 'Maintenance' ? styles.statusMaintenance :
-                  styles.statusReserved
-                ]}>
-                  <Text style={styles.statusText}>{asset.status}</Text>
-                </View>
-              </View>
-              
-              <TouchableOpacity onPress={() => toggleAssetDetails(asset.id)}>
-                <Feather 
-                  name={expandedAssetId === asset.id ? "chevron-up" : "chevron-down"} 
-                  size={24} 
-                  color="#666" 
-                />
-              </TouchableOpacity>
+                <View style={{ flexDirection: 'row', alignItems:'center', justifyContent: 'space-between' }}>
+                  <Text style={styles.assetName}>{asset.name}</Text>
+                  <View style={[styles.statusBadge, 
+                    asset.status === 'Available' ? styles.statusAvailable : 
+                    asset.status === 'Assigned' ? styles.statusAssigned :
+                    asset.status === 'Maintenance' ? styles.statusMaintenance :
+                    styles.statusReserved
+                  ]}>
+                    <Text style={styles.statusText}>{asset.status}</Text>
+                  </View>
+                </View>                
+              </View> 
             </View>
             
             {/* Summary Info Always Visible */}
@@ -247,7 +241,17 @@ export default function AssetInventoryScreen() {
                   <Text style={styles.assetInfoValue}>{asset.serialNumber}</Text>
                 </View>
               </View>
-              <Text style={styles.assetLastUpdated}>Last updated: {asset.lastUpdated}</Text>
+
+              <View style={{ flexDirection: 'row', alignItems:'center', justifyContent: 'space-between' }}>
+                <Text style={styles.assetLastUpdated}>Last updated: {asset.lastUpdated}</Text>
+                <TouchableOpacity onPress={() => toggleAssetDetails(asset.id)}>
+                  <Feather 
+                    name={expandedAssetId === asset.id ? "chevron-up" : "chevron-down"} 
+                    size={24} 
+                    color="#666" 
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
             
             {/* Expanded Details and Actions */}
