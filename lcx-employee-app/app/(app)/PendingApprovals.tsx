@@ -59,6 +59,19 @@ const PendingApprovalsScreen: React.FC = () => {
     }
   };
 
+  const getStatusStyles = (status: string): { backgroundColor: string; borderColor: string } => {
+    switch (status) {
+      case "Pending Approval":
+        return { backgroundColor: "#fdd0df", borderColor: "#f5426c" }; // Light pink background, dark pink border
+      case "Processing":
+        return { backgroundColor: "#fdedd3", borderColor: "#f5a524" }; // Light orange background, dark orange border
+      case "Pending Collection":
+        return { backgroundColor: "#d1f4e0", borderColor: "#17c964" }; // Light green background, dark green border
+      default:
+        return { backgroundColor: "#f0f0f0", borderColor: "#cccccc" }; // Default light gray background, dark gray border
+    }
+  };
+
   const filteredAssets = pendingAssets.filter((asset) => {
     if (selectedTab === "All Requests") return true;
     if (selectedTab === "Pending") return asset.status === "Pending Approval";
@@ -67,33 +80,45 @@ const PendingApprovalsScreen: React.FC = () => {
     return false;
   });
 
-  const renderAssetItem = ({ item }: { item: Asset }) => (
-    <TouchableOpacity
-      className="border border-texts rounded-lg p-4 mb-4"
-      onPress={() => router.push(`/asset-details/${item.id}`)}
-    >
-      <View className="flex-row justify-between items-center">
-        <View>
-          <Text className="text-base font-semibold">{item.name}</Text>
-          <Text className="text-sm text-gray-500">{item.code}</Text>
-          <Text className="text-sm text-texts mt-2">
-            Requested: {item.requestDate}
-          </Text>
+  const renderAssetItem = ({ item }: { item: Asset }) => {
+    const { backgroundColor, borderColor } = getStatusStyles(item.status);
+
+    return (
+      <TouchableOpacity
+        className="border border-texts rounded-lg p-4 mb-4"
+        onPress={() => router.push(`/asset-details/${item.id}`)}
+      >
+        <View className="flex-row justify-between items-center">
+          <View>
+            <Text className="text-base font-semibold">{item.name}</Text>
+            <Text className="text-sm text-gray-500">{item.code}</Text>
+            <Text className="text-sm text-texts mt-2">
+              Requested: {item.requestDate}
+            </Text>
+          </View>
+          <View
+            style={{
+              backgroundColor,
+              borderColor,
+              borderWidth: 1,
+              borderRadius: 12,
+              paddingHorizontal: 8,
+              paddingVertical: 4,
+            }}
+          >
+            <Text
+              style={{
+                color: borderColor,
+                fontWeight: "500",
+              }}
+            >
+              {item.status}
+            </Text>
+          </View>
         </View>
-        <View className="items-end">
-          <Text className={`${getStatusColor(item.status)} font-medium`}>
-            {item.status}
-          </Text>
-          <Feather
-            name="chevron-right"
-            size={20}
-            color="#666"
-            className="mt-2"
-          />
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <SafeAreaView className="bg-white flex-1">

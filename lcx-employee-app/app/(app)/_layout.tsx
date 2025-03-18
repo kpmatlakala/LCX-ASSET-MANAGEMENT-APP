@@ -1,7 +1,7 @@
 import React from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Drawer } from "expo-router/drawer";
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Image } from "react-native";
 import {
   Notification,
   User,
@@ -17,6 +17,7 @@ import {
   DrawerContentScrollView,
   DrawerItemList,
 } from "@react-navigation/drawer";
+import { images } from "@/constants";
 
 export default function DrawerLayout() {
   return (
@@ -29,8 +30,16 @@ export default function DrawerLayout() {
         drawerContent={(props) => (
           <View style={{ flex: 1 }}>
             <DrawerContentScrollView {...props}>
-              <DrawerItemList {...props} />
-            </DrawerContentScrollView>
+        {/* Logo Section */}
+        <View style={{ alignItems: "center", marginVertical: 20 }}>
+          <Image
+            source={images.Logo} // Use local image
+            style={{ width: 150, height: 150, resizeMode: "contain" }}
+          />
+        </View>
+
+        <DrawerItemList {...props} />
+      </DrawerContentScrollView>
             <TouchableOpacity
               style={styles.logoutButton}
               onPress={() => {
@@ -147,6 +156,9 @@ export default function DrawerLayout() {
                       <Text style={styles.badgeText}>3</Text>
                     </View>
                   </View>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => console.log("User clicked")}>
+                  <User size="24" color="#000" />
                 </TouchableOpacity>
               </View>
             ),
