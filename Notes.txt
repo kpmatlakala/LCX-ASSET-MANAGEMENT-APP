@@ -212,3 +212,4 @@ damaged->Disposal
 Assets Vs inventory
 - assets are the physical items
 - inventory is the list of assets
+
