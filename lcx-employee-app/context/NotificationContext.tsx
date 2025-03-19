@@ -4,8 +4,7 @@ import { Session } from "@supabase/supabase-js";
 import { AppState } from 'react-native';
 
 // Notification interface
-export interface Notification {
- 
+export interface Notification { 
   id?: string;
   title: string;
   subtext: string;
@@ -20,13 +19,16 @@ export interface Notification {
 
 // Updated context type
 interface NotificationContextType {
-  notifications: Notification[];
-  unreadCount: number;
-  addNotification: (notification: Notification) => void;
-  markAsRead: (id: string) => Promise<void>;
-  markAllAsRead: () => Promise<void>;
-  deleteNotification: (id: string) => Promise<void>;
-  clearAll: () => Promise<void>;
+    isModalVisible: boolean;
+    notifications: Notification[];
+    unreadCount: number;
+    addNotification: (notification: Notification) => void;
+    markAsRead: (id: string) => Promise<void>;
+    markAllAsRead: () => Promise<void>;
+    deleteNotification: (id: string) => Promise<void>;
+    clearAll: () => Promise<void>;
+    showModal: (notificationsData: Notification[]) => void;
+    closeModal: () => void;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
@@ -35,6 +37,16 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [session, setSession] = useState<Session | null>(null);
   const [appState, setAppState] = useState(AppState.currentState);
+  const [isModalVisible, setModalVisible] = useState(false);
+
+  const showModal = (notificationsData) => {
+    setNotifications(notificationsData);
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
   
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
@@ -303,6 +315,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   return (
     <NotificationContext.Provider
       value={{
+        isModalVisible,
         notifications,
         unreadCount,
         addNotification,
@@ -310,6 +323,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         markAllAsRead,
         deleteNotification,
         clearAll,
+        showModal,
+        closeModal,
       }}
     >
       {children}

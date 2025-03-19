@@ -38,10 +38,10 @@ export default function RootLayout() {
           <Stack.Screen name="/AssetDetails" options={{ headerShown: false }} /> {/* Entry point */}
           <Stack.Screen name="(auth)/Auth" options={{ headerShown: false }} />
           <Stack.Screen name="(onboarding)/onboarding" options={{ headerShown: false }} />   
-          <Stack.Screen name="(app)/Dashboard" options={{ headerShown: false }} />
-          <Stack.Screen name="(app)/Notifications" options={{ headerShown: false }} />
-          <Stack.Screen name="(app)/AssetsInventory" options={{ headerShown: false }} />    
-          <Stack.Screen name="(app)/PendingApprovals" options={{ headerShown: false }} />     
+          <Stack.Screen name="(tabs)/Dashboard" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)/Notifications" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)/AssetsInventory" options={{ headerShown: false }} />    
+          <Stack.Screen name="(tabs)/MyAssets" options={{ headerShown: false }} />     
         </Stack>     
       </AssetProvider> 
     </NotificationProvider>

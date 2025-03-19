@@ -58,11 +58,18 @@ CREATE TABLE user_roles (
 );
 
 -- Assets table to store all company assets *
+-- Categories :
+    -> Furniture
+    -> IT_equipment
+    -> Office_equipment
+    -> V_Set
+    -> Fiber
+--
 CREATE TABLE assets (
     asset_id SERIAL PRIMARY KEY,
     asset_name TEXT NOT NULL,
     asset_type TEXT NOT NULL,
-    asset_category TEXT NOT NULL,
+    asset_category TEXT NOT NULL, 
     asset_code TEXT UNIQUE NOT NULL,
     asset_SN TEXT UNIQUE NOT NULL,
     description TEXT,

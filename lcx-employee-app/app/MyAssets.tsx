@@ -19,7 +19,7 @@ interface Asset {
   status: string;
 }
 
-const PendingApprovalsScreen: React.FC = () => {
+const MyAssetsScreen: React.FC = () => {
   const [pendingAssets, setPendingAssets] = useState<Asset[]>([
     {
       id: "1",
@@ -206,4 +206,4 @@ const PendingApprovalsScreen: React.FC = () => {
   );
 };
 
-export default PendingApprovalsScreen;
+export default MyAssetsScreen;

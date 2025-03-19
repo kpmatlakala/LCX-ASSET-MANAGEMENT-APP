@@ -13,7 +13,7 @@ export default function Index() {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) 
       { // Redirect if logged in
-        router.push("/(app)/Profile"); 
+        router.push("/(tabs)/Profile"); 
       } // Redirect to login page
       else { router.push("/(auth)/Auth"); }
       
@@ -26,7 +26,7 @@ export default function Index() {
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) 
       { // Redirect after login
-        router.push("/(app)/Profile"); 
+        router.push("/(tabs)/Dashboard"); 
       } // Redirect after logout
       else { router.push("/(auth)/Auth"); }
     });

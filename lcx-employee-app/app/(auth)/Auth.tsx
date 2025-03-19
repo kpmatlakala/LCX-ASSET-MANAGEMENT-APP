@@ -34,6 +34,8 @@ const Auth = () => {
       {
         const { error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) errorMessage = error.message
+
+        
       } 
       else if (action === 'signUp') 
       {
