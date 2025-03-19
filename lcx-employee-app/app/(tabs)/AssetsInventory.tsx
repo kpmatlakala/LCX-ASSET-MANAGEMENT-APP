@@ -165,7 +165,7 @@ export default function AssetInventoryScreen() {
       setSelectedAsset(asset);
       setModalVisible(true);
       router.push({
-        pathname: "/(app)/RequestAsset",
+        pathname: "/RequestAsset",
         params: { assetId: asset.asset_id.toString() }
       });
     }    

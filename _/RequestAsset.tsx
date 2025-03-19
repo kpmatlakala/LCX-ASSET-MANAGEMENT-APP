@@ -12,7 +12,7 @@ import { router } from "expo-router";
 import { images } from "@/constants";
 import FormField from "@/components/FormField";
 import CustomButton from "@/components/CustomButton";
-import { ArrowDown2, SearchNormal1 } from "iconsax-react-native";
+import { User, ArrowDown2, SearchNormal1 } from "iconsax-react-native";
 import { useAssets } from '@/context/AssetContext';
 
 const RequestAssets = () => {
@@ -68,8 +68,26 @@ const RequestAssets = () => {
     <SafeAreaView className="bg-[#f5f8dc] flex-1">
       <ScrollView>
         <View className="flex-1 px-4 pb-8 bg-white rounded-3xl mx-4 my-4 relative">
-          <View className="flex-row justify-center items-center pt-4 pb-6">
-            <Image source={images.Logo} resizeMode="contain" className="w-[170px] h-[100px]" />
+           {/* Header with Menu, Logo and Profile */}
+          <View style={styles.header}>
+            {/* <TouchableOpacity>
+              <Feather name="menu" size={28} color="#333" />
+            </TouchableOpacity> */}
+            
+            <View style={styles.logo}>
+              <Image 
+                source={images.Logo}
+                style={styles.logoImage}
+                // defaultSource={require('@/assets/images/placeholder.png')}
+              />
+            </View>
+            
+            <View style={styles.notificationIcon}>
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>3</Text>
+              </View>
+              <User name="person-circle-outline" size={32} color="#333" />
+            </View>
           </View>
 
           <View className="mb-6 border border-texts rounded-lg flex-row items-center px-4">

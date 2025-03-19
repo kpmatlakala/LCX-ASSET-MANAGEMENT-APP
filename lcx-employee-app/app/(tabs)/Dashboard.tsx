@@ -11,9 +11,10 @@ import {
   Image,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { Box, Clock, Danger, ArrowDown2, ArrowUp2 } from "iconsax-react-native";
+import { Box, Clock, Danger, ArrowDown2, ArrowUp2, ArrowRight2 } from "iconsax-react-native";
 import { useAssets } from "@/context/AssetContext";
 import { router } from "expo-router";
+import { images } from "@/constants";
 
 export default function AssetManagementDashboard() {
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -42,12 +43,12 @@ export default function AssetManagementDashboard() {
   useEffect(() => {
     // Automatically show the modal when the user signs in
     setModalVisible(true);
-  }, []); 
+  }, []);
 
   useEffect(() => {
     const availableAssets = assets.filter(asset => asset.status === 'Available');
 
-    setFilteredAssets(availableAssets); 
+    setFilteredAssets(availableAssets);
   }, [assets]);
 
   // Toggle asset details expanded/collapsed
@@ -63,194 +64,158 @@ export default function AssetManagementDashboard() {
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor="#e8eac6" barStyle="dark-content" />
 
+      {/* <View className="flex-row justify-center items-center pt-4 pb-6">
+        <Image source={images.Logo} resizeMode="contain" className="w-[170px] h-[100px]" />
+      </View> */}
+
+
       {/* Dashboard Title */}
       <Text style={styles.dashboardTitle}>Dashboard</Text>
-
-      {/* Enhanced Stats Cards - Now with gradients */}
-      <ScrollView
-        horizontal
+      <ScrollView        
         showsHorizontalScrollIndicator={false}
         style={styles.statsScrollContainer}
         contentContainerStyle={styles.statsContentContainer}
       >
+
+        <Text style={styles.sectionTitle}>Stats</Text>
+        {/* Enhanced Stats Cards - Now with gradients */}     
         <TouchableOpacity activeOpacity={0.9}>
-          <LinearGradient
-            colors={["#b8ca41", "#a6b83d"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.statCardGradient}
-          >
-            <View style={styles.statIconContainer}>
-              <Box size={24} color="white" variant="Bold" />
-            </View>
-            <View style={styles.statContent}>
-              <Text style={styles.statValue}>{assets.length}</Text>
-              <Text style={styles.statLabel}>Borrowed Assets</Text>
-            </View>
-          </LinearGradient>
-        </TouchableOpacity>
-
-        <TouchableOpacity activeOpacity={0.9}>
-          <LinearGradient
-            colors={["#4a90e2", "#357dcb"]} 
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.statCardGradient}
-          >
-            <View style={styles.statIconContainer}>
-              <Clock size={24} color="white" variant="Bold" />
-            </View>
-            <View style={styles.statContent}>
-              <Text style={styles.statValue}>1</Text>
-              <Text style={styles.statLabel}>Pending</Text>
-            </View>
-          </LinearGradient>
-        </TouchableOpacity>
-
-        <TouchableOpacity activeOpacity={0.9}>
-          <LinearGradient
-            colors={["#FF6B6B", "#ee5a5a"]} //"
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.statCardGradient}
-          >
-            <View style={styles.statIconContainer}>
-              <Danger size={24} color="white" variant="Bold" />
-            </View>
-            <View style={styles.statContent}>
-              <Text style={styles.statValue}>1</Text>
-              <Text style={styles.statLabel}>Overdue</Text>
-            </View>
-          </LinearGradient>
-        </TouchableOpacity>
-      </ScrollView>
-
-      {/* Asset Categories */}
-      <Text style={styles.sectionTitle}>Asset Categories</Text>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.categoriesContainer}
-      >
-        {["All", "Laptops", "Phones", "Other"].map((category) => (
-          <TouchableOpacity
-            key={category}
-            style={[
-              styles.categoryButton,
-              selectedCategory === category && styles.categoryButtonActive,
-            ]}
-            onPress={() => setSelectedCategory(category)}
-          >
-            <Text
-              style={[
-                styles.categoryButtonText,
-                selectedCategory === category &&
-                  styles.categoryButtonTextActive,
-              ]}
-            >
-              {category}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-
-      {/* Asset List */}
-      <ScrollView style={styles.assetListContainer}>
-        {filteredAssets.map((asset) => (
-          <View key={asset.asset_id} style={styles.assetCard}>
-            <View style={{flexDirection:'row',justifyContent:'space-between',marginTop:10}}>
-              <View>
-                <Text style={styles.assetName}>{asset.asset_name}</Text>
-                <Text style={styles.assetId}>{asset.asset_category}</Text>
-              </View>
-
-              <View>
-                <Text style={styles.assetStatus}>{asset.status}</Text>
-                {/* Toggle button for expanding/collapsing */}
-            <TouchableOpacity 
-              style={styles.expandButton}
-              onPress={() => toggleAssetDetails(asset.asset_id)}
-            >
-              {expandedAssetId === asset.asset_id ? (
-                <ArrowUp2 size={20} color="#666" />
-              ) : (
-                <ArrowDown2 size={20} color="#666" />
-              )}
-            </TouchableOpacity>
-              </View>
-            </View>
-
-             {/* Expanded Details */}
-             {expandedAssetId === asset.asset_id && (
-              <View style={styles.expandedContent}>
-                <View style={styles.divider} />
-                
-                {/* Additional Asset Details */}
-                <View style={styles.detailsContainer}>
-                  <View style={styles.detailRow}>
-                    <View style={styles.detailItem}>
-                      <Text style={styles.detailLabel}>Serial Number:</Text>
-                      <Text style={styles.detailValue}>{asset.asset_sn || "N/A"}</Text>
-                    </View>
-                    <View style={styles.detailItem}>
-                      <Text style={styles.detailLabel}>Condition:</Text>
-                      <Text style={styles.detailValue}>{asset.condition || "Good"}</Text>
-                    </View>
-                  </View>
-                  
-                  {/* <View style={styles.detailRow}>
-                    <View style={styles.detailItem}>
-                      <Text style={styles.detailLabel}>Checkout Date:</Text>
-                      <Text style={styles.detailValue}>{asset.checkout_date || "N/A"}</Text>
-                    </View>
-                    <View style={styles.detailItem}>
-                      <Text style={styles.detailLabel}>Return Date:</Text>
-                      <Text style={styles.detailValue}>{asset.return_date || "N/A"}</Text>
-                    </View>
-                  </View> */}
-                  
-                  <View style={styles.detailRow}>
-                    <View style={styles.detailItem}>
-                      <Text style={styles.detailLabel}>Location:</Text>
-                      <Text style={styles.detailValue}>{asset.location || "Main Office"}</Text>
-                    </View>
-                  </View>
-                </View>
-                
-                <View style={styles.divider} />
-                
-                {/* Action Buttons */}
-                <View style={styles.actionButtons}>
-                  <TouchableOpacity style={styles.actionButton}
-                    onPress={() => router.push({
-                      pathname: "/AssetDetails",
-                      params: { assetId: asset.asset_id }
-                    })}
-                  >
-                    <Text style={styles.actionButtonText}>Review Details</Text>
-                  </TouchableOpacity>
-                  
-                  <TouchableOpacity 
-                    style={[styles.actionButton, styles.primaryButton]}
-                    onPress={() => router.push({
-                      pathname: "/(app)/RequestAsset",
-                      params: { assetId: asset.asset_id }
-                    })}
-                  >
-                    <Text style={[styles.actionButtonText, styles.primaryButtonText]}>Request Asset</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            )}
+        <LinearGradient
+          colors={["#b8ca41", "#a6b83d"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.statCardGradient}
+        >
+          <View style={styles.statIconContainer}>
+            <Box size={24} color="white" variant="Bold" />
           </View>
-        ))}
-
-        <TouchableOpacity style={styles.showMoreButton}>
-          <Text style={styles.showMoreText}>Show More Assets</Text>
+          <View style={styles.statContent}>
+            <Text style={styles.statValue}>{assets.length}</Text>
+            <Text style={styles.statLabel}>Borrowed Assets</Text>
+          </View>
+        </LinearGradient>
         </TouchableOpacity>
-      </ScrollView>
+        {/* Enhanced Stats Cards - Now with gradients */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.statsScrollContainer}
+          contentContainerStyle={styles.statsContentContainer}
+        >        
+          <TouchableOpacity activeOpacity={0.9}>
+            <LinearGradient
+              colors={["#4a90e2", "#357dcb"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.statCardGradient}
+            >
+              <View style={styles.statIconContainer}>
+                <Clock size={24} color="white" variant="Bold" />
+              </View>
+              <View style={styles.statContent}>
+                <Text style={styles.statValue}>1</Text>
+                <Text style={styles.statLabel}>Pending</Text>
+              </View>
+            </LinearGradient>
+          </TouchableOpacity>
 
-      
+          <TouchableOpacity activeOpacity={0.9}>
+            <LinearGradient
+              colors={["#FF6B6B", "#ee5a5a"]} //"
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.statCardGradient}
+            >
+              <View style={styles.statIconContainer}>
+                <Danger size={24} color="white" variant="Bold" />
+              </View>
+              <View style={styles.statContent}>
+                <Text style={styles.statValue}>1</Text>
+                <Text style={styles.statLabel}>Overdue</Text>
+              </View>
+            </LinearGradient>
+          </TouchableOpacity>
+        </ScrollView>       
+   
+
+        <View style={styles.actionsContainer}>
+
+          {/* Asset Categories */}
+          <Text style={styles.sectionTitle}>Quick Actions</Text>
+
+          {/* Asset List */}
+          <ScrollView style={styles.assetListContainer}>
+            <View style={styles.assetCard}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
+                <View>
+                  <Text style={styles.assetName}>Inventory</Text>             
+                </View>
+
+                <View>
+                  {/* <Text style={styles.assetStatus}>{asset.status}</Text> */}
+                  {/* Toggle button for expanding/collapsing */}
+                  <TouchableOpacity
+                    style={styles.expandButton}
+                    onPress={() => console.log("Asset expanded")}
+                  >
+                    {expandedAssetId === 0 ? (
+                      <ArrowUp2 size={20} color="#666" />
+                    ) : (
+                      <ArrowRight2 size={20} color="#666" />
+                    )}
+                  </TouchableOpacity>
+                </View>
+              </View>         
+            </View>
+
+            <View style={styles.assetCard}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
+                <View>
+                  <Text style={styles.assetName}>Request Asset</Text>             
+                </View>
+
+                <View>
+                  {/* <Text style={styles.assetStatus}>{asset.status}</Text> */}
+                  {/* Toggle button for expanding/collapsing */}
+                  <TouchableOpacity
+                    style={styles.expandButton}
+                    onPress={() => console.log("Asset expanded")}
+                  >
+                    {expandedAssetId === 0 ? (
+                      <ArrowUp2 size={20} color="#666" />
+                    ) : (
+                      <ArrowRight2 size={20} color="#666" />
+                    )}
+                  </TouchableOpacity>
+                </View>
+              </View>         
+            </View>
+
+            <View style={styles.assetCard}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
+                <View>
+                  <Text style={styles.assetName}>View Assets History</Text>             
+                </View>
+
+                <View>
+                  {/* <Text style={styles.assetStatus}>{asset.status}</Text> */}
+                  {/* Toggle button for expanding/collapsing */}
+                  <TouchableOpacity
+                    style={styles.expandButton}
+                    onPress={() => console.log("Asset expanded")}
+                  >
+                    {expandedAssetId === 0 ? (
+                      <ArrowUp2 size={20} color="#666" />
+                    ) : (
+                      <ArrowRight2 size={20} color="#666" />
+                    )}
+                  </TouchableOpacity>
+                </View>
+              </View>         
+            </View>        
+          </ScrollView>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -302,10 +267,10 @@ const styles = StyleSheet.create({
   },
   statsScrollContainer: {
     marginTop: 8,
-    paddingVertical: 8,
+    paddingVertical: 0,
   },
   statsContentContainer: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
   },
   statCard: {
     backgroundColor: "#fff",
@@ -453,6 +418,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#333",
   },
+  actionsContainer: {
+    marginHorizontal: 8,
+    marginTop: 4,
+    // backgroundColor: "#f0f0f0",
+  },
   actionButtons: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -491,5 +461,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#333",
   },
-  
+
 });

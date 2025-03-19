@@ -40,7 +40,7 @@ export default function TabLayout() {
   return (
       <Tabs
         screenOptions={{
-          headerShown: false,
+          headerShown: true,
           headerTitle: "",
           headerRight: () => (
             <TouchableOpacity onPress={handleSignOut}>
@@ -53,7 +53,7 @@ export default function TabLayout() {
           name="Dashboard"
           options={{
             tabBarIcon: () => <Home2 size="24" color="#000" />,
-            title: "Dashboard",
+            title: "Home",
           }}
         />        
 
@@ -61,7 +61,7 @@ export default function TabLayout() {
           name="AssetsInventory"
           options={{
             tabBarIcon: () => <ClipboardText size="24" color="#000" />,
-            title: "Assets / Inventory",
+            title: "Inventory",
           }}
         />
 
