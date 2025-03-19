@@ -1,56 +1,60 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, ScrollView, SafeAreaView, StatusBar, TouchableOpacity, Image } from 'react-native';
-import { Ionicons, Feather } from '@expo/vector-icons';
-
+import { Feather } from '@expo/vector-icons';
 import { images } from '@/constants';
+import { useAssets } from '@/context/AssetContext';
+import { useNotifications } from '@/context/NotificationContext';
 
 export default function NotificationsScreen() {
+  const { notifications } = useNotifications();
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = 4;
 
+  console.log(notifications);  
+
   // Sample notifications data
-  const notifications = [
-    { 
-      id: 1, 
-      type: 'approved',
-      title: 'Request Approved', 
-      message: 'Dell XPS 15 Laptop request approved',
-      subtext: 'Please wait Patiently for dispatch',
-      time: '10 minutes ago' 
-    },
-    { 
-      id: 2, 
-      type: 'rejected',
-      title: 'Request rejected', 
-      message: 'Dell XPS 19 Laptop request approved',
-      subtext: '',
-      time: '1 hour ago' 
-    },
-    { 
-      id: 3, 
-      type: 'approved',
-      title: 'Request Approved', 
-      message: 'Dell XPS 19 Laptop request approved',
-      subtext: 'Please wait Patiently for dispatch',
-      time: 'yesterday' 
-    },
-    { 
-      id: 4, 
-      type: 'approved',
-      title: 'Request Approved', 
-      message: 'Dell XPS 15 Laptop request approved',
-      subtext: 'Please wait Patiently for dispatch',
-      time: '22/02/2025' 
-    },
-    { 
-      id: 5, 
-      type: 'approved',
-      title: 'Request Approved', 
-      message: 'Dell XPS 15 Laptop request approved',
-      subtext: 'Please wait Patiently for dispatch',
-      time: '24/01/2025' 
-    },
-  ];
+  // const notifications = [
+  //   { 
+  //     id: 1, 
+  //     type: 'approved',
+  //     title: 'Request Approved', 
+  //     message: 'Dell XPS 15 Laptop request approved',
+  //     subtext: 'Please wait Patiently for dispatch',
+  //     time: '10 minutes ago' 
+  //   },
+  //   { 
+  //     id: 2, 
+  //     type: 'rejected',
+  //     title: 'Request rejected', 
+  //     message: 'Dell XPS 19 Laptop request approved',
+  //     subtext: '',
+  //     time: '1 hour ago' 
+  //   },
+  //   { 
+  //     id: 3, 
+  //     type: 'approved',
+  //     title: 'Request Approved', 
+  //     message: 'Dell XPS 19 Laptop request approved',
+  //     subtext: 'Please wait Patiently for dispatch',
+  //     time: 'yesterday' 
+  //   },
+  //   { 
+  //     id: 4, 
+  //     type: 'approved',
+  //     title: 'Request Approved', 
+  //     message: 'Dell XPS 15 Laptop request approved',
+  //     subtext: 'Please wait Patiently for dispatch',
+  //     time: '22/02/2025' 
+  //   },
+  //   { 
+  //     id: 5, 
+  //     type: 'approved',
+  //     title: 'Request Approved', 
+  //     message: 'Dell XPS 15 Laptop request approved',
+  //     subtext: 'Please wait Patiently for dispatch',
+  //     time: '24/01/2025' 
+  //   },
+  // ];
 
   // For pagination functionality
   const handlePageChange = (page) => {
@@ -76,10 +80,15 @@ export default function NotificationsScreen() {
       {/* Notifications section with dropdown */}
       <View style={styles.notificationHeader}>
         <Text style={styles.sectionTitle}>Notifications</Text>
+
         <TouchableOpacity style={styles.dropdown}>
           <Text style={styles.dropdownText}>Recent first</Text>
           <Feather name="chevron-down" size={20} color="#666" />
         </TouchableOpacity>
+        
+        {/* <TouchableOpacity onPress={clearAllNotifications}>
+          <Feather name="trash-2" size={20} color="#666" />
+        </TouchableOpacity> */}
       </View>
 
       {/* Notifications List */}
@@ -102,7 +111,7 @@ export default function NotificationsScreen() {
               )}
             </View>
             
-            <Text style={styles.notificationTime}>{notification.time}</Text>
+            <Text style={styles.notificationTime}>{notification.created_at}</Text>
           </View>
         ))}
       </ScrollView>

@@ -83,6 +83,13 @@ CREATE TABLE assets (
 
 
 -- Asset requests table to track all requests *
+-- Status Transitions:
+    * Pending → Approved: When a request is approved.
+    * Approved → Dispatched: When the asset has been physically dispatched to the user/department.
+    * Dispatched → Returned: When the asset is returned by the user/department.
+    * Dispatched → Cancelled: If the dispatch is canceled before the asset reaches the destination.
+    * Rejected → End State: The request was denied. 
+--
 CREATE TABLE asset_requests (
     request_id SERIAL PRIMARY KEY,
     employee_id TEXT NOT NULL REFERENCES employees(employee_id),
@@ -91,7 +98,7 @@ CREATE TABLE asset_requests (
     purpose TEXT NOT NULL,
     destination TEXT NOT NULL,
     expected_return_date DATE,
-    status TEXT CHECK (status IN ('Pending', 'Approved', 'Rejected', 'Cancelled', 'Returned')) DEFAULT 'Pending',
+    status TEXT CHECK (status IN ('Pending', 'Approved', 'Rejected', 'Dispatched', 'Cancelled', 'Returned')) DEFAULT 'Pending',
     approver_id TEXT REFERENCES employees(employee_id),
     approval_date TIMESTAMPTZ,
     rejection_reason TEXT,

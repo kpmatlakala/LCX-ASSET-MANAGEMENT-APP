@@ -336,6 +336,7 @@ const Profile = () => {
     );
   };
 
+
   if (loading) {
     return (
       <View style={styles.loader}>

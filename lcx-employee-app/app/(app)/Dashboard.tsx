@@ -45,7 +45,9 @@ export default function AssetManagementDashboard() {
   }, []); 
 
   useEffect(() => {
-    setFilteredAssets(assets); 
+    const availableAssets = assets.filter(asset => asset.status === 'Available');
+
+    setFilteredAssets(availableAssets); 
   }, [assets]);
 
   // Toggle asset details expanded/collapsed

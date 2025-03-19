@@ -18,8 +18,31 @@ import {
   DrawerItemList,
 } from "@react-navigation/drawer";
 import { images } from "@/constants";
+import { supabase } from "@/lib/supabase";
 
 export default function DrawerLayout() {
+
+  const handleSignOut = async () => {
+    Alert.alert(
+      "Sign Out",
+      "Are you sure you want to sign out?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "Sign Out",
+          onPress: async () => {
+            await supabase.auth.signOut();
+            router.replace("/(auth)/Auth");
+          },
+          style: "destructive"
+        }
+      ]
+    );
+  };
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Drawer
@@ -30,30 +53,19 @@ export default function DrawerLayout() {
         drawerContent={(props) => (
           <View style={{ flex: 1 }}>
             <DrawerContentScrollView {...props}>
-        {/* Logo Section */}
-        <View style={{ alignItems: "center", marginVertical: 20 }}>
-          <Image
-            source={images.Logo} // Use local image
-            style={{ width: 150, height: 150, resizeMode: "contain" }}
-          />
-        </View>
+              {/* Logo Section */}
+              <View style={{ alignItems: "center", marginVertical: 20 }}>
+                <Image
+                  source={images.Logo} // Use local image
+                  style={{ width: 150, height: 150, resizeMode: "contain" }}
+                />
+              </View>
 
-        <DrawerItemList {...props} />
-      </DrawerContentScrollView>
+              <DrawerItemList {...props} />
+            </DrawerContentScrollView>
             <TouchableOpacity
               style={styles.logoutButton}
-              onPress={() => {
-                Alert.alert("Sign Out", "Are you sure you want to sign out?", [
-                  {
-                    text: "Cancel",
-                    style: "cancel",
-                  },
-                  {
-                    text: "Sign Out",
-                    style: "destructive",
-                  },
-                ]);
-              }}
+              onPress={handleSignOut}
             >
               <LogoutCurve size="24" color="white" />
               <Text style={styles.logoutButtonText}>Logout</Text>
