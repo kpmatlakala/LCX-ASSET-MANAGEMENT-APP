@@ -79,6 +79,7 @@ export default function DrawerLayout() {
             headerTintColor: '#FFFFFF',
            }}          
         />
+        
         <Drawer.Screen
           name="Notifications"
           options={{ 
@@ -90,10 +91,16 @@ export default function DrawerLayout() {
            }}
           
         />
-        {/* <Drawer.Screen
+        <Drawer.Screen
           name="Settings"
-          options={{ title: "⚙️ Settings" }}
-        /> */}
+          options={{ title: "⚙️ Settings",
+            headerStyle: {
+              backgroundColor: '#4CAF50', 
+            },  
+            headerTintColor: '#FFFFFF',
+            
+           }}
+        />
         
       </Drawer>
     </GestureHandlerRootView>
