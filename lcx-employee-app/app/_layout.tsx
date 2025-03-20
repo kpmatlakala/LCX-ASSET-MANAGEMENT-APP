@@ -31,15 +31,17 @@ export default function RootLayout() {
   return (
     // <SessionProvider>
     <NotificationProvider>
-      <AssetProvider>
-      
-        <Stack screenOptions={{headerShown:false}}>
-          <Stack.Screen name="index" options={{ headerShown: false }} /> {/* Entry point */}
-          <Stack.Screen name="app/AssetDetails/:id" options={{ headerShown: false }} /> {/* Entry point */}
+      <AssetProvider>      
+        <Stack screenOptions={{headerShown:true}}>
+          <Stack.Screen name="index" options={{ headerShown: false }} /> 
+          <Stack.Screen name="app/Notifications" options={{ headerShown: true, headerTitle:()=> null, headerBackTitle:"" }} />
+          <Stack.Screen name="app/AssetDetails/:id" options={{ headerShown: true, headerTitle:()=> null, headerBackTitle:"" }} /> 
           <Stack.Screen name="(auth)/Auth" options={{ headerShown: false }} />
           <Stack.Screen name="(onboarding)/onboarding" options={{ headerShown: false }} />   
+          
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="(tabs)/Dashboard" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)/Notifications" options={{ headerShown: false }} />
+          
           <Stack.Screen name="(tabs)/AssetsInventory" options={{ headerShown: false }} />    
           <Stack.Screen name="(tabs)/MyAssets" options={{ headerShown: false }} />     
         </Stack>     
