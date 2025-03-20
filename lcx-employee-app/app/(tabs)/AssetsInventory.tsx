@@ -181,6 +181,7 @@ export default function AssetInventoryScreen() {
   const handleAssetReview = (assetId: number): void => {
     // Implementation would go here
     console.log(`Reviewing asset ${assetId}`);
+    router.push("/AssetDetails")
   };
 
   // Handle check availability
