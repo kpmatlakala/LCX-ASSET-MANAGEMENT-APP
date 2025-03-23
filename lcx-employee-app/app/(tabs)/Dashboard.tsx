@@ -50,9 +50,7 @@ export default function AssetManagementDashboard() {
       time: "1 hour ago",
       read: true,
     },
-  ];
-
-  const categories = ["All", "Laptops", "Phones", "Other"];
+  ];  
 
   const quickActions = [
     { 
@@ -278,22 +276,23 @@ export default function AssetManagementDashboard() {
             <View className="mt-4 mb-2">
               <View className="flex-row justify-between items-center mb-3 mx-5">
                 <Text className="text-xl font-bold">Available Assets</Text>
-                <TouchableOpacity onPress={() => router.push("/all-assets")}>
+                <TouchableOpacity onPress={() => router.push("/(tabs/Inventory")}>
                   <Text className="text-sm text-blue-500 font-medium">View All</Text>
                 </TouchableOpacity>
               </View>
               
               <View className="mx-5">
-                {filteredAssets.slice(0, 3).map((asset) => (
+                {filteredAssets.slice(0, 5).map((asset) => (
                   <TouchableOpacity
                     key={asset.id}
                     className="bg-white rounded-xl p-4 mb-3 shadow-sm border border-gray-50"
-                    onPress={() => router.push(`/asset-details/${asset.id}`)}
+                    onPress={() => router.push(`/AssetDetails/${asset.id}`)}
                   >
                     <View className="flex-row justify-between items-center">
                       <View>
-                        <Text className="text-base font-bold text-gray-800">{asset.name}</Text>
-                        <Text className="text-sm text-gray-500 mt-1">ID: {asset.id}</Text>
+                        <Text className="text-base font-bold text-gray-800">{asset.asset_name}</Text>
+                        <Text className="text-sm text-gray-500 mt-1">{asset.asset_category}</Text>
+                        {/* <Text className="text-sm text-gray-500 mt-1">ID: {asset.id}</Text> */}
                       </View>
                       <Text className={`text-sm font-semibold ${
                         asset.status === 'Available' ? 'text-green-500' : 'text-blue-500'

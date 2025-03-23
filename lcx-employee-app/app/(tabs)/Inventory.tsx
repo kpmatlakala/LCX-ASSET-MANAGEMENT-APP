@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -21,6 +21,8 @@ import {
 import { images } from "@/constants";
 import ReturnForm from "@/components/ReturnForm";
 import { router } from "expo-router";
+import { supabase } from '@/lib/supabase';
+import { useAuth } from "@/context/AuthContext";
 import { useAssets } from "@/context/AssetContext";
 
 interface Asset {
@@ -38,6 +40,9 @@ interface Asset {
 type TabType = "inventory" | "myAssets";
 
 export default function AssetInventoryScreen() {
+  const { user, session, loading} = useAuth();  
+  console.log(user);  
+
   const { assets } = useAssets();
   const [currentTab, setCurrentTab] = useState<TabType>("inventory");
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -204,7 +209,7 @@ export default function AssetInventoryScreen() {
       {/* Assets Inventory section title with Request Asset button */}
       <View style={styles.inventoryHeader}>
         <Text style={styles.sectionTitle}>
-          {currentTab === "inventory" ? "Inventory" : "My Assets"}
+          {currentTab === "inventory" ? "" : `${user?.employee_id}`}
         </Text>
         <TouchableOpacity
           style={styles.requestNewButton}
@@ -317,10 +322,10 @@ export default function AssetInventoryScreen() {
                     </Text>
                   </View>
 
-                  <View style={styles.assetInfoItem}>
+                  {/* <View style={styles.assetInfoItem}>
                     <Text style={styles.assetInfoLabel}>Serial No:</Text>
                     <Text style={styles.assetInfoValue}>{asset.asset_sn}</Text>
-                  </View>
+                  </View> */}
                 </View>
                 <View
                   style={{
@@ -416,7 +421,7 @@ export default function AssetInventoryScreen() {
                       </TouchableOpacity>
                     )}
 
-                    <TouchableOpacity
+                    {/* <TouchableOpacity
                       style={styles.actionButton}
                       onPress={() => handleCheckAvailability(asset.asset_id)}
                     >
@@ -424,7 +429,7 @@ export default function AssetInventoryScreen() {
                       <Text style={styles.actionButtonText}>
                         Check Availability
                       </Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                   </View>
                 </View>
               )}
@@ -443,7 +448,7 @@ export default function AssetInventoryScreen() {
       </ScrollView>
 
       {/* Pagination */}
-      {filteredAssets.length > 0 && (
+      {/* {filteredAssets.length > 0 && (
         <View style={styles.paginationContainer}>
           <TouchableOpacity
             style={styles.paginationArrow}
@@ -489,7 +494,7 @@ export default function AssetInventoryScreen() {
             />
           </TouchableOpacity>
         </View>
-      )}
+      )} */}
 
       {/* Modal with ReturnForm */}
       <Modal
@@ -652,7 +657,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#fff",
     paddingHorizontal: 15,
-    paddingVertical: 10,
+    paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 1,
     borderColor: "#ddd",
