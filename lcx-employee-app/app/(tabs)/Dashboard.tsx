@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import {
-  StyleSheet,
   Text,
   View,
   TouchableOpacity,
@@ -9,19 +8,31 @@ import {
   StatusBar,
   Modal,
   Image,
+  ActivityIndicator,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { Box, Clock, Danger, ArrowDown2, ArrowUp2, ArrowRight2 } from "iconsax-react-native";
+import {
+  Box,
+  Clock,
+  Danger,
+  ArrowRight2,
+  ArrowUp2,
+  DocumentText,
+  Add,
+  ArchiveBook,
+  Notification,
+} from "iconsax-react-native";
 import { useAssets } from "@/context/AssetContext";
 import { router } from "expo-router";
 import { images } from "@/constants";
 
 export default function AssetManagementDashboard() {
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const { assets } = useAssets();
+  const { assets, loading } = useAssets();
   const [filteredAssets, setFilteredAssets] = useState([]);
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [expandedAssetId, setExpandedAssetId] = useState(null);
+  const [notificationModalVisible, setNotificationModalVisible] =
+    useState(false);
+  const [expandedActionId, setExpandedActionId] = useState(null);
 
   const notifications = [
     {
@@ -30,6 +41,7 @@ export default function AssetManagementDashboard() {
       message: "Dell XPS 15 Laptop request approved",
       subtext: "Please wait patiently for dispatch",
       time: "10 minutes ago",
+      read: false,
     },
     {
       id: 2,
@@ -37,429 +49,336 @@ export default function AssetManagementDashboard() {
       message: "MacBook Pro request is pending approval",
       subtext: "Please check back later",
       time: "1 hour ago",
+      read: true,
+    },
+  ];
+
+  const categories = ["All", "Laptops", "Phones", "Other"];
+
+  const quickActions = [
+    {
+      id: 1,
+      name: "Inventory",
+      icon: <DocumentText size={20} color="#666" />,
+      onPress: () => router.push("/inventory"),
+    },
+    {
+      id: 2,
+      name: "Request Asset",
+      icon: <Add size={20} color="#666" />,
+      onPress: () => router.push("/request-asset"),
+    },
+    {
+      id: 3,
+      name: "View Assets History",
+      icon: <ArchiveBook size={20} color="#666" />,
+      onPress: () => router.push("/asset-history"),
     },
   ];
 
   useEffect(() => {
-    // Automatically show the modal when the user signs in
-    setModalVisible(true);
-  }, []);
+    if (assets && assets.length > 0) {
+      filterAssets(selectedCategory);
+    }
+  }, [assets, selectedCategory]);
 
-  useEffect(() => {
-    const availableAssets = assets.filter(asset => asset.status === 'Available');
-
-    setFilteredAssets(availableAssets);
-  }, [assets]);
-
-  // Toggle asset details expanded/collapsed
-  const toggleAssetDetails = (assetId) => {
-    if (expandedAssetId === assetId) {
-      setExpandedAssetId(null);
+  const filterAssets = (category) => {
+    let filtered;
+    if (category === "All") {
+      filtered = assets.filter((asset) => asset.status === "Available");
     } else {
-      setExpandedAssetId(assetId);
+      filtered = assets.filter(
+        (asset) => asset.status === "Available" && asset.category === category
+      );
+    }
+    setFilteredAssets(filtered);
+  };
+
+  // Toggle action details expanded/collapsed
+  const toggleActionDetails = (actionId) => {
+    if (expandedActionId === actionId) {
+      setExpandedActionId(null);
+    } else {
+      setExpandedActionId(actionId);
     }
   };
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar backgroundColor="#e8eac6" barStyle="dark-content" />
+  // Calculate stats
+  const pendingCount =
+    assets.filter((asset) => asset.status === "Pending").length || 1;
+  const overdueCount =
+    assets.filter((asset) => asset.status === "Overdue").length || 1;
+  const borrowedCount =
+    assets.filter((asset) => asset.status === "Borrowed").length ||
+    assets.length;
 
-      {/* <View className="flex-row justify-center items-center pt-4 pb-6">
-        <Image source={images.Logo} resizeMode="contain" className="w-[170px] h-[100px]" />
+  return (
+    <SafeAreaView className="flex-1 bg-white">
+      <StatusBar backgroundColor="#f8f9fa" barStyle="dark-content" />
+
+      {/* Header with Logo and Notification */}
+      {/* <View className="flex-row justify-between items-center px-5 py-3 bg-white border-b border-gray-100">
+        <View>
+          <Image source={images.Logo} resizeMode="contain" className="w-[120px] h-[40px]" />
+        </View>
+        <TouchableOpacity 
+          className="relative p-2"
+          onPress={() => setNotificationModalVisible(true)}
+        >
+          <Notification size={24} color="#333" />
+          {notifications.some(n => !n.read) && (
+            <View className="absolute right-[2px] top-[2px] bg-red-500 rounded-full w-4 h-4 flex items-center justify-center z-10">
+              <Text className="text-white text-[10px] font-bold">
+                {notifications.filter(n => !n.read).length}
+              </Text>
+            </View>
+          )}
+        </TouchableOpacity>
       </View> */}
 
-
       {/* Dashboard Title */}
-      <Text style={styles.dashboardTitle}>Dashboard</Text>
-      <ScrollView        
-        showsHorizontalScrollIndicator={false}
-        style={styles.statsScrollContainer}
-        contentContainerStyle={styles.statsContentContainer}
-      >
+      <Text className="text-3xl font-bold mx-5 mt-4 mb-2">Dashboard</Text>
 
-        <Text style={styles.sectionTitle}>Stats</Text>
-        {/* Enhanced Stats Cards - Now with gradients */}     
-        <TouchableOpacity activeOpacity={0.9}>
-        <LinearGradient
-          colors={["#b8ca41", "#a6b83d"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={styles.statCardGradient}
-        >
-          <View style={styles.statIconContainer}>
-            <Box size={24} color="white" variant="Bold" />
-          </View>
-          <View style={styles.statContent}>
-            <Text style={styles.statValue}>{assets.length}</Text>
-            <Text style={styles.statLabel}>Borrowed Assets</Text>
-          </View>
-        </LinearGradient>
-        </TouchableOpacity>
-        {/* Enhanced Stats Cards - Now with gradients */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.statsScrollContainer}
-          contentContainerStyle={styles.statsContentContainer}
-        >        
-          <TouchableOpacity activeOpacity={0.9}>
-            <LinearGradient
-              colors={["#4a90e2", "#357dcb"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.statCardGradient}
-            >
-              <View style={styles.statIconContainer}>
-                <Clock size={24} color="white" variant="Bold" />
-              </View>
-              <View style={styles.statContent}>
-                <Text style={styles.statValue}>1</Text>
-                <Text style={styles.statLabel}>Pending</Text>
-              </View>
-            </LinearGradient>
-          </TouchableOpacity>
-
-          <TouchableOpacity activeOpacity={0.9}>
-            <LinearGradient
-              colors={["#FF6B6B", "#ee5a5a"]} //"
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.statCardGradient}
-            >
-              <View style={styles.statIconContainer}>
-                <Danger size={24} color="white" variant="Bold" />
-              </View>
-              <View style={styles.statContent}>
-                <Text style={styles.statValue}>1</Text>
-                <Text style={styles.statLabel}>Overdue</Text>
-              </View>
-            </LinearGradient>
-          </TouchableOpacity>
-        </ScrollView>       
-   
-
-        <View style={styles.actionsContainer}>
-
-          {/* Asset Categories */}
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
-
-          {/* Asset List */}
-          <ScrollView style={styles.assetListContainer}>
-            <View style={styles.assetCard}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
-                <View>
-                  <Text style={styles.assetName}>Inventory</Text>             
-                </View>
-
-                <View>
-                  {/* <Text style={styles.assetStatus}>{asset.status}</Text> */}
-                  {/* Toggle button for expanding/collapsing */}
-                  <TouchableOpacity
-                    style={styles.expandButton}
-                    onPress={() => console.log("Asset expanded")}
-                  >
-                    {expandedAssetId === 0 ? (
-                      <ArrowUp2 size={20} color="#666" />
-                    ) : (
-                      <ArrowRight2 size={20} color="#666" />
-                    )}
-                  </TouchableOpacity>
-                </View>
-              </View>         
-            </View>
-
-            <View style={styles.assetCard}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
-                <View>
-                  <Text style={styles.assetName}>Request Asset</Text>             
-                </View>
-
-                <View>
-                  {/* <Text style={styles.assetStatus}>{asset.status}</Text> */}
-                  {/* Toggle button for expanding/collapsing */}
-                  <TouchableOpacity
-                    style={styles.expandButton}
-                    onPress={() => console.log("Asset expanded")}
-                  >
-                    {expandedAssetId === 0 ? (
-                      <ArrowUp2 size={20} color="#666" />
-                    ) : (
-                      <ArrowRight2 size={20} color="#666" />
-                    )}
-                  </TouchableOpacity>
-                </View>
-              </View>         
-            </View>
-
-            <View style={styles.assetCard}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
-                <View>
-                  <Text style={styles.assetName}>View Assets History</Text>             
-                </View>
-
-                <View>
-                  {/* <Text style={styles.assetStatus}>{asset.status}</Text> */}
-                  {/* Toggle button for expanding/collapsing */}
-                  <TouchableOpacity
-                    style={styles.expandButton}
-                    onPress={() => console.log("Asset expanded")}
-                  >
-                    {expandedAssetId === 0 ? (
-                      <ArrowUp2 size={20} color="#666" />
-                    ) : (
-                      <ArrowRight2 size={20} color="#666" />
-                    )}
-                  </TouchableOpacity>
-                </View>
-              </View>         
-            </View>        
-          </ScrollView>
+      {loading ? (
+        <View className="flex-1 justify-center items-center">
+          <ActivityIndicator size="large" color="#b8ca41" />
+          <Text className="mt-3 text-base text-gray-600">
+            Loading assets...
+          </Text>
         </View>
-      </ScrollView>
+      ) : (
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          className="flex-1"
+          contentContainerStyle={{ paddingBottom: 24 }}
+        >
+          <View className="mt-2">
+            <Text className="text-xl font-bold mx-5 mb-3">Stats</Text>
+
+            {/* Main Stats Card */}
+            <TouchableOpacity
+              className="mx-5 mb-4 bg-white rounded-xl"
+              activeOpacity={0.9}
+              // onPress={() => router.push("/borrowed-assets")}
+            >
+              <LinearGradient
+                colors={["#FFF", "#F8F8F8"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                className="rounded-xl p-4 h-[100px] flex-row justify-between items-center shadow-xl border border-gray-50"
+              >
+                <View className="bg-black/20 rounded-xl p-2">
+                  <Box size={24} color="grey" variant="Bold" />
+                </View>
+                <View className="flex-1 items-end">
+                  <Text className="text-3xl font-bold text-grey">
+                    {borrowedCount}
+                  </Text>
+                  <Text className="text-base text-grey opacity-90">
+                    Borrowed Assets
+                  </Text>
+                </View>
+              </LinearGradient>
+            </TouchableOpacity>
+
+            {/* Horizontal Stats Cards */}
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              className="py-1"
+              contentContainerStyle={{ paddingLeft: 20, paddingRight: 8 }}
+            >
+              <TouchableOpacity 
+                className="mr-4"
+                activeOpacity={0.9}
+                // onPress={() => router.push("/pending-assets")}
+              >
+                <LinearGradient
+                  colors={["#4a90e2", "#357dcb"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  className="rounded-xl p-4 w-[160px] h-[90px] flex-row justify-between items-center shadow-sm"
+                >
+                  <View className="bg-white/20 rounded-xl p-2">
+                    <Clock size={24} color="white" variant="Bold" />
+                  </View>
+                  <View className="flex-1 items-end">
+                    <Text className="text-3xl font-bold text-white">{pendingCount}</Text>
+                    <Text className="text-base text-white opacity-90">Pending</Text>
+                  </View>
+                </LinearGradient>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                activeOpacity={0.9}
+                // onPress={() => router.push("/overdue-assets")}
+              >
+                <LinearGradient
+                  colors={["#FF6B6B", "#ee5a5a"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  className="rounded-xl p-4 w-[160px] h-[90px] flex-row justify-between items-center shadow-sm"
+                >
+                  <View className="bg-white/20 rounded-xl p-2">
+                    <Danger size={24} color="white" variant="Bold" />
+                  </View>
+                  <View className="flex-1 items-end">
+                    <Text className="text-3xl font-bold text-white">{overdueCount}</Text>
+                    <Text className="text-base text-white opacity-90">Overdue</Text>
+                  </View>
+                </LinearGradient>
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
+
+          {/* Categories */}
+          {/* <View className="mt-2">
+            <Text className="text-xl font-bold mx-5 mb-3">Categories</Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              className="px-3"
+            >
+              {categories.map((category) => (
+                <TouchableOpacity
+                  key={category}
+                  className={`h-10 px-5 py-2 rounded-full mx-2 border ${
+                    selectedCategory === category 
+                      ? "bg-[#0d1a31] border-[#0d1a31]" 
+                      : "bg-white border-gray-200"
+                  } justify-center shadow-sm`}
+                  onPress={() => setSelectedCategory(category)}
+                >
+                  <Text
+                    className={`text-sm font-medium ${
+                      selectedCategory === category ? "text-white" : "text-gray-600"
+                    }`}
+                  >
+                    {category}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View> */}
+
+          {/* Quick Actions */}
+          <View className="mt-4">
+            <Text className="text-xl font-bold mx-5 mb-3">Quick Actions</Text>
+            <View className="mx-5">
+              {quickActions.map((action) => (
+                <TouchableOpacity
+                  key={action.id}
+                  className="bg-white rounded-xl p-4 mb-3 flex-row items-center justify-between shadow-sm border border-gray-50"
+                  onPress={action.onPress}
+                >
+                  <View className="flex-row items-center">
+                    <View className="bg-gray-100 rounded-lg p-2 mr-3">
+                      {action.icon}
+                    </View>
+                    <Text className="text-base font-medium text-gray-800">
+                      {action.name}
+                    </Text>
+                  </View>
+                  <ArrowRight2 size={20} color="#666" />
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          {/* Available Assets */}
+          {filteredAssets.length > 0 && (
+            <View className="mt-4 mb-2">
+              <View className="flex-row justify-between items-center mb-3 mx-5">
+                <Text className="text-xl font-bold">Available Assets</Text>
+                <TouchableOpacity onPress={() => router.push("/all-assets")}>
+                  <Text className="text-sm text-blue-500 font-medium">
+                    View All
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              <View className="mx-5">
+                {filteredAssets.slice(0, 3).map((asset) => (
+                  <TouchableOpacity
+                    key={asset.id}
+                    className="bg-white rounded-xl p-4 mb-3 shadow-sm border border-gray-50"
+                    onPress={() => router.push(`/asset-details/${asset.id}`)}
+                  >
+                    <View className="flex-row justify-between items-center">
+                      <View>
+                        <Text className="text-base font-bold text-gray-800">
+                          {asset.name}
+                        </Text>
+                        <Text className="text-sm text-gray-500 mt-1">
+                          ID: {asset.id}
+                        </Text>
+                      </View>
+                      <Text
+                        className={`text-sm font-semibold ${
+                          asset.status === "Available"
+                            ? "text-green-500"
+                            : "text-blue-500"
+                        }`}
+                      >
+                        {asset.status}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          )}
+        </ScrollView>
+      )}
+
+      {/* Notifications Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={notificationModalVisible}
+        onRequestClose={() => setNotificationModalVisible(false)}
+      >
+        <View className="flex-1 bg-black/50 justify-end">
+          <View className="bg-white rounded-t-3xl pb-6 max-h-[80%]">
+            <View className="flex-row justify-between items-center p-4 border-b border-gray-100">
+              <Text className="text-lg font-bold">Notifications</Text>
+              <TouchableOpacity
+                onPress={() => setNotificationModalVisible(false)}
+              >
+                <Text className="text-base text-blue-500 font-medium">
+                  Close
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView className="max-h-[400px]">
+              {notifications.map((notification) => (
+                <View
+                  key={notification.id}
+                  className={`p-4 border-b border-gray-100 ${
+                    !notification.read ? "bg-blue-50" : ""
+                  }`}
+                >
+                  <View>
+                    <Text className="text-base font-bold mb-1">
+                      {notification.title}
+                    </Text>
+                    <Text className="text-sm text-gray-800 mb-0.5">
+                      {notification.message}
+                    </Text>
+                    <Text className="text-xs text-gray-600 mb-1">
+                      {notification.subtext}
+                    </Text>
+                    <Text className="text-xs text-gray-400 mt-1.5">
+                      {notification.time}
+                    </Text>
+                  </View>
+                </View>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    alignItems: "center",
-    padding: 16,
-  },
-  logo: {
-    alignItems: "center",
-  },
-  logoImage: {
-    width: 180,
-    height: 80,
-    resizeMode: "contain",
-  },
-  notificationIcon: {
-    position: "relative",
-  },
-  badge: {
-    position: "absolute",
-    right: -6,
-    top: -6,
-    backgroundColor: "#d13838",
-    borderRadius: 12,
-    width: 16,
-    height: 16,
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 1,
-  },
-  badgeText: {
-    color: "white",
-    fontSize: 10,
-    fontWeight: "bold",
-  },
-  dashboardTitle: {
-    fontSize: 21,
-    fontWeight: "bold",
-    marginHorizontal: 20,
-    marginTop: 4,
-  },
-  statsScrollContainer: {
-    marginTop: 8,
-    paddingVertical: 0,
-  },
-  statsContentContainer: {
-    paddingHorizontal: 16,
-  },
-  statCard: {
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: 12,
-    paddingBottom: 25,
-    width: 150,
-    height: 86,
-    marginRight: 15,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  statHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontSize: 16,
-    color: "#fff",
-  },
-  statValue: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: "#fff",
-  },
-  statCardGradient: {
-    borderRadius: 10,
-    padding: 12,
-    width: 150,
-    height: 86,
-    marginRight: 15,
-    justifyContent: "space-between",
-    alignItems: "center",
-    flexDirection: "row",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  statIconContainer: {
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    borderRadius: 20,
-    padding: 8,
-    alignSelf: "flex-start",
-  },
-  statContent: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "flex-end",
-  },
-  sectionTitle: {
-    fontSize: 21,
-    fontWeight: "bold",
-    marginHorizontal: 20,
-    marginBottom: 8, // Reduced marginBottom to decrease spacing
-  },
-  categoriesContainer: {
-    paddingHorizontal: 15,
-    marginTop: 0, // Optional: Adjust marginTop to fine-tune spacing
-  },
-  categoryButton: {
-    height: 36,
-    paddingHorizontal: 16,
-    paddingVertical: 6,
-    borderRadius: 25,
-    marginHorizontal: 5,
-    backgroundColor: "#fff",
-    borderWidth: 1,
-    borderColor: "#ddd",
-  },
-  categoryButtonActive: {
-    backgroundColor: "#0d1a31",
-  },
-  categoryButtonText: {
-    fontSize: 16,
-    color: "#666",
-  },
-  categoryButtonTextActive: {
-    color: "#fff",
-  },
-  assetListContainer: {
-    marginHorizontal: 20,
-    marginTop: 4,
-    height: 400,
-    // backgroundColor:'#000',
-  },
-  assetCard: {
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  assetName: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  assetId: {
-    fontSize: 14,
-    color: "#666",
-    marginTop: 4,
-  },
-  assetStatus: {
-    color: "#5eb354",
-    fontWeight: "500",
-  },
-  expandButton: {
-    alignSelf: "center",
-    marginTop: 8,
-    padding: 4,
-  },
-  expandedContent: {
-    marginTop: 10,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: "#eee",
-    marginVertical: 10,
-  },
-  detailsContainer: {
-    marginVertical: 10,
-  },
-  detailRow: {
-    flexDirection: "row",
-    marginBottom: 8,
-  },
-  detailItem: {
-    flex: 1,
-  },
-  detailLabel: {
-    fontSize: 14,
-    color: "#888",
-    marginBottom: 2,
-  },
-  detailValue: {
-    fontSize: 14,
-    color: "#333",
-  },
-  actionsContainer: {
-    marginHorizontal: 8,
-    marginTop: 4,
-    // backgroundColor: "#f0f0f0",
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f0f0f0',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginRight: 8,
-    marginBottom: 8,
-  },
-  actionButtonText: {
-    fontSize: 13,
-    color: '#333',
-    marginLeft: 5,
-  },
-  requestButton: {
-    backgroundColor: '#0d1a31',
-  },
-  requestButtonText: {
-    color: '#fff',
-  },
-  showMoreButton: {
-    padding: 8,
-    alignItems: "center",
-    borderTopWidth: 1,
-    borderTopColor: "#eee",
-    borderBottomLeftRadius: 18,
-    borderBottomRightRadius: 18,
-  },
-  showMoreText: {
-    fontSize: 16,
-    color: "#333",
-  },
-
-});

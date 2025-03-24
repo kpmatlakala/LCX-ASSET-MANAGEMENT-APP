@@ -6,9 +6,6 @@ import {
   User,
   Home2,
   ClipboardText,
-  Note,
-  LogoutCurve,
-  NotificationStatus,
 } from "iconsax-react-native";
 import { Tabs } from "expo-router";
 import { router } from "expo-router";
@@ -16,6 +13,8 @@ import { images } from "@/constants";
 import { supabase } from "@/lib/supabase";
 
 export default function TabLayout() {
+
+  const [notificationCount, setNotificationCount] = React.useState(3);
   const handleSignOut = async () => {
     Alert.alert(
       "Sign Out",
@@ -38,52 +37,71 @@ export default function TabLayout() {
   };
 
   return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <Tabs
         screenOptions={{
-          headerShown: true,
-          headerTitle: "",
+          tabBarActiveTintColor: "#b8ca41",
+          tabBarInactiveTintColor: "#8E8E93",
+          tabBarStyle: {
+            height: 80,
+            paddingTop: 6,
+          },
           headerRight: () => (
-            <TouchableOpacity onPress={handleSignOut}>
-              <LogoutCurve size="24" color="#000" />
-            </TouchableOpacity>
+            <View style={styles.headerRight}>
+              <TouchableOpacity 
+                style={styles.headerButton}
+                onPress={() => router.push("/Notifications")}
+              >
+                <View style={styles.notificationContainer}>
+                  <Notification size={24} color="#000" />
+                  {notificationCount > 0 && (
+                    <View style={styles.badge}>
+                      <Text style={styles.badgeText}>
+                        {notificationCount > 99 ? '99+' : notificationCount}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.headerButton}
+                onPress={() => router.push("/Profile")}
+              >
+                <User size={24} color="#000" />
+              </TouchableOpacity>
+            </View>
           ),
+          headerShadowVisible: false, // Remove header shadow
         }}
       >
         <Tabs.Screen
           name="Dashboard"
           options={{
-            tabBarIcon: () => <Home2 size="24" color="#000" />,
-            title: "Home",
-          }}
-        />        
-
-        <Tabs.Screen
-          name="AssetsInventory"
-          options={{
-            tabBarIcon: () => <ClipboardText size="24" color="#000" />,
-            title: "Inventory",
+            tabBarIcon: ({ color }) => <Home2 size={24} color={color} variant="Bold"/>,
+            title: "",
+            tabBarLabel: "Home",
           }}
         />
-
+        <Tabs.Screen
+          name="Inventory"
+          options={{
+            tabBarIcon: ({ color }) => <ClipboardText size={24} color={color} variant="Bold"/>,
+            title: "",
+            tabBarLabel: "Inventory",
+          }}
+        />
         <Tabs.Screen
           name="Profile"
           options={{
-            tabBarIcon: () => <User size="24" color="#000" />,
-            title: "Profile",
+            tabBarIcon: ({ color }) => <User size={24} color={color} variant="Bold"/>,
+            title: "",
+            tabBarLabel: "Profile",
           }}
-        /> 
-        
-      </Tabs>      
+        />
+      </Tabs>
+    </GestureHandlerRootView>
   );
 }
-
-// {/* Logout Button */}
-//<TouchableOpacity style={styles.logoutButton} onPress={handleSignOut}>
-//<LogoutCurve size="24" color="white" />
-//<Text style={styles.logoutButtonText}>Logout</Text>
-//</TouchableOpacity>
-//</View> 
-
 
 const styles = StyleSheet.create({
   screenContent: {
@@ -104,4 +122,31 @@ const styles = StyleSheet.create({
     color: "white",
     marginLeft: 8,
   },
+  headerRight: {
+    flexDirection: "row",
+    marginRight: 16,
+  },
+  headerButton: {
+    marginLeft: 16,
+  },
+  notificationContainer: {
+    position: 'relative',
+  },
+  badge: {
+    position: 'absolute',
+    right: -6,
+    top: -6,
+    backgroundColor: '#FF3B30',
+    borderRadius: 10,
+    minWidth: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+  },
+  badgeText: {
+    color: 'white',
+    fontSize: 10,
+    fontWeight: 'bold',
+  }
 });
