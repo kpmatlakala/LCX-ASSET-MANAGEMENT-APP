@@ -37,11 +37,11 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [session, setSession] = useState<Session | null>(null);
   const [appState, setAppState] = useState(AppState.currentState);
-  const [isModalVisible, setModalVisible] = useState(true);
+  const [isModalVisible, setModalVisible] = useState(false);
 
   const showModal = (notificationsData?: Notification[]) => {
     if (notificationsData) 
-    {
+      {
       setNotifications(notificationsData);
     }
     setModalVisible(true);
