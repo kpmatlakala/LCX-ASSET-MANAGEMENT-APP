@@ -92,13 +92,13 @@ export default function AssetInventoryScreen() {
         <Text className="text-2xl font-bold">
           <Feather name="database" size={20} color="#0d1a31" /> Inventory
         </Text>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           className="flex-row items-center bg-[#0d1a31] px-4 py-2.5 rounded-full"
           onPress={handleRequestNewAsset}
         >
           <Feather name="plus" size={18} color="#fff" />
           <Text className="text-white font-bold ml-1.5">Request Asset</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
 
       {/* Search and Filter Bar */}
@@ -149,12 +149,11 @@ export default function AssetInventoryScreen() {
       <ScrollView className="mx-5 flex-1">
         {filteredAssets.length > 0 ? (
           filteredAssets.map((asset) => (
-            <View key={asset.asset_id} className="bg-white rounded-lg p-4 mb-4 shadow-sm">
+            <View key={asset.asset_id} className="bg-white rounded-lg p-4 mb-4 shadow-sm border border-gray-200">
               {/* Asset Card Header */}
               <View className="flex-row">
                 <View className="flex-1 flex-row items-center justify-between">
-                  <Text className="text-lg font-bold mb-1">{asset.asset_name}</Text>
-                  
+                  <Text className="text-lg font-bold mb-1">{asset.asset_name}</Text>                  
                   <View
                     style={{
                       backgroundColor: getStatusStyles(asset.status).backgroundColor,
@@ -169,7 +168,7 @@ export default function AssetInventoryScreen() {
                       }}
                       className="font-bold text-xs"
                     >
-                      {asset.status}
+                      {asset.asset_category}
                     </Text>
                   </View>
                 </View>
@@ -179,9 +178,9 @@ export default function AssetInventoryScreen() {
               <View className="mt-1">
                 <View className="flex-col">
                   <View className="flex-row items-center">
-                    <Text className="text-sm text-gray-500 mr-1">Category:</Text>
+                    {/* <Text className="text-sm text-gray-500 mr-1"></Text> */}
                     <Text className="text-sm text-gray-800">
-                      {asset.asset_category}
+                      {asset.asset_type}
                     </Text>
                   </View>
                   

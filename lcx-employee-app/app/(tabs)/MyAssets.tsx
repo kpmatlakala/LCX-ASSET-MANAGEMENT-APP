@@ -30,6 +30,8 @@ interface Asset {
 export default function MyAssetsScreen() {
   const { employeeId } = useAuth();
   const { myAssetRequests, getAssetById, cancelRequest } = useAssets();
+  console.log(employeeId, " | asset: ", myAssetRequests );
+  
   const [selectedFilter, setSelectedFilter] = useState<string>("All...");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [expandedAssetId, setExpandedAssetId] = useState<number | null>(null);
@@ -50,11 +52,11 @@ export default function MyAssetsScreen() {
     status: string
   ): { backgroundColor: string; borderColor: string } => {
     switch (status) {
-      case "Available":
+      case "Dispatched":
         return { backgroundColor: "#d1f4e0", borderColor: "#17c964" }; // Light green background, dark green border
-      case "Assigned":
+      case "Pending":
         return { backgroundColor: "#fdedd3", borderColor: "#f5a524" }; // Light orange background, dark orange border
-      case "Maintenance":
+      case "Rejected":
         return { backgroundColor: "#fdd0df", borderColor: "#f5426c" }; // Light pink background, dark pink border
       case "Reserved":
         return { backgroundColor: "#f3f1260", borderColor: "#f3f1260" }; // Light yellow background, yellow border
@@ -178,7 +180,7 @@ export default function MyAssetsScreen() {
       <ScrollView className="mx-5 flex-1">
         {filteredAssetRequests.length > 0 ? (
           filteredAssetRequests.map((request) => (
-            <View key={request.request_id} className="bg-white rounded-lg p-4 mb-4 shadow-sm">
+            <View key={request.request_id} className="bg-white rounded-lg p-4 mb-4 shadow-sm border border-gray-200">
               {/* Request Card Header */}
               <View className="flex-row">
                 <View className="flex-1 flex-row items-center justify-between">
@@ -192,11 +194,11 @@ export default function MyAssetsScreen() {
                       borderColor: getStatusStyles(request.status || "").borderColor,
                       borderWidth: 1,
                     }}
-                    className="px-2.5 py-0.5 rounded-full mb-2"
+                    className="px-3.5 py-1.5 rounded-full mb-2"
                   >
                     <Text
                       style={{
-                        color: getStatusStyles(request.status || "").borderColor,
+                        color: getStatusStyles(request.status).borderColor,
                       }}
                       className="font-bold text-xs"
                     >
@@ -214,19 +216,19 @@ export default function MyAssetsScreen() {
                     <Text className="text-sm text-gray-800">
                       {getAssetById(request.asset_id)?.asset_name || "Unknown Asset"} | {(request.asset_id) || "Unknown Serial Number"}
                     </Text>
-                  </View>
+                  </View>                 
                   
-                  <View className="flex-row items-center">
-                    <Text className="text-sm text-gray-500 mr-1">Requested:</Text>
-                    <Text className="text-sm text-gray-800">
-                      {request.created_at || "Unknown date"}
-                    </Text>
-                  </View>
                 </View>
                 <View className="flex-1 flex-row items-center justify-between">
-                  <Text className="text-xs text-gray-400 mt-1">
-                    Last updated: {request.updated_at || "Not updated"}
+                <View className="flex-row items-center">
+                  <Text className="text-sm text-gray-500 mr-1">Requested:</Text>
+                  <Text className="text-sm text-gray-800">
+                    {request.created_at 
+                      ? new Date(request.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) 
+                      : "Unknown date"}
                   </Text>
+                </View>
+
                   <TouchableOpacity
                     onPress={() => toggleAssetDetails(request.request_id)}
                   >
@@ -257,13 +259,19 @@ export default function MyAssetsScreen() {
                           {request.purpose || "Not specified"}
                         </Text>
                       </View>
-                      <View className="flex-1">
+                      {/* <View className="flex-1">
                         <Text className="text-sm text-gray-500 mb-0.5">Destination:</Text>
                         <Text className="text-sm text-gray-800">
                           {request.destination || "Not specified"}
                         </Text>
-                      </View>
+                      </View> */}
                     </View>
+                    <Text className="text-xs text-gray-400 mt-1">
+                      Last updated: {request.updated_at 
+                        ? new Date(request.updated_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) 
+                        : "Not updated"}
+                    </Text>
+
                   </View>
 
                   <View className="h-px bg-gray-100 my-2.5" />

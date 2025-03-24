@@ -27,7 +27,7 @@ interface NotificationContextType {
     markAllAsRead: () => Promise<void>;
     deleteNotification: (id: string) => Promise<void>;
     clearAll: () => Promise<void>;
-    showModal: (notificationsData: Notification[]) => void;
+    showModal: (notificationsData?: Notification[]) => void;
     closeModal: () => void;
 }
 
@@ -39,8 +39,10 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [appState, setAppState] = useState(AppState.currentState);
   const [isModalVisible, setModalVisible] = useState(false);
 
-  const showModal = (notificationsData) => {
-    setNotifications(notificationsData);
+  const showModal = (notificationsData?: Notification[]) => {
+    if (notificationsData) {
+      setNotifications(notificationsData);
+    }
     setModalVisible(true);
   };
 

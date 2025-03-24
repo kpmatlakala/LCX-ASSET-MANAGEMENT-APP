@@ -317,6 +317,38 @@ const Profile = () => {
     ]);
   };
 
+  const handleSignOut = async () => {
+    Alert.alert(
+      "Sign Out",
+      "Are you sure you want to sign out?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Sign Out",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const { error } = await supabase.auth.signOut();
+              
+              if (error) {
+                throw error;
+              }
+              
+              // The onAuthStateChange listener in useEffect will handle navigation
+            } catch (error) {
+              if (error instanceof Error) {
+                Alert.alert("Sign Out Error", error.message);
+              }
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const handleContactSupport = () => {
     Alert.alert(
       "Contact Support",
@@ -626,6 +658,17 @@ const Profile = () => {
                 titleStyle={styles.buttonTitle}
                 containerStyle={styles.buttonContainer}
                 loadingProps={{ color: "white" }}
+              />
+            </View>
+
+            <View style={styles.formContainer}>
+              <Button
+                title="Sign Out"
+                onPress={handleSignOut}
+                buttonStyle={styles.signOutButton}
+                titleStyle={styles.signOutButtonTitle}
+                containerStyle={styles.buttonContainer}
+                // icon={<Logout size="20" color="white" style={styles.signOutIcon} />}
               />
             </View>
 
