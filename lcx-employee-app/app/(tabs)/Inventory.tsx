@@ -11,13 +11,17 @@ import {
   TextInput,
   Modal,
 } from "react-native";
-import { Feather, AntDesign } from "@expo/vector-icons";
+import {
+  Ionicons,
+  Feather,
+  MaterialIcons,
+  AntDesign,
+} from "@expo/vector-icons";
 
 import { images } from "@/constants";
 import ReturnForm from "@/components/ReturnForm";
 import { router } from "expo-router";
 import { useAssets } from "@/context/AssetContext";
-import { useAuth } from "@/context/AuthContext";
 
 interface Asset {
   id: number;
@@ -34,8 +38,7 @@ interface Asset {
 type TabType = "inventory" | "myAssets";
 
 export default function AssetInventoryScreen() {
-  const { session, employeeId, loading, isFirstLogin, updateSession } = useAuth();
-  const { assets, myAssetRequests } = useAssets();
+  const { assets } = useAssets();
   const [currentTab, setCurrentTab] = useState<TabType>("inventory");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const totalPages = 4;
@@ -106,7 +109,7 @@ export default function AssetInventoryScreen() {
       setModalVisible(true);
       router.push({
         pathname: "/RequestAsset",
-        params: { assetId: asset.asset_id.toString() },
+        params: { assetId: asset.asset_id.toString() }
       });
     }
   };
@@ -126,7 +129,7 @@ export default function AssetInventoryScreen() {
   const handleAssetReview = (assetId: number): void => {
     // Implementation would go here
     console.log(`Reviewing asset ${assetId}`);
-    router.push("/AssetDetails");
+    router.push("/AssetDetails")
   };
 
   // Handle check availability
@@ -135,7 +138,7 @@ export default function AssetInventoryScreen() {
     console.log(`Checking availability for asset ${assetId}`);
   };
 
-  // Filter logic for "Inventory" tab (assets list)
+  // Filter assets based on search query, selected filter, and current tab
   const filteredAssets = assets.filter((asset) => {
     const matchesSearch =
       asset.asset_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -145,28 +148,13 @@ export default function AssetInventoryScreen() {
     const matchesFilter =
       selectedFilter === "All..." || asset.status === selectedFilter;
 
+    // For "My Assets" tab, only show assigned assets
+    if (currentTab === "myAssets") {
+      return matchesSearch && matchesFilter && asset.status === "Assigned";
+    }
+
     return matchesSearch && matchesFilter;
   });
-
-  // Filter logic for "My Assets" tab (myAssetRequests)
-  const filteredAssetRequests = myAssetRequests.filter((request) => {
-    const matchesSearch =
-      request.status?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (request.destination && request.destination.toLowerCase().includes(searchQuery.toLowerCase()));
-
-    const matchesFilter =
-      selectedFilter === "All..." ||
-      (request.status && request.status === selectedFilter);
-
-    return matchesSearch && matchesFilter && request.employee_id === employeeId;
-  });
-
-  // Handle asset return
-  const handleAssetReturn = (requestId: number): void => {
-    console.log(`Returning asset request ${requestId}`);
-    // Implementation would go here
-    setModalVisible(true);
-  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -216,7 +204,7 @@ export default function AssetInventoryScreen() {
       {/* Assets Inventory section title with Request Asset button */}
       <View style={styles.inventoryHeader}>
         <Text style={styles.sectionTitle}>
-          {currentTab === "inventory" ? "" : `${employeeId}`}
+          {currentTab === "inventory" ? "Inventory" : "My Assets"}
         </Text>
         <TouchableOpacity
           style={styles.requestNewButton}
@@ -238,11 +226,7 @@ export default function AssetInventoryScreen() {
           />
           <TextInput
             style={styles.searchInput}
-            placeholder={
-              currentTab === "inventory"
-                ? "Search assets..."
-                : "Search my requests..."
-            }
+            placeholder="Search assets..."
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
@@ -280,357 +264,186 @@ export default function AssetInventoryScreen() {
         </View>
       )}
 
-      {/* Assets List - Conditional rendering based on current tab */}
+      {/* Assets List */}
       <ScrollView style={styles.assetsContainer}>
-        {currentTab === "inventory" ? (
-          // Inventory Tab Content
-          filteredAssets.length > 0 ? (
-            filteredAssets.map((asset) => (
-              <View key={asset.asset_id} style={styles.assetCard}>
-                {/* Asset Card Header */}
-                <View style={styles.assetCardHeader}>
-                  <View
-                    style={[
-                      styles.assetNameContainer,
-                      {
-                        flex: 1,
-                        flexDirection: "row",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                      },
-                    ]}
-                  >
-                    <Text style={styles.assetName}>{asset.asset_name}</Text>
-                    <View
-                      style={[
-                        styles.statusBadge,
-                        {
-                          backgroundColor: getStatusStyles(asset.status)
-                            .backgroundColor,
-                          borderColor: getStatusStyles(asset.status).borderColor,
-                          borderWidth: 1,
-                        },
-                      ]}
-                    >
-                      <Text
-                        style={{
-                          color: getStatusStyles(asset.status).borderColor,
-                          fontWeight: "bold",
-                          fontSize: 12,
-                        }}
-                      >
-                        {asset.status}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-
-                {/* Summary Info Always Visible */}
-                <View style={styles.assetSummary}>
-                  <View style={styles.assetInfoRow}>
-                    <View style={styles.assetInfoItem}>
-                      <Text style={styles.assetInfoLabel}>Category:</Text>
-                      <Text style={styles.assetInfoValue}>
-                        {asset.asset_category}
-                      </Text>
-                    </View>
-
-                    <View style={styles.assetInfoItem}>
-                      <Text style={styles.assetInfoLabel}>Serial No:</Text>
-                      <Text style={styles.assetInfoValue}>{asset.asset_sn}</Text>
-                    </View>
-                  </View>
-                  <View
-                    style={{
+        {filteredAssets.length > 0 ? (
+          filteredAssets.map((asset) => (
+            <View key={asset.asset_id} style={styles.assetCard}>
+              {/* Asset Card Header */}
+              <View style={styles.assetCardHeader}>
+                <View
+                  style={[
+                    styles.assetNameContainer,
+                    {
                       flex: 1,
                       flexDirection: "row",
                       alignItems: "center",
                       justifyContent: "space-between",
-                    }}
+                    },
+                  ]}
+                >
+                  <Text style={styles.assetName}>{asset.asset_name}</Text>
+                  <View
+                    style={[
+                      styles.statusBadge,
+                      {
+                        backgroundColor: getStatusStyles(asset.status)
+                          .backgroundColor,
+                        borderColor: getStatusStyles(asset.status).borderColor,
+                        borderWidth: 1,
+                      },
+                    ]}
                   >
-                    <Text style={styles.assetLastUpdated}>
-                      Last updated: {asset.updated_at}
-                    </Text>
-                    <TouchableOpacity
-                      onPress={() => toggleAssetDetails(asset.asset_id)}
+                    <Text
+                      style={{
+                        color: getStatusStyles(asset.status).borderColor,
+                        fontWeight: "bold",
+                        fontSize: 12,
+                      }}
                     >
-                      <Feather
-                        name={
-                          expandedAssetId === asset.asset_id
-                            ? "chevron-up"
-                            : "chevron-down"
-                        }
-                        size={24}
-                        color="#666"
-                      />
-                    </TouchableOpacity>
+                      {asset.status}
+                    </Text>
                   </View>
                 </View>
-
-                {/* Expanded Details and Actions */}
-                {expandedAssetId === asset.asset_id && (
-                  <View style={styles.expandedContent}>
-                    <View style={styles.divider} />
-
-                    {/* Additional Details */}
-                    <View style={styles.expandedDetails}>
-                      <View style={styles.detailRow}>
-                        <View style={styles.detailItem}>
-                          <Text style={styles.detailLabel}>Description:</Text>
-                          <Text style={styles.detailValue}>
-                            {asset.description}
-                          </Text>
-                        </View>
-                        <View style={styles.detailItem}>
-                          <Text style={styles.detailLabel}>Condition:</Text>
-                          <Text style={styles.detailValue}>
-                            {asset.condition}
-                          </Text>
-                        </View>
-                      </View>
-                    </View>
-
-                    <View style={styles.divider} />
-
-                    {/* Action Buttons */}
-                    <View style={styles.actionButtons}>
-                      <TouchableOpacity
-                        style={styles.actionButton}
-                        onPress={() => handleAssetReview(asset.asset_id)}
-                      >
-                        <Feather name="eye" size={16} color="#333" />
-                        <Text style={styles.actionButtonText}>Review</Text>
-                      </TouchableOpacity>
-
-                      {asset.status === "Available" && (
-                        <TouchableOpacity
-                          style={[styles.actionButton, styles.requestButton]}
-                          onPress={() => handleAssetRequest(asset.asset_id)}
-                        >
-                          <Feather
-                            name="shopping-cart"
-                            size={16}
-                            color="#fff"
-                          />
-                          <Text
-                            style={[
-                              styles.actionButtonText,
-                              styles.requestButtonText,
-                            ]}
-                          >
-                            Request Asset
-                          </Text>
-                        </TouchableOpacity>
-                      )}
-
-                      <TouchableOpacity
-                        style={styles.actionButton}
-                        onPress={() => handleCheckAvailability(asset.asset_id)}
-                      >
-                        <Feather name="calendar" size={16} color="#333" />
-                        <Text style={styles.actionButtonText}>
-                          Check Availability
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                )}
               </View>
-            ))
-          ) : (
-            <View style={styles.emptyState}>
-              <Feather name="box" size={48} color="#ccc" />
-              <Text style={styles.emptyStateText}>
-                No assets match your search criteria
-              </Text>
-            </View>
-          )
-        ) : (
-          // My Assets Tab Content
-          filteredAssetRequests.length > 0 ? (
-            filteredAssetRequests.map((request) => (
-              <View key={request.request_id} style={styles.assetCard}>
-                {/* Request Card Header */}
-                <View style={styles.assetCardHeader}>
-                  <View
-                    style={[
-                      styles.assetNameContainer,
-                      {
-                        flex: 1,
-                        flexDirection: "row",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                      },
-                    ]}
-                  >
-                    <Text style={styles.assetName}>
-                      Request #{request.request_id}
+
+              {/* Summary Info Always Visible */}
+              <View style={styles.assetSummary}>
+                <View style={styles.assetInfoRow}>
+                  <View style={styles.assetInfoItem}>
+                    <Text style={styles.assetInfoLabel}>Category:</Text>
+                    <Text style={styles.assetInfoValue}>
+                      {asset.asset_category}
                     </Text>
-                    <View
-                      style={[
-                        styles.statusBadge,
-                        {
-                          backgroundColor: getStatusStyles(request.status || "")
-                            .backgroundColor,
-                          borderColor: getStatusStyles(request.status || "")
-                            .borderColor,
-                          borderWidth: 1,
-                        },
-                      ]}
-                    >
-                      <Text
-                        style={{
-                          color: getStatusStyles(request.status || "")
-                            .borderColor,
-                          fontWeight: "bold",
-                          fontSize: 12,
-                        }}
-                      >
-                        {request.status || "Processing"}
-                      </Text>
-                    </View>
+                  </View>
+
+                  <View style={styles.assetInfoItem}>
+                    <Text style={styles.assetInfoLabel}>Serial No:</Text>
+                    <Text style={styles.assetInfoValue}>{asset.asset_sn}</Text>
                   </View>
                 </View>
-
-                {/* Summary Info Always Visible */}
-                <View style={styles.assetSummary}>
-                  <View style={styles.assetInfoRow}>
-                    <View style={styles.assetInfoItem}>
-                      <Text style={styles.assetInfoLabel}>Asset:</Text>
-                      <Text style={styles.assetInfoValue}>
-                        {request.asset_name || "Unknown Asset"}
-                      </Text>
-                    </View>
-
-                    <View style={styles.assetInfoItem}>
-                      <Text style={styles.assetInfoLabel}>Requested:</Text>
-                      <Text style={styles.assetInfoValue}>
-                        {request.created_at || "Unknown date"}
-                      </Text>
-                    </View>
-                  </View>
-                  <View
-                    style={{
-                      flex: 1,
-                      flexDirection: "row",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                    }}
+                <View
+                  style={{
+                    flex: 1,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Text style={styles.assetLastUpdated}>
+                    Last updated: {asset.updated_at}
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() => toggleAssetDetails(asset.asset_id)}
                   >
-                    <Text style={styles.assetLastUpdated}>
-                      Last updated: {request.updated_at || "Not updated"}
-                    </Text>
-                    <TouchableOpacity
-                      onPress={() => toggleAssetDetails(request.request_id)}
-                    >
-                      <Feather
-                        name={
-                          expandedAssetId === request.request_id
-                            ? "chevron-up"
-                            : "chevron-down"
-                        }
-                        size={24}
-                        color="#666"
-                      />
-                    </TouchableOpacity>
-                  </View>
+                    <Feather
+                      name={
+                        expandedAssetId === asset.asset_id
+                          ? "chevron-up"
+                          : "chevron-down"
+                      }
+                      size={24}
+                      color="#666"
+                    />
+                  </TouchableOpacity>
                 </View>
+              </View>
 
-                {/* Expanded Details and Actions */}
-                {expandedAssetId === request.request_id && (
-                  <View style={styles.expandedContent}>
-                    <View style={styles.divider} />
+              {/* Expanded Details and Actions */}
+              {expandedAssetId === asset.asset_id && (
+                <View style={styles.expandedContent}>
+                  <View style={styles.divider} />
 
-                    {/* Additional Details */}
-                    <View style={styles.expandedDetails}>
-                      <View style={styles.detailRow}>
-                        <View style={styles.detailItem}>
-                          <Text style={styles.detailLabel}>Purpose:</Text>
-                          <Text style={styles.detailValue}>
-                            {request.purpose || "Not specified"}
-                          </Text>
-                        </View>
-                        <View style={styles.detailItem}>
-                          <Text style={styles.detailLabel}>Destination:</Text>
-                          <Text style={styles.detailValue}>
-                            {request.destination || "Not specified"}
-                          </Text>
-                        </View>
+                  {/* Additional Details */}
+                  <View style={styles.expandedDetails}>
+                    <View style={styles.detailRow}>
+                      <View style={styles.detailItem}>
+                        <Text style={styles.detailLabel}>Description:</Text>
+                        <Text style={styles.detailValue}>
+                          {asset.description}
+                        </Text>
+                      </View>
+                      <View style={styles.detailItem}>
+                        <Text style={styles.detailLabel}>Condition:</Text>
+                        <Text style={styles.detailValue}>{asset.condition}</Text>
                       </View>
                     </View>
+                  </View>
 
-                    <View style={styles.divider} />
+                  <View style={styles.divider} />
 
-                    {/* Action Buttons */}
-                    <View style={styles.actionButtons}>
+                  {/* Action Buttons */}
+                  <View style={styles.actionButtons}>
+                    <TouchableOpacity
+                      style={styles.actionButton}
+                      onPress={() => handleAssetReview(asset.asset_id)}
+                    >
+                      <Feather name="eye" size={16} color="#333" />
+                      <Text style={styles.actionButtonText}>Review</Text>
+                    </TouchableOpacity>
+
+                    {asset.status === "Available" && (
                       <TouchableOpacity
-                        style={styles.actionButton}
-                        onPress={() => handleAssetReview(request.request_id)}
+                        style={[styles.actionButton, styles.requestButton]}
+                        onPress={() => handleAssetRequest(asset.asset_id)}
                       >
-                        <Feather name="eye" size={16} color="#333" />
-                        <Text style={styles.actionButtonText}>
-                          View Details
-                        </Text>
-                      </TouchableOpacity>
-
-                      {request.status === "Assigned" && (
-                        <TouchableOpacity
-                          style={[styles.actionButton, styles.returnButton]}
-                          onPress={() => handleAssetReturn(request.request_id)}
-                        >
-                          <Feather
-                            name="corner-up-left"
-                            size={16}
-                            color="#fff"
-                          />
-                          <Text
-                            style={[
-                              styles.actionButtonText,
-                              styles.returnButtonText,
-                            ]}
-                          >
-                            Return Asset
-                          </Text>
-                        </TouchableOpacity>
-                      )}
-
-                      {request.status === "Pending" && (
-                        <TouchableOpacity
+                        <Feather name="shopping-cart" size={16} color="#fff" />
+                        <Text
                           style={[
-                            styles.actionButton,
-                            { backgroundColor: "#f44336" },
+                            styles.actionButtonText,
+                            styles.requestButtonText,
                           ]}
-                          onPress={() => console.log("Cancel request")}
                         >
-                          <Feather name="x-circle" size={16} color="#fff" />
-                          <Text
-                            style={[
-                              styles.actionButtonText,
-                              { color: "#fff" },
-                            ]}
-                          >
-                            Cancel Request
-                          </Text>
-                        </TouchableOpacity>
-                      )}
-                    </View>
+                          Request Asset
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+
+                    {currentTab === "myAssets" && (
+                      <TouchableOpacity
+                        style={[styles.actionButton, styles.returnButton]}
+                        onPress={() => handleAssetRequest(asset.asset_id)}
+                      >
+                        <Feather name="corner-up-left" size={16} color="#fff" />
+                        <Text
+                          style={[
+                            styles.actionButtonText,
+                            styles.returnButtonText,
+                          ]}
+                        >
+                          Return Asset
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+
+                    <TouchableOpacity
+                      style={styles.actionButton}
+                      onPress={() => handleCheckAvailability(asset.asset_id)}
+                    >
+                      <Feather name="calendar" size={16} color="#333" />
+                      <Text style={styles.actionButtonText}>
+                        Check Availability
+                      </Text>
+                    </TouchableOpacity>
                   </View>
-                )}
-              </View>
-            ))
-          ) : (
-            <View style={styles.emptyState}>
-              <Feather name="box" size={48} color="#ccc" />
-              <Text style={styles.emptyStateText}>
-                You have no asset requests
-              </Text>
+                </View>
+              )}
             </View>
-          )
+          ))
+        ) : (
+          <View style={styles.emptyState}>
+            <Feather name="box" size={48} color="#ccc" />
+            <Text style={styles.emptyStateText}>
+              {currentTab === "inventory"
+                ? "No assets match your search criteria"
+                : "You have no assigned assets"}
+            </Text>
+          </View>
         )}
       </ScrollView>
 
-      {/* Pagination - Only show for inventory tab with assets */}
-      {currentTab === "inventory" && filteredAssets.length > 0 && (
+      {/* Pagination */}
+      {filteredAssets.length > 0 && (
         <View style={styles.paginationContainer}>
           <TouchableOpacity
             style={styles.paginationArrow}
@@ -656,8 +469,7 @@ export default function AssetInventoryScreen() {
               <Text
                 style={[
                   styles.paginationButtonText,
-                  currentPage === index + 1 &&
-                    styles.paginationButtonTextActive,
+                  currentPage === index + 1 && styles.paginationButtonTextActive,
                 ]}
               >
                 {index + 1}

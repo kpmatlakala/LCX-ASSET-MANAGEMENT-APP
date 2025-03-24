@@ -11,16 +11,16 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import {
-  Box,
-  Clock,
-  Danger,
-  ArrowRight2,
-  ArrowUp2,
-  DocumentText,
-  Add,
-  ArchiveBook,
-  Notification,
+import { 
+  Box, 
+  Clock, 
+  Danger, 
+  ArrowRight2, 
+  ArrowUp2, 
+  DocumentText, 
+  Add, 
+  ArchiveBook, 
+  Notification 
 } from "iconsax-react-native";
 import { useAssets } from "@/context/AssetContext";
 import { router } from "expo-router";
@@ -30,8 +30,7 @@ export default function AssetManagementDashboard() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const { assets, loading } = useAssets();
   const [filteredAssets, setFilteredAssets] = useState([]);
-  const [notificationModalVisible, setNotificationModalVisible] =
-    useState(false);
+  const [notificationModalVisible, setNotificationModalVisible] = useState(false);
   const [expandedActionId, setExpandedActionId] = useState(null);
 
   const notifications = [
@@ -56,23 +55,23 @@ export default function AssetManagementDashboard() {
   const categories = ["All", "Laptops", "Phones", "Other"];
 
   const quickActions = [
-    {
-      id: 1,
-      name: "Inventory",
+    { 
+      id: 1, 
+      name: "Inventory", 
       icon: <DocumentText size={20} color="#666" />,
-      onPress: () => router.push("/inventory"),
+      onPress: () => router.push("/inventory")
     },
-    {
-      id: 2,
-      name: "Request Asset",
+    { 
+      id: 2, 
+      name: "Request Asset", 
       icon: <Add size={20} color="#666" />,
-      onPress: () => router.push("/request-asset"),
+      onPress: () => router.push("/request-asset")
     },
-    {
-      id: 3,
-      name: "View Assets History",
+    { 
+      id: 3, 
+      name: "View Assets History", 
       icon: <ArchiveBook size={20} color="#666" />,
-      onPress: () => router.push("/asset-history"),
+      onPress: () => router.push("/asset-history")
     },
   ];
 
@@ -85,10 +84,11 @@ export default function AssetManagementDashboard() {
   const filterAssets = (category) => {
     let filtered;
     if (category === "All") {
-      filtered = assets.filter((asset) => asset.status === "Available");
+      filtered = assets.filter(asset => asset.status === 'Available');
     } else {
-      filtered = assets.filter(
-        (asset) => asset.status === "Available" && asset.category === category
+      filtered = assets.filter(asset => 
+        asset.status === 'Available' && 
+        asset.category === category
       );
     }
     setFilteredAssets(filtered);
@@ -104,16 +104,12 @@ export default function AssetManagementDashboard() {
   };
 
   // Calculate stats
-  const pendingCount =
-    assets.filter((asset) => asset.status === "Pending").length || 1;
-  const overdueCount =
-    assets.filter((asset) => asset.status === "Overdue").length || 1;
-  const borrowedCount =
-    assets.filter((asset) => asset.status === "Borrowed").length ||
-    assets.length;
+  const pendingCount = assets.filter(asset => asset.status === 'Pending').length || 1;
+  const overdueCount = assets.filter(asset => asset.status === 'Overdue').length || 1;
+  const borrowedCount = assets.filter(asset => asset.status === 'Borrowed').length || assets.length;
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-slate-50">
       <StatusBar backgroundColor="#f8f9fa" barStyle="dark-content" />
 
       {/* Header with Logo and Notification */}
@@ -142,9 +138,7 @@ export default function AssetManagementDashboard() {
       {loading ? (
         <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#b8ca41" />
-          <Text className="mt-3 text-base text-gray-600">
-            Loading assets...
-          </Text>
+          <Text className="mt-3 text-base text-gray-600">Loading assets...</Text>
         </View>
       ) : (
         <ScrollView
@@ -154,9 +148,9 @@ export default function AssetManagementDashboard() {
         >
           <View className="mt-2">
             <Text className="text-xl font-bold mx-5 mb-3">Stats</Text>
-
+            
             {/* Main Stats Card */}
-            <TouchableOpacity
+            <TouchableOpacity 
               className="mx-5 mb-4 bg-white rounded-xl"
               activeOpacity={0.9}
               // onPress={() => router.push("/borrowed-assets")}
@@ -171,12 +165,8 @@ export default function AssetManagementDashboard() {
                   <Box size={24} color="grey" variant="Bold" />
                 </View>
                 <View className="flex-1 items-end">
-                  <Text className="text-3xl font-bold text-grey">
-                    {borrowedCount}
-                  </Text>
-                  <Text className="text-base text-grey opacity-90">
-                    Borrowed Assets
-                  </Text>
+                  <Text className="text-3xl font-bold text-grey">{borrowedCount}</Text>
+                  <Text className="text-base text-grey opacity-90">Borrowed Assets</Text>
                 </View>
               </LinearGradient>
             </TouchableOpacity>
@@ -260,7 +250,7 @@ export default function AssetManagementDashboard() {
               ))}
             </ScrollView>
           </View> */}
-
+          
           {/* Quick Actions */}
           <View className="mt-4">
             <Text className="text-xl font-bold mx-5 mb-3">Quick Actions</Text>
@@ -275,9 +265,7 @@ export default function AssetManagementDashboard() {
                     <View className="bg-gray-100 rounded-lg p-2 mr-3">
                       {action.icon}
                     </View>
-                    <Text className="text-base font-medium text-gray-800">
-                      {action.name}
-                    </Text>
+                    <Text className="text-base font-medium text-gray-800">{action.name}</Text>
                   </View>
                   <ArrowRight2 size={20} color="#666" />
                 </TouchableOpacity>
@@ -291,12 +279,10 @@ export default function AssetManagementDashboard() {
               <View className="flex-row justify-between items-center mb-3 mx-5">
                 <Text className="text-xl font-bold">Available Assets</Text>
                 <TouchableOpacity onPress={() => router.push("/all-assets")}>
-                  <Text className="text-sm text-blue-500 font-medium">
-                    View All
-                  </Text>
+                  <Text className="text-sm text-blue-500 font-medium">View All</Text>
                 </TouchableOpacity>
               </View>
-
+              
               <View className="mx-5">
                 {filteredAssets.slice(0, 3).map((asset) => (
                   <TouchableOpacity
@@ -306,20 +292,12 @@ export default function AssetManagementDashboard() {
                   >
                     <View className="flex-row justify-between items-center">
                       <View>
-                        <Text className="text-base font-bold text-gray-800">
-                          {asset.name}
-                        </Text>
-                        <Text className="text-sm text-gray-500 mt-1">
-                          ID: {asset.id}
-                        </Text>
+                        <Text className="text-base font-bold text-gray-800">{asset.name}</Text>
+                        <Text className="text-sm text-gray-500 mt-1">ID: {asset.id}</Text>
                       </View>
-                      <Text
-                        className={`text-sm font-semibold ${
-                          asset.status === "Available"
-                            ? "text-green-500"
-                            : "text-blue-500"
-                        }`}
-                      >
+                      <Text className={`text-sm font-semibold ${
+                        asset.status === 'Available' ? 'text-green-500' : 'text-blue-500'
+                      }`}>
                         {asset.status}
                       </Text>
                     </View>
@@ -342,36 +320,24 @@ export default function AssetManagementDashboard() {
           <View className="bg-white rounded-t-3xl pb-6 max-h-[80%]">
             <View className="flex-row justify-between items-center p-4 border-b border-gray-100">
               <Text className="text-lg font-bold">Notifications</Text>
-              <TouchableOpacity
-                onPress={() => setNotificationModalVisible(false)}
-              >
-                <Text className="text-base text-blue-500 font-medium">
-                  Close
-                </Text>
+              <TouchableOpacity onPress={() => setNotificationModalVisible(false)}>
+                <Text className="text-base text-blue-500 font-medium">Close</Text>
               </TouchableOpacity>
             </View>
-
+            
             <ScrollView className="max-h-[400px]">
               {notifications.map((notification) => (
-                <View
-                  key={notification.id}
+                <View 
+                  key={notification.id} 
                   className={`p-4 border-b border-gray-100 ${
-                    !notification.read ? "bg-blue-50" : ""
+                    !notification.read ? 'bg-blue-50' : ''
                   }`}
                 >
                   <View>
-                    <Text className="text-base font-bold mb-1">
-                      {notification.title}
-                    </Text>
-                    <Text className="text-sm text-gray-800 mb-0.5">
-                      {notification.message}
-                    </Text>
-                    <Text className="text-xs text-gray-600 mb-1">
-                      {notification.subtext}
-                    </Text>
-                    <Text className="text-xs text-gray-400 mt-1.5">
-                      {notification.time}
-                    </Text>
+                    <Text className="text-base font-bold mb-1">{notification.title}</Text>
+                    <Text className="text-sm text-gray-800 mb-0.5">{notification.message}</Text>
+                    <Text className="text-xs text-gray-600 mb-1">{notification.subtext}</Text>
+                    <Text className="text-xs text-gray-400 mt-1.5">{notification.time}</Text>
                   </View>
                 </View>
               ))}
