@@ -114,7 +114,13 @@ export default function MyAssetsScreen() {
 
       {/* Assets Inventory section title with Request Asset button */}
       <View className="flex-row justify-between items-center mx-5 mt-4 mb-4">
-        <Text className="text-2xl font-bold">My Assets</Text>
+       
+        <Text className="text-2xl font-bold">  
+          <Feather
+            name="user"
+            size={20}
+            color={ "#0d1a31" }
+          /> My Assets</Text>
         {/* <TouchableOpacity
           className="flex-row items-center bg-[#0d1a31] px-4 py-2.5 rounded-full"
           onPress={handleRequestNewAsset}
