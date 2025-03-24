@@ -16,7 +16,6 @@ import {
   Clock,
   Danger,
   ArrowRight2,
-  ArrowUp2,
   DocumentText,
   Add,
   ArchiveBook,
@@ -60,19 +59,19 @@ export default function AssetManagementDashboard() {
       id: 1,
       name: "Inventory",
       icon: <DocumentText size={20} color="#666" />,
-      onPress: () => router.push("/inventory"),
+      onPress: () => router.push("/(tabs)/Inventory"),
     },
     {
       id: 2,
       name: "Request Asset",
       icon: <Add size={20} color="#666" />,
-      onPress: () => router.push("/request-asset"),
+      onPress: () => router.push("/AssetDetails"),
     },
     {
       id: 3,
       name: "View Assets History",
       icon: <ArchiveBook size={20} color="#666" />,
-      onPress: () => router.push("/asset-history"),
+      onPress: () => router.push("/(tabs)/Inventory"),
     },
   ];
 

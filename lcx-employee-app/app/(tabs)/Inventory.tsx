@@ -35,7 +35,7 @@ type TabType = "inventory" | "myAssets";
 
 export default function AssetInventoryScreen() {
   const { session, employeeId, loading, isFirstLogin, updateSession } = useAuth();
-  const { assets, myAssetRequests } = useAssets();
+  const { assets, getAssetById, myAssetRequests } = useAssets();
   const [currentTab, setCurrentTab] = useState<TabType>("inventory");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const totalPages = 4;
@@ -161,12 +161,21 @@ export default function AssetInventoryScreen() {
     return matchesSearch && matchesFilter && request.employee_id === employeeId;
   });
 
+  // Find the asset that corresponds to the current request's asset_id
+  // const getAssetById = (assetId: number) => {
+  //   console.log('getAssetById: ',assetId);
+    
+  //   return assets.find((asset) => asset.asset_id === assetId);
+  // };
+
   // Handle asset return
   const handleAssetReturn = (requestId: number): void => {
     console.log(`Returning asset request ${requestId}`);
     // Implementation would go here
     setModalVisible(true);
   };
+
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -335,10 +344,10 @@ export default function AssetInventoryScreen() {
                       </Text>
                     </View>
 
-                    <View style={styles.assetInfoItem}>
+                    {/* <View style={styles.assetInfoItem}>
                       <Text style={styles.assetInfoLabel}>Serial No:</Text>
                       <Text style={styles.assetInfoValue}>{asset.asset_sn}</Text>
-                    </View>
+                    </View> */}
                   </View>
                   <View
                     style={{
@@ -423,7 +432,7 @@ export default function AssetInventoryScreen() {
                         </TouchableOpacity>
                       )}
 
-                      <TouchableOpacity
+                      {/* <TouchableOpacity
                         style={styles.actionButton}
                         onPress={() => handleCheckAvailability(asset.asset_id)}
                       >
@@ -431,7 +440,7 @@ export default function AssetInventoryScreen() {
                         <Text style={styles.actionButtonText}>
                           Check Availability
                         </Text>
-                      </TouchableOpacity>
+                      </TouchableOpacity> */}
                     </View>
                   </View>
                 )}
@@ -449,6 +458,7 @@ export default function AssetInventoryScreen() {
           // My Assets Tab Content
           filteredAssetRequests.length > 0 ? (
             filteredAssetRequests.map((request) => (
+              
               <View key={request.request_id} style={styles.assetCard}>
                 {/* Request Card Header */}
                 <View style={styles.assetCardHeader}>
@@ -464,8 +474,9 @@ export default function AssetInventoryScreen() {
                     ]}
                   >
                     <Text style={styles.assetName}>
-                      Request #{request.request_id}
+                      Request #{request.request_id}                      
                     </Text>
+                    
                     <View
                       style={[
                         styles.statusBadge,
@@ -498,7 +509,9 @@ export default function AssetInventoryScreen() {
                     <View style={styles.assetInfoItem}>
                       <Text style={styles.assetInfoLabel}>Asset:</Text>
                       <Text style={styles.assetInfoValue}>
-                        {request.asset_name || "Unknown Asset"}
+                        {
+                          getAssetById(request.asset_id)?.asset_name  || "Unknown Asset"
+                        } | {(request.asset_id) || "Unknown Serial Number"}
                       </Text>
                     </View>
 
@@ -630,7 +643,7 @@ export default function AssetInventoryScreen() {
       </ScrollView>
 
       {/* Pagination - Only show for inventory tab with assets */}
-      {currentTab === "inventory" && filteredAssets.length > 0 && (
+      {/* {currentTab === "inventory" && filteredAssets.length > 0 && (
         <View style={styles.paginationContainer}>
           <TouchableOpacity
             style={styles.paginationArrow}
@@ -677,7 +690,7 @@ export default function AssetInventoryScreen() {
             />
           </TouchableOpacity>
         </View>
-      )}
+      )} */}
 
       {/* Modal with ReturnForm */}
       <Modal
