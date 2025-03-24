@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import { Stack, SplashScreen } from "expo-router";
 import { useFonts } from "expo-font";
 
-import { SessionProvider } from '@/context/SessionContext';
+import { AuthProvider } from '@/context/AuthContext';
 import { AssetProvider } from "@/context/AssetContext";
 import { NotificationProvider } from "@/context/NotificationContext";
 
@@ -29,24 +29,25 @@ export default function RootLayout() {
   if (!fontsLoaded && !error) return null;
 
   return (
-    // <SessionProvider>
-    <NotificationProvider>
-      <AssetProvider>      
-        <Stack screenOptions={{headerShown:true}}>
-          <Stack.Screen name="index" options={{ headerShown: false }} /> 
-          <Stack.Screen name="app/Notifications" options={{ headerShown: true, headerTitle:()=> null, headerBackTitle:"" }} />
-          <Stack.Screen name="app/AssetDetails/:id" options={{ headerShown: true, headerTitle:()=> null, headerBackTitle:"" }} /> 
-          <Stack.Screen name="(auth)/Auth" options={{ headerShown: false }} />
-          <Stack.Screen name="(onboarding)/onboarding" options={{ headerShown: false }} />   
-          
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)/Dashboard" options={{ headerShown: false }} />
-          
-          <Stack.Screen name="(tabs)/AssetsInventory" options={{ headerShown: false }} />    
-          <Stack.Screen name="(tabs)/MyAssets" options={{ headerShown: false }} />     
-        </Stack>     
-      </AssetProvider> 
-    </NotificationProvider>
-    // </SessionProvider>
+   <AuthProvider>
+      <NotificationProvider>
+        <AssetProvider>      
+          <Stack screenOptions={{headerShown:true}}>
+            <Stack.Screen name="index" options={{ headerShown: false }} /> 
+            <Stack.Screen name="app/Notifications" options={{ headerShown: true, headerTitle:()=> null, headerBackTitle:"" }} />
+            <Stack.Screen name="app/AssetDetails/:id" options={{ headerShown: true, headerTitle:()=> null, headerBackTitle:"" }} /> 
+            <Stack.Screen name="(auth)/Auth" options={{ headerShown: false }} />
+            <Stack.Screen name="(onboarding)/onboarding" options={{ headerShown: false }} />   
+            
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="(tabs)/Dashboard" options={{ headerShown: false }} />
+            
+            <Stack.Screen name="(tabs)/AssetsInventory" options={{ headerShown: false }} />    
+            <Stack.Screen name="(tabs)/MyAssets" options={{ headerShown: false }} />     
+          </Stack>     
+        </AssetProvider> 
+      </NotificationProvider>
+    </AuthProvider>
+  
   );
 }
