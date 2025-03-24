@@ -33,6 +33,17 @@ export default function AssetManagementDashboard() {
     useState(false);
   const [expandedActionId, setExpandedActionId] = useState(null);
 
+  const greetUser = (): string => {
+    const hours = new Date().getHours();
+    if (hours < 12) {
+      return "Good Morning";
+    } else if (hours < 18) {
+      return "Good Afternoon";
+    } else {
+      return "Good Evening";
+    }
+  }
+
   const notifications = [
     {
       id: 1,
@@ -116,7 +127,7 @@ export default function AssetManagementDashboard() {
       <StatusBar backgroundColor="#f8f9fa" barStyle="dark-content" />
 
       {/* Dashboard Title */}
-      <Text className="text-3xl font-bold mx-5 mt-4 mb-2">Dashboard</Text>
+      <Text className="text-3xl font-medium mx-5 mb-2 text-gray-400">{greetUser()}, Frankie</Text>
 
       {loading ? (
         <View className="flex-1 justify-center items-center">
@@ -132,7 +143,6 @@ export default function AssetManagementDashboard() {
           contentContainerStyle={{ paddingBottom: 24 }}
         >
           <View className="mt-2">
-            <Text className="text-xl font-bold mx-5 mb-3">Stats</Text>
 
             {/* Main Stats Card - Fixed styling for Borrowed Assets */}
             <View className="mx-5 mb-4">
@@ -163,21 +173,27 @@ export default function AssetManagementDashboard() {
             {/* Horizontal Stats Cards - Completely redesigned */}
             <View className="flex-row px-5 mb-4">
               {/* Pending Card */}
-              <View className="flex-1 mr-2 rounded-xl overflow-hidden shadow-sm">
+              <View className="flex-1 ml-2 rounded-xl overflow-hidden shadow-sm">
                 <LinearGradient
                   colors={["#4a90e2", "#357dcb"]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 0, y: 1 }}
-                  style={{ height: 120, flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}
+                  style={{
+                    height: 120,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
                 >
-                  <View className="p-3">
+                  <View className="p-3 text-end">
                     <View className="bg-white/20 rounded-full p-2 w-10 h-10 flex items-center justify-center">
                       <Clock size={20} color="white" variant="Bold" />
                     </View>
                   </View>
-                  
                   <View className="p-3 items-end">
-                    <Text className="text-3xl font-bold text-white">{pendingCount}</Text>
+                    <Text className="text-3xl font-bold text-white">
+                      {overdueCount}
+                    </Text>
                     <Text className="text-base text-white">Pending</Text>
                   </View>
                 </LinearGradient>
@@ -189,7 +205,12 @@ export default function AssetManagementDashboard() {
                   colors={["#FF6B6B", "#ee5a5a"]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 0, y: 1 }}
-                  style={{ height: 120, flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}
+                  style={{
+                    height: 120,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
                 >
                   <View className="p-3 text-end">
                     <View className="bg-white/20 rounded-full p-2 w-10 h-10 flex items-center justify-center">
@@ -197,7 +218,9 @@ export default function AssetManagementDashboard() {
                     </View>
                   </View>
                   <View className="p-3 items-end">
-                    <Text className="text-3xl font-bold text-white">{overdueCount}</Text>
+                    <Text className="text-3xl font-bold text-white">
+                      {overdueCount}
+                    </Text>
                     <Text className="text-base text-white">Overdue</Text>
                   </View>
                 </LinearGradient>
@@ -235,9 +258,7 @@ export default function AssetManagementDashboard() {
               <View className="flex-row justify-between items-center mb-3 mx-5">
                 <Text className="text-xl font-bold">Available Assets</Text>
                 <TouchableOpacity onPress={() => router.push("/all-assets")}>
-                  <Text className="text-sm text-blue-500 font-medium">
-                    View All
-                  </Text>
+                  <Text className="text-sm font-medium">View All</Text>
                 </TouchableOpacity>
               </View>
 

@@ -52,13 +52,15 @@ export default function TabLayout() {
             height: 90,
             paddingTop: 10,
             paddingBottom: 10,
-            borderTopWidth: 0,
+            borderTopWidth: 1,
+            borderColor: "#f3f4f6",
             backgroundColor: '#FFFFFF',
-            elevation: 5, // Android shadow
+            elevation: 0, // Android shadow
             shadowColor: '#000000',
-            shadowOffset: { width: 0, height: -2 },
-            shadowOpacity: 0.05,
-            shadowRadius: 3,
+            shadowOffset: { width: 0, height: 0 },
+            shadowOpacity: 0,
+            shadowRadius: 0,
+
           },
           headerRight: () => (
             <View style={styles.headerRight}>
@@ -129,15 +131,16 @@ export default function TabLayout() {
           name="RequestAsset"
           options={{
             tabBarIcon: ({ color, focused }) => (
-              <View style={[styles.addButtonContainer, focused && styles.activeAddButtonContainer]}>
-                <AddCircle size={36} color={focused ? "#FFFFFF" : "#b8ca41"} variant="Bold" />
+              <View style={[styles.addButtonContainer, focused && styles.activeAddButtonContainer]} className="pb-10">
+                <AddCircle size={90}  color={focused ? "#FFFFFF" : "#b8ca41"} variant="Bold" />
               </View>
             ),
             title: "",
-            tabBarLabel: () => null,
+            tabBarLabel: () => <Text className="text-[#8E8E93]">Request</Text>,
           }}
           listeners={{
             tabPress: () => setActiveTab("RequestAsset"),
+            
           }}
         />
         <Tabs.Screen
@@ -232,7 +235,6 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: 'rgb(236, 242, 193)',
     justifyContent: 'center',
     alignItems: 'center',
     bottom: 10,
