@@ -20,7 +20,6 @@ const AssetManagementScreen = () => {
     console.log("selected asset:", assetIdFromParams);
 
     const { assets } = useAssets();
-    const [currentPage, setCurrentPage] = useState(5);
     const [modalVisible, setModalVisible] = useState(false); 
 
     const renderStatusBadge = (status) => {
@@ -46,14 +45,11 @@ const AssetManagementScreen = () => {
   const renderAssetItem = ({ item }) => (
     <View style={styles.tableRow}>
       <Text style={[styles.tableCell, styles.descriptionCell]}>{item.description}</Text>
-      {/* <Text style={[styles.tableCell, styles.holderCell]}>{item.holder}</Text> */}
-      {/* <Text style={[styles.tableCell, styles.serialCell]}>{item.serialNumber}</Text> */}
       <Text style={[styles.tableCell, styles.conditionCell]}>{item.condition}</Text>
       <Text style={[styles.tableCell, styles.employeeCell]}>{item.date}</Text>
       <View style={[styles.tableCell, styles.statusCell]}>
         {renderStatusBadge(item.status)}
       </View>
-      
     </View>
   );
 
@@ -106,20 +102,9 @@ const AssetManagementScreen = () => {
       </Modal>
 
       <ScrollView>
-        {/* Header */}
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.headerTitle}>Welcome, Thabo</Text>
-            <Text style={styles.headerDate}>Monday, 30 June 2025</Text>
-          </View>
-          <View style={styles.profileIcon}>
-            <MaterialIcons name="person" size={24} color="#4CAF50" />
-          </View>
-        </View>
-
         {/* Breadcrumb */}
         <View style={styles.breadcrumb}>
-          <Text style={styles.breadcrumbText}> Asset Details</Text>
+          <Text style={styles.breadcrumbText}>Asset Details</Text>
         </View>
 
         {/* Filters and Actions */}
@@ -139,10 +124,6 @@ const AssetManagementScreen = () => {
               <MaterialIcons name="file-download" size={16} color="#666" />
               <Text style={styles.exportButtonText}>Export PDF</Text>
             </TouchableOpacity>
-            {/* <TouchableOpacity style={styles.exportButton}>
-              <MaterialIcons name="file-upload" size={16} color="#666" />
-              <Text style={styles.exportButtonText}>Import CSV</Text>
-            </TouchableOpacity> */}
           </View>
         </View>
 
@@ -151,13 +132,6 @@ const AssetManagementScreen = () => {
           <View style={styles.assetInfoHeader}>
             <Text style={styles.assetInfoTitle}>Asset Information</Text>
             <View style={styles.assetInfoActions}>
-              <TouchableOpacity 
-                style={styles.updateButton} 
-                onPress={() => setModalVisible(true)}
-              >
-                <MaterialIcons name="edit" size={14} color="white" marginRight={5} marginBottom={2}/>
-                <Text style={styles.updateButtonText}>Cancel request</Text>
-              </TouchableOpacity>
               <TouchableOpacity>
                 <MaterialIcons name="more-vert" size={20} color="#666" />
               </TouchableOpacity>
@@ -206,6 +180,17 @@ const AssetManagementScreen = () => {
               </View>
             </View>
           </View>
+          
+          {/* Cancel Request Button - now at the bottom of the asset info card */}
+          <View style={styles.cardButtonContainer}>
+            <TouchableOpacity 
+              style={styles.cancelRequestButton} 
+              onPress={() => setModalVisible(true)}
+            >
+              <MaterialIcons name="cancel" size={16} color="white" style={styles.buttonIcon} />
+              <Text style={styles.cancelRequestButtonText}>Cancel request</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Asset Table */}
@@ -216,7 +201,6 @@ const AssetManagementScreen = () => {
             <Text style={[styles.tableHeaderCell, styles.conditionCell]}>Asset Condition</Text>    
             <Text style={[styles.tableHeaderCell, styles.statusCell]}>Date</Text>      
             <Text style={[styles.tableHeaderCell, styles.statusCell]}>Status</Text>
-            
           </View>
           
           {/* Table Content */}
@@ -227,30 +211,6 @@ const AssetManagementScreen = () => {
             scrollEnabled={false}
           />
         </View>
-
-        {/* Pagination */}
-        <View style={styles.pagination}>
-          <TouchableOpacity style={styles.paginationButton}>
-            <MaterialIcons name="chevron-left" size={20} color="#666" />
-          </TouchableOpacity>
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(page => (
-            <TouchableOpacity
-              key={page}
-              style={[
-                styles.paginationButton,
-                currentPage === page && styles.activePaginationButton
-              ]}
-            >
-              <Text style={[
-                styles.paginationButtonText,
-                currentPage === page && styles.activePaginationButtonText
-              ]}>{page}</Text>
-            </TouchableOpacity>
-          ))}
-          <TouchableOpacity style={styles.paginationButton}>
-            <MaterialIcons name="chevron-right" size={20} color="#666" />
-          </TouchableOpacity>
-        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -259,41 +219,18 @@ const AssetManagementScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: 'white',
     fontFamily: 'Poppins-Regular'
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    fontFamily: 'Poppins-Regular'
-  },
-  headerDate: {
-    fontSize: 12,
-    color: '#666',
-    fontFamily: 'Poppins-Regular'
-  },
-  profileIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#E8F5E9',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   breadcrumb: {
     paddingHorizontal: 16,
-    paddingBottom: 16,
+    paddingTop: 16,
+    paddingBottom: 8,
   },
   breadcrumbText: {
-    fontSize: 12,
-    color: '#666',
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
     fontFamily: 'Poppins-Regular'
   },
   actionsContainer: {
@@ -320,7 +257,7 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: '#F5F5F5',
     borderRadius: 4,
     paddingHorizontal: 8,
     paddingVertical: 4,
@@ -371,23 +308,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  updateButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#8BC34A',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 4,
-    marginRight: 10,
-  },
-  updateButtonText: {
-    fontSize: 12,
-    color: 'white',
-    marginLeft: 4,
-    fontFamily: 'Poppins-Regular'
-  },
   assetInfoContent: {
     flexDirection: 'row',
+    marginBottom: 20,
   },
   infoColumn: {
     flex: 1,
@@ -403,6 +326,30 @@ const styles = StyleSheet.create({
   },
   infoValue: {
     fontSize: 14,
+    fontFamily: 'Poppins-Regular'
+  },
+  cardButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#EEEEEE',
+    paddingTop: 15,
+  },
+  cancelRequestButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F44336',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 4,
+  },
+  buttonIcon: {
+    marginRight: 6,
+  },
+  cancelRequestButtonText: {
+    fontSize: 14,
+    color: 'white',
     fontFamily: 'Poppins-Regular'
   },
   tableContainer: {
@@ -443,12 +390,6 @@ const styles = StyleSheet.create({
   descriptionCell: {
     flex: 1.5,
   },
-  holderCell: {
-    flex: 1,
-  },
-  serialCell: {
-    flex: 1.5,
-  },
   conditionCell: {
     flex: 1,
   },
@@ -468,32 +409,6 @@ const styles = StyleSheet.create({
   badgeText: {
     fontSize: 10,
     color: '#333',
-    fontFamily: 'Poppins-Regular'
-  },
-  pagination: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 16,
-  },
-  paginationButton: {
-    width: 30,
-    height: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 2,
-    borderRadius: 4,
-  },
-  activePaginationButton: {
-    backgroundColor: '#333',
-  },
-  paginationButtonText: {
-    fontSize: 12,
-    color: '#666',
-    fontFamily: 'Poppins-Regular'
-  },
-  activePaginationButtonText: {
-    color: 'white',
     fontFamily: 'Poppins-Regular'
   },
   // Modal Styles

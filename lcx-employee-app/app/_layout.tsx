@@ -3,9 +3,9 @@ import React, { useEffect } from "react";
 import { Stack, SplashScreen } from "expo-router";
 import { useFonts } from "expo-font";
 
-import { AuthProvider } from '@/context/AuthContext';
 import { AssetProvider } from "@/context/AssetContext";
 import { NotificationProvider } from "@/context/NotificationContext";
+import { AuthProvider } from "@/context/AuthContext";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -29,7 +29,7 @@ export default function RootLayout() {
   if (!fontsLoaded && !error) return null;
 
   return (
-   <AuthProvider>
+    <AuthProvider>
       <NotificationProvider>
         <AssetProvider>      
           <Stack screenOptions={{headerShown:true}}>
@@ -48,6 +48,6 @@ export default function RootLayout() {
         </AssetProvider> 
       </NotificationProvider>
     </AuthProvider>
-  
+
   );
 }
