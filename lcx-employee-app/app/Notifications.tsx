@@ -10,51 +10,7 @@ export default function NotificationsScreen() {
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = 4;
 
-  console.log(notifications);  
-
-  // Sample notifications data
-  // const notifications = [
-  //   { 
-  //     id: 1, 
-  //     type: 'approved',
-  //     title: 'Request Approved', 
-  //     message: 'Dell XPS 15 Laptop request approved',
-  //     subtext: 'Please wait Patiently for dispatch',
-  //     time: '10 minutes ago' 
-  //   },
-  //   { 
-  //     id: 2, 
-  //     type: 'rejected',
-  //     title: 'Request rejected', 
-  //     message: 'Dell XPS 19 Laptop request approved',
-  //     subtext: '',
-  //     time: '1 hour ago' 
-  //   },
-  //   { 
-  //     id: 3, 
-  //     type: 'approved',
-  //     title: 'Request Approved', 
-  //     message: 'Dell XPS 19 Laptop request approved',
-  //     subtext: 'Please wait Patiently for dispatch',
-  //     time: 'yesterday' 
-  //   },
-  //   { 
-  //     id: 4, 
-  //     type: 'approved',
-  //     title: 'Request Approved', 
-  //     message: 'Dell XPS 15 Laptop request approved',
-  //     subtext: 'Please wait Patiently for dispatch',
-  //     time: '22/02/2025' 
-  //   },
-  //   { 
-  //     id: 5, 
-  //     type: 'approved',
-  //     title: 'Request Approved', 
-  //     message: 'Dell XPS 15 Laptop request approved',
-  //     subtext: 'Please wait Patiently for dispatch',
-  //     time: '24/01/2025' 
-  //   },
-  // ];
+  console.log('Notifications: ',notifications);    
 
   // For pagination functionality
   const handlePageChange = (page) => {
@@ -79,7 +35,7 @@ export default function NotificationsScreen() {
 
       {/* Notifications section with dropdown */}
       <View style={styles.notificationHeader}>
-        <Text style={styles.sectionTitle}>Notifications</Text>
+        <Text style={styles.sectionTitle}></Text>
 
         <TouchableOpacity style={styles.dropdown}>
           <Text style={styles.dropdownText}>Recent first</Text>
@@ -99,14 +55,20 @@ export default function NotificationsScreen() {
               <Text style={styles.notificationTitle}>{notification.title}</Text>
               
               <View style={styles.notificationDetails}>
-                <View style={styles.bulletPoint} />
-                <Text style={styles.notificationMessage}>{notification.message}</Text>
+                {/* <View style={styles.bulletPoint} /> */}
+                <Text style={styles.notificationMessage}>
+                  <View style={styles.bulletPoint} /> -
+                  { notification.message }
+                </Text>
               </View>
               
               {notification.subtext && (
                 <View style={styles.notificationDetails}>
-                  <View style={styles.bulletPoint} />
-                  <Text style={styles.notificationSubtext}>{notification.subtext}</Text>
+                  {/* <View style={styles.bulletPoint} /> */}
+                  <Text style={styles.notificationSubtext}>
+                    <View style={styles.bulletPoint} /> -
+                    { notification.subtext }
+                  </Text>
                 </View>
               )}
             </View>
@@ -117,7 +79,7 @@ export default function NotificationsScreen() {
       </ScrollView>
       
       {/* Pagination */}
-      <View style={styles.paginationContainer}>
+      {/* <View style={styles.paginationContainer}>
         <TouchableOpacity 
           style={styles.paginationArrow} 
           onPress={goToPreviousPage}
@@ -159,7 +121,7 @@ export default function NotificationsScreen() {
             color={currentPage === totalPages ? "#ccc" : "#333"} 
           />
         </TouchableOpacity>
-      </View>
+      </View> */}
     </SafeAreaView>
   );
 }

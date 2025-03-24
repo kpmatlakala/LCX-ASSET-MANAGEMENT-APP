@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  Modal,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
@@ -16,14 +17,15 @@ import CustomButton from "@/components/CustomButton";
 import { ArrowDown2, SearchNormal1 } from "iconsax-react-native";
 import { useAssets } from '@/context/AssetContext';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { AntDesign } from "@expo/vector-icons";
+import ReturnForm from "@/components/ReturnForm";
 
 const RequestAssets = () => {
-
   const params = useLocalSearchParams();
-  const assetIdFromParams = params.assetId;
-  console.log("selected asset:", assetIdFromParams);
-  // Alert.alert(assetIdFromParams);
+  const assetIdFromParams = params.assetId; 
   const { assets, requestAsset } = useAssets();
+  console.log('AssetsParams: ', assetIdFromParams);
+  
 
   const [search, setSearch] = useState("");
   const [purpose, setPurpose] = useState("");
@@ -35,15 +37,21 @@ const RequestAssets = () => {
   const [filteredAssets, setFilteredAssets] = useState([]);
   const [selectedAsset, setSelectedAsset] = useState(null);
 
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+
   useEffect(() => {
     // Initialize filtered assets with all available assets
     setFilteredAssets(assets);
     
     // If an asset ID was passed in the params, find and select that asset
-    if (assetIdFromParams) {
+    if (assetIdFromParams) 
+    {
       const preselectedAsset = assets.find(asset => asset.asset_id === assetIdFromParams);
-      if (preselectedAsset) {
+      if (preselectedAsset) 
+      {
         setSelectedAsset(preselectedAsset);
+        setPurpose(preselectedAsset.purpose || ''); // If you want to pre-fill any field with asset-related data
+        setDuration(preselectedAsset.duration || ''); // Same for duration if needed
       }
     }
   }, [assets, assetIdFromParams]);
@@ -81,6 +89,12 @@ const RequestAssets = () => {
     setShowDatePicker(true);
   };
 
+  // Handle modal close
+  const handleCloseModal = (): void => {
+    setModalVisible(false);
+    setSelectedAsset(null);
+  };
+
   const validateForm = () => {
     if (!selectedAsset) {
       Alert.alert("Error", "Please select an asset");
@@ -106,7 +120,7 @@ const RequestAssets = () => {
       Alert.alert(
         "Success",
         "Your asset request has been submitted successfully",
-        [{ text: "OK", onPress: () => router.push("/AssetsInventory") }]
+        [{ text: "OK", onPress: () => router.push("/(tabs)/MyAssets") }]
       );
     } catch (error) {
       Alert.alert("Error", "Failed to submit request. Please try again.");
@@ -119,10 +133,6 @@ const RequestAssets = () => {
     <SafeAreaView className="bg-white flex-1">
       <ScrollView>
         <View className="flex-1 px-4 pb-8 bg-white rounded-3xl mx-4 my-4 relative">
-          {/* <View className="flex-row justify-center items-center pt-4 pb-6">
-            <Image source={images.Logo} resizeMode="contain" className="w-[170px] h-[100px]" />
-          </View> */}
-
           <Text className="text-3xl font-bold mb-5">Request Asset</Text>
 
           {/* Asset selection */}
@@ -216,6 +226,36 @@ const RequestAssets = () => {
           />
         </View>
       </ScrollView>
+
+      {/* Modal with ReturnForm */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={handleCloseModal}
+      >
+        <View className="flex-1 justify-center bg-black/50">
+          <View className="bg-white flex-1 mt-16 rounded-t-3xl overflow-hidden">
+            <View className="flex-row justify-between items-center p-5 border-b border-gray-100 bg-gray-50">
+              <Text className="text-xl font-bold">Return Asset</Text>
+              <TouchableOpacity onPress={handleCloseModal}>
+                <AntDesign name="close" size={24} color="#333" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Pass the selected asset to ReturnForm if needed */}
+            {selectedAsset && (
+              <View className="flex-1">
+                <ReturnForm
+                  assetName={selectedAsset.asset_name}
+                  assetId={selectedAsset.asset_sn}
+                  onClose={handleCloseModal}
+                />
+              </View>
+            )}
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };

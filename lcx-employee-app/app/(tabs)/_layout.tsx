@@ -91,6 +91,15 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
+          name="RequestAsset"
+          options={{
+            tabBarIcon: ({ color }) => <Notification size={24} color={color} variant="Bold"/>,
+            title: "",
+            tabBarLabel: "+",
+          }}
+        />
+        
+        <Tabs.Screen
           name="Profile"
           options={{
             tabBarIcon: ({ color }) => <User size={24} color={color} />,
