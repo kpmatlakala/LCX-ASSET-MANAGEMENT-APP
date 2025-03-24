@@ -1,11 +1,20 @@
 import React from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Image } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  Image,
+} from "react-native";
 import {
   Notification,
   User,
   Home2,
   ClipboardText,
+  AddCircle,
+  ClipboardTick,
 } from "iconsax-react-native";
 import { Tabs } from "expo-router";
 import { router } from "expo-router";
@@ -13,42 +22,47 @@ import { images } from "@/constants";
 import { supabase } from "@/lib/supabase";
 
 export default function TabLayout() {
-
   const [notificationCount, setNotificationCount] = React.useState(3);
+  const [activeTab, setActiveTab] = React.useState("Dashboard");
+  
   const handleSignOut = async () => {
-    Alert.alert(
-      "Sign Out",
-      "Are you sure you want to sign out?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
+    Alert.alert("Sign Out", "Are you sure you want to sign out?", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Sign Out",
+        onPress: async () => {
+          await supabase.auth.signOut();
+          router.replace("/(auth)/Auth");
         },
-        {
-          text: "Sign Out",
-          onPress: async () => {
-            await supabase.auth.signOut();
-            router.replace("/(auth)/Auth");
-          },
-          style: "destructive",
-        },
-      ]
-    );
+        style: "destructive",
+      },
+    ]);
   };
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Tabs
-        screenOptions={{
-          tabBarActiveTintColor: "#b8ca41",
+        screenOptions={({ route }) => ({
+          tabBarActiveTintColor: "#b8ca41", 
           tabBarInactiveTintColor: "#8E8E93",
           tabBarStyle: {
-            height: 80,
-            paddingTop: 6,
+            height: 90,
+            paddingTop: 10,
+            paddingBottom: 10,
+            borderTopWidth: 0,
+            backgroundColor: '#FFFFFF',
+            elevation: 5, // Android shadow
+            shadowColor: '#000000',
+            shadowOffset: { width: 0, height: -2 },
+            shadowOpacity: 0.05,
+            shadowRadius: 3,
           },
           headerRight: () => (
             <View style={styles.headerRight}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.headerButton}
                 onPress={() => router.push("/Notifications")}
               >
@@ -57,13 +71,13 @@ export default function TabLayout() {
                   {notificationCount > 0 && (
                     <View style={styles.badge}>
                       <Text style={styles.badgeText}>
-                        {notificationCount > 99 ? '99+' : notificationCount}
+                        {notificationCount > 99 ? "99+" : notificationCount}
                       </Text>
                     </View>
                   )}
                 </View>
               </TouchableOpacity>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.headerButton}
                 onPress={() => router.push("/Profile")}
               >
@@ -71,40 +85,89 @@ export default function TabLayout() {
               </TouchableOpacity>
             </View>
           ),
-          headerShadowVisible: false, // Remove header shadow
-        }}
+          tabBarItemStyle: {
+            paddingVertical: 5,
+          },
+          tabBarLabelStyle: {
+            fontSize: 12,
+            fontWeight: '500',
+          },
+          headerShadowVisible: false,
+        })}
       >
         <Tabs.Screen
           name="Dashboard"
           options={{
-            tabBarIcon: ({ color }) => <Home2 size={24} color={color} variant="Bold"/>,
+            tabBarIcon: ({ color, focused }) => (
+              <View style={[styles.tabIconContainer, focused && styles.activeTabIconContainer]}>
+                <Home2 size={26} color={color} variant={focused ? "Bold" : "Linear"} />
+              </View>
+            ),
             title: "",
             tabBarLabel: "Home",
+          }}
+          listeners={{
+            tabPress: () => setActiveTab("Dashboard"),
           }}
         />
         <Tabs.Screen
           name="Inventory"
           options={{
-            tabBarIcon: ({ color }) => <ClipboardText size={24} color={color} variant="Bold"/>,
+            tabBarIcon: ({ color, focused }) => (
+              <View style={[styles.tabIconContainer, focused && styles.activeTabIconContainer]}>
+                <ClipboardText size={26} color={color} variant={focused ? "Bold" : "Linear"} />
+              </View>
+            ),
             title: "",
             tabBarLabel: "Inventory",
+          }}
+          listeners={{
+            tabPress: () => setActiveTab("Inventory"),
           }}
         />
         <Tabs.Screen
           name="RequestAsset"
           options={{
-            tabBarIcon: ({ color }) => <Notification size={24} color={color} variant="Bold"/>,
+            tabBarIcon: ({ color, focused }) => (
+              <View style={[styles.addButtonContainer, focused && styles.activeAddButtonContainer]}>
+                <AddCircle size={36} color={focused ? "#FFFFFF" : "#b8ca41"} variant="Bold" />
+              </View>
+            ),
             title: "",
-            tabBarLabel: "+",
+            tabBarLabel: () => null,
+          }}
+          listeners={{
+            tabPress: () => setActiveTab("RequestAsset"),
           }}
         />
-        
+        <Tabs.Screen
+          name="MyAssets"
+          options={{
+            tabBarIcon: ({ color, focused }) => (
+              <View style={[styles.tabIconContainer, focused && styles.activeTabIconContainer]}>
+                <ClipboardTick size={26} color={color} variant={focused ? "Bold" : "Linear"} />
+              </View>
+            ),
+            title: "",
+            tabBarLabel: "My Assets",
+          }}
+          listeners={{
+            tabPress: () => setActiveTab("MyAssets"),
+          }}
+        />
         <Tabs.Screen
           name="Profile"
           options={{
-            tabBarIcon: ({ color }) => <User size={24} color={color} variant="Bold"/>,
+            tabBarIcon: ({ color, focused }) => (
+              <View style={[styles.tabIconContainer, focused && styles.activeTabIconContainer]}>
+                <User size={26} color={color} variant={focused ? "Bold" : "Linear"} />
+              </View>
+            ),
             title: "",
             tabBarLabel: "Profile",
+          }}
+          listeners={{
+            tabPress: () => setActiveTab("Profile"),
           }}
         />
       </Tabs>
@@ -139,23 +202,42 @@ const styles = StyleSheet.create({
     marginLeft: 16,
   },
   notificationContainer: {
-    position: 'relative',
+    position: "relative",
   },
   badge: {
-    position: 'absolute',
+    position: "absolute",
     right: -6,
     top: -6,
-    backgroundColor: '#FF3B30',
+    backgroundColor: "#FF3B30",
     borderRadius: 10,
     minWidth: 20,
     height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 4,
   },
   badgeText: {
-    color: 'white',
+    color: "white",
     fontSize: 10,
-    fontWeight: 'bold',
-  }
+    fontWeight: "bold",
+  },
+  tabIconContainer: {
+    padding: 8,
+    borderRadius: 10,
+  },
+  // activeTabIconContainer: {
+  //   backgroundColor: 'rgb(236, 242, 193)',
+  // },
+  addButtonContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: 'rgb(236, 242, 193)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    bottom: 10,
+  },
+  activeAddButtonContainer: {
+    backgroundColor: '#b8ca41',
+  },
 });
