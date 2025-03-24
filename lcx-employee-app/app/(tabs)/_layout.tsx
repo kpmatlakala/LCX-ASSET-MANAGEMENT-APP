@@ -40,11 +40,11 @@ export default function TabLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Tabs
         screenOptions={{
-          tabBarActiveTintColor: "#007BFF",
+          tabBarActiveTintColor: "#b8ca41",
           tabBarInactiveTintColor: "#8E8E93",
           tabBarStyle: {
-            height: 60,
-            paddingBottom: 8,
+            height: 80,
+            paddingTop: 6,
           },
           headerRight: () => (
             <View style={styles.headerRight}>
@@ -77,7 +77,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="Dashboard"
           options={{
-            tabBarIcon: ({ color }) => <Home2 size={24} color={color} />,
+            tabBarIcon: ({ color }) => <Home2 size={24} color={color} variant="Bold"/>,
             title: "",
             tabBarLabel: "Home",
           }}
@@ -85,7 +85,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="Inventory"
           options={{
-            tabBarIcon: ({ color }) => <ClipboardText size={24} color={color} />,
+            tabBarIcon: ({ color }) => <ClipboardText size={24} color={color} variant="Bold"/>,
             title: "",
             tabBarLabel: "Inventory",
           }}
@@ -93,7 +93,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="Profile"
           options={{
-            tabBarIcon: ({ color }) => <User size={24} color={color} />,
+            tabBarIcon: ({ color }) => <User size={24} color={color} variant="Bold"/>,
             title: "",
             tabBarLabel: "Profile",
           }}
