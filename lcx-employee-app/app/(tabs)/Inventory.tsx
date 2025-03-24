@@ -7,12 +7,10 @@ import {
   StatusBar,
   TouchableOpacity,
   TextInput,
-  Modal,
 } from "react-native";
-import { Feather, AntDesign } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useAssets } from "@/context/AssetContext";
-import ReturnForm from "@/components/ReturnForm";
 
 interface Asset {
   id: number;
@@ -33,10 +31,9 @@ export default function InventoryScreen() {
   const [selectedFilter, setSelectedFilter] = useState<string>("All...");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [expandedAssetId, setExpandedAssetId] = useState<number | null>(null);
-  const [showFilterDropdown, setShowFilterDropdown] = useState<boolean>(false);
-  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [showFilterDropdown, setShowFilterDropdown] = useState<boolean>(false);  
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
-
+  
   // Filter options
   const filterOptions: string[] = [
     "All...",
@@ -94,7 +91,7 @@ export default function InventoryScreen() {
     const asset = assets.find((a) => a.asset_id === assetId);
     if (asset) {
       setSelectedAsset(asset);
-      setModalVisible(true);
+      // setModalVisible(true);
       router.push({
         pathname: "/RequestAsset",
         params: { assetId: asset.asset_id.toString() },
@@ -107,11 +104,7 @@ export default function InventoryScreen() {
     router.push("/RequestAsset");
   };
 
-  // Handle modal close
-  const handleCloseModal = (): void => {
-    setModalVisible(false);
-    setSelectedAsset(null);
-  };
+  
 
   // Handle asset review
   const handleAssetReview = (assetId: number): void => {
@@ -215,7 +208,7 @@ export default function InventoryScreen() {
                       }}
                       className="font-bold text-xs"
                     >
-                      {asset.status}
+                      {asset.asset_category}
                     </Text>
                   </View>
                 </View>
@@ -225,9 +218,9 @@ export default function InventoryScreen() {
               <View className="mt-1">
                 <View className="flex-col">
                   <View className="flex-row items-center">
-                    <Text className="text-sm text-gray-500 mr-1">Category:</Text>
+                    <Text className="text-sm text-gray-500 mr-1">Seral Number:</Text>
                     <Text className="text-sm text-gray-800">
-                      {asset.asset_category}
+                      {asset.asset_sn}
                     </Text>
                   </View>
                 </View>
@@ -315,36 +308,7 @@ export default function InventoryScreen() {
           </View>
         )}
       </ScrollView>
-
-      {/* Modal with ReturnForm */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={handleCloseModal}
-      >
-        <View className="flex-1 justify-center bg-black/50">
-          <View className="bg-white flex-1 mt-16 rounded-t-3xl overflow-hidden">
-            <View className="flex-row justify-between items-center p-5 border-b border-gray-100 bg-gray-50">
-              <Text className="text-xl font-bold">Return Asset</Text>
-              <TouchableOpacity onPress={handleCloseModal}>
-                <AntDesign name="close" size={24} color="#333" />
-              </TouchableOpacity>
-            </View>
-
-            {/* Pass the selected asset to ReturnForm if needed */}
-            {selectedAsset && (
-              <View className="flex-1">
-                <ReturnForm
-                  assetName={selectedAsset.name}
-                  assetId={selectedAsset.serialNumber}
-                  onClose={handleCloseModal}
-                />
-              </View>
-            )}
-          </View>
-        </View>
-      </Modal>
+      
     </SafeAreaView>
   );
 }

@@ -29,7 +29,7 @@ interface Asset {
 
 export default function MyAssetsScreen() {
   const { employeeId } = useAuth();
-  const { myAssetRequests, getAssetById } = useAssets();
+  const { myAssetRequests, getAssetById, cancelRequest } = useAssets();
   const [selectedFilter, setSelectedFilter] = useState<string>("All...");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [expandedAssetId, setExpandedAssetId] = useState<number | null>(null);
@@ -293,7 +293,10 @@ export default function MyAssetsScreen() {
                     {request.status === "Pending" && (
                       <TouchableOpacity
                         className="flex-row items-center bg-[#f44336] px-3 py-2 rounded-full mr-2 mb-2"
-                        onPress={() => console.log("Cancel request")}
+                        onPress={() => {
+                          console.log("Cancel request");
+                          cancelRequest(request.request_id);
+                        }}
                       >
                         <Feather name="x-circle" size={16} color="#fff" />
                         <Text className="text-sm text-white ml-1">
