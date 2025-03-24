@@ -69,7 +69,7 @@ export default function TabLayout() {
                 onPress={() => router.push("/Notifications")}
               >
                 <View style={styles.notificationContainer}>
-                  <Notification size={24} color="#000" />
+                  <Notification size={24} color="#b8ca41" variant="Bold"/>
                   {notificationCount > 0 && (
                     <View style={styles.badge}>
                       <Text style={styles.badgeText}>
@@ -83,7 +83,7 @@ export default function TabLayout() {
                 style={styles.headerButton}
                 onPress={() => router.push("/Profile")}
               >
-                <User size={24} color="#000" />
+                <User size={24} color="#b8ca41" variant="Bold"/>
               </TouchableOpacity>
             </View>
           ),

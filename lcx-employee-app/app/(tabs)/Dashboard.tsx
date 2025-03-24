@@ -69,19 +69,19 @@ export default function AssetManagementDashboard() {
     {
       id: 1,
       name: "Inventory",
-      icon: <DocumentText size={20} color="#666" />,
+      icon: <DocumentText size={22} color="#666" />,
       onPress: () => router.push("/inventory"),
     },
     {
       id: 2,
       name: "Request Asset",
-      icon: <Add size={20} color="#666" />,
+      icon: <Add size={22} color="#666" />,
       onPress: () => router.push("/request-asset"),
     },
     {
       id: 3,
       name: "View Assets History",
-      icon: <ArchiveBook size={20} color="#666" />,
+      icon: <ArchiveBook size={22} color="#666" />,
       onPress: () => router.push("/asset-history"),
     },
   ];
@@ -127,7 +127,7 @@ export default function AssetManagementDashboard() {
       <StatusBar backgroundColor="#f8f9fa" barStyle="dark-content" />
 
       {/* Dashboard Title */}
-      <Text className="text-3xl font-medium mx-5 mb-2 text-gray-400">{greetUser()}, Frankie</Text>
+      <Text className="text-3xl font-medium mx-5 mb-2 text-gray-6+00">{greetUser()}, Frankie</Text>
 
       {loading ? (
         <View className="flex-1 justify-center items-center">
@@ -144,86 +144,55 @@ export default function AssetManagementDashboard() {
         >
           <View className="mt-2">
 
-            {/* Main Stats Card - Fixed styling for Borrowed Assets */}
+            {/* Main Stats Card - Borrowed Assets */}
             <View className="mx-5 mb-4">
-              <View className="rounded-xl overflow-hidden border border-gray-200 shadow-sm">
-                <LinearGradient
-                  colors={["#FFF", "#F8F8F8"]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={{ height: 100 }}
-                >
-                  <View className="flex-row justify-between items-center h-full p-4">
-                    <View className="bg-gray-200 rounded-xl p-3">
-                      <Box size={24} color="#333" variant="Bold" />
-                    </View>
-                    <View className="flex-1 items-end">
-                      <Text className="text-3xl font-bold text-gray-800">
-                        {borrowedCount}
-                      </Text>
-                      <Text className="text-base text-gray-600">
-                        Borrowed Assets
-                      </Text>
-                    </View>
+              <View className="rounded-xl overflow-hidden border border-gray-200 shadow-sm bg-white">
+                <View className="flex-row justify-between items-center h-full p-4" style={{ height: 100 }}>
+                  <View className="bg-[#f8f8f8] rounded-xl p-3">
+                    <Box size={25} color="#b8ca41" variant="Bold" />
                   </View>
-                </LinearGradient>
+                  <View className="flex-1 items-end">
+                    <Text className="text-3xl font-bold text-gray-800">
+                      {borrowedCount}
+                    </Text>
+                    <Text className="text-base text-gray-600">
+                      Borrowed Assets
+                    </Text>
+                  </View>
+                </View>
               </View>
             </View>
 
-            {/* Horizontal Stats Cards - Completely redesigned */}
+            {/* Horizontal Stats Cards - Updated with matching borders */}
             <View className="flex-row px-5 mb-4">
               {/* Pending Card */}
-              <View className="flex-1 ml-2 rounded-xl overflow-hidden shadow-sm">
-                <LinearGradient
-                  colors={["#4a90e2", "#357dcb"]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 0, y: 1 }}
-                  style={{
-                    height: 120,
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <View className="p-3 text-end">
-                    <View className="bg-white/20 rounded-full p-2 w-10 h-10 flex items-center justify-center">
-                      <Clock size={20} color="white" variant="Bold" />
-                    </View>
+              <View className="flex-1 mr-2 rounded-xl overflow-hidden border border-gray-200 shadow-sm bg-white">
+                <View className="flex-row justify-between items-center p-4" style={{ height: 120 }}>
+                  <View className="bg-[#f8f8f8] rounded-full p-2 w-10 h-10 flex items-center justify-center">
+                    <Clock size={25} color="#4a90e2" variant="Bold" />
                   </View>
-                  <View className="p-3 items-end">
-                    <Text className="text-3xl font-bold text-white">
-                      {overdueCount}
+                  <View className="items-end">
+                    <Text className="text-3xl font-bold text-gray-800">
+                      {pendingCount}
                     </Text>
-                    <Text className="text-base text-white">Pending</Text>
+                    <Text className="text-base text-gray-600">Pending</Text>
                   </View>
-                </LinearGradient>
+                </View>
               </View>
 
               {/* Overdue Card */}
-              <View className="flex-1 ml-2 rounded-xl overflow-hidden shadow-sm">
-                <LinearGradient
-                  colors={["#FF6B6B", "#ee5a5a"]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 0, y: 1 }}
-                  style={{
-                    height: 120,
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <View className="p-3 text-end">
-                    <View className="bg-white/20 rounded-full p-2 w-10 h-10 flex items-center justify-center">
-                      <Danger size={20} color="white" variant="Bold" />
-                    </View>
+              <View className="flex-1 ml-2 rounded-xl overflow-hidden border border-gray-200 shadow-sm bg-white">
+                <View className="flex-row justify-between items-center p-4" style={{ height: 120 }}>
+                  <View className="bg-[#f8f8f8] rounded-full p-2 w-10 h-10 flex items-center justify-center">
+                    <Danger size={25} color="#FF6B6B" variant="Bold" />
                   </View>
-                  <View className="p-3 items-end">
-                    <Text className="text-3xl font-bold text-white">
+                  <View className="items-end">
+                    <Text className="text-3xl font-bold text-gray-800">
                       {overdueCount}
                     </Text>
-                    <Text className="text-base text-white">Overdue</Text>
+                    <Text className="text-base text-gray-600">Overdue</Text>
                   </View>
-                </LinearGradient>
+                </View>
               </View>
             </View>
           </View>
