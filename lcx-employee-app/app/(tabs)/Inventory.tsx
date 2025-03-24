@@ -35,7 +35,7 @@ type TabType = "inventory" | "myAssets";
 
 export default function AssetInventoryScreen() {
   const { session, employeeId, loading, isFirstLogin, updateSession } = useAuth();
-  const { assets, getAssetById, myAssetRequests } = useAssets();
+  const { assets, myAssetRequests } = useAssets();
   const [currentTab, setCurrentTab] = useState<TabType>("inventory");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const totalPages = 4;
@@ -161,13 +161,6 @@ export default function AssetInventoryScreen() {
     return matchesSearch && matchesFilter && request.employee_id === employeeId;
   });
 
-  // Find the asset that corresponds to the current request's asset_id
-  // const getAssetById = (assetId: number) => {
-  //   console.log('getAssetById: ',assetId);
-    
-  //   return assets.find((asset) => asset.asset_id === assetId);
-  // };
-
   // Handle asset return
   const handleAssetReturn = (requestId: number): void => {
     console.log(`Returning asset request ${requestId}`);
@@ -175,65 +168,24 @@ export default function AssetInventoryScreen() {
     setModalVisible(true);
   };
 
-
-
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor="#fff" barStyle="dark-content" />
 
-      {/* Tab Navigation */}
-      <View style={styles.tabContainer}>
-        <TouchableOpacity
-          style={[styles.tab, currentTab === "inventory" && styles.activeTab]}
-          onPress={() => setCurrentTab("inventory")}
-        >
-          <Feather
-            name="database"
-            size={20}
-            color={currentTab === "inventory" ? "#0d1a31" : "#666"}
-          />
-          <Text
-            style={[
-              styles.tabText,
-              currentTab === "inventory" && styles.activeTabText,
-            ]}
-          >
-            Inventory
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.tab, currentTab === "myAssets" && styles.activeTab]}
-          onPress={() => setCurrentTab("myAssets")}
-        >
-          <Feather
-            name="user"
-            size={20}
-            color={currentTab === "myAssets" ? "#0d1a31" : "#666"}
-          />
-          <Text
-            style={[
-              styles.tabText,
-              currentTab === "myAssets" && styles.activeTabText,
-            ]}
-          >
-            My Assets
-          </Text>
-        </TouchableOpacity>
-      </View>
+    
 
       {/* Assets Inventory section title with Request Asset button */}
       <View style={styles.inventoryHeader}>
         <Text style={styles.sectionTitle}>
-          {currentTab === "inventory" ? "" : `${employeeId}`}
+           Inventory
         </Text>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.requestNewButton}
           onPress={handleRequestNewAsset}
         >
           <Feather name="plus" size={18} color="#fff" />
           <Text style={styles.requestNewButtonText}>Request Asset</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
 
       {/* Search and Filter Bar */}
@@ -344,10 +296,10 @@ export default function AssetInventoryScreen() {
                       </Text>
                     </View>
 
-                    {/* <View style={styles.assetInfoItem}>
+                    <View style={styles.assetInfoItem}>
                       <Text style={styles.assetInfoLabel}>Serial No:</Text>
                       <Text style={styles.assetInfoValue}>{asset.asset_sn}</Text>
-                    </View> */}
+                    </View>
                   </View>
                   <View
                     style={{
@@ -432,7 +384,7 @@ export default function AssetInventoryScreen() {
                         </TouchableOpacity>
                       )}
 
-                      {/* <TouchableOpacity
+                      <TouchableOpacity
                         style={styles.actionButton}
                         onPress={() => handleCheckAvailability(asset.asset_id)}
                       >
@@ -440,7 +392,7 @@ export default function AssetInventoryScreen() {
                         <Text style={styles.actionButtonText}>
                           Check Availability
                         </Text>
-                      </TouchableOpacity> */}
+                      </TouchableOpacity>
                     </View>
                   </View>
                 )}
@@ -458,7 +410,6 @@ export default function AssetInventoryScreen() {
           // My Assets Tab Content
           filteredAssetRequests.length > 0 ? (
             filteredAssetRequests.map((request) => (
-              
               <View key={request.request_id} style={styles.assetCard}>
                 {/* Request Card Header */}
                 <View style={styles.assetCardHeader}>
@@ -474,9 +425,8 @@ export default function AssetInventoryScreen() {
                     ]}
                   >
                     <Text style={styles.assetName}>
-                      Request #{request.request_id}                      
+                      Request #{request.request_id}
                     </Text>
-                    
                     <View
                       style={[
                         styles.statusBadge,
@@ -509,9 +459,7 @@ export default function AssetInventoryScreen() {
                     <View style={styles.assetInfoItem}>
                       <Text style={styles.assetInfoLabel}>Asset:</Text>
                       <Text style={styles.assetInfoValue}>
-                        {
-                          getAssetById(request.asset_id)?.asset_name  || "Unknown Asset"
-                        } | {(request.asset_id) || "Unknown Serial Number"}
+                        {request.asset_name || "Unknown Asset"}
                       </Text>
                     </View>
 
@@ -642,86 +590,6 @@ export default function AssetInventoryScreen() {
         )}
       </ScrollView>
 
-      {/* Pagination - Only show for inventory tab with assets */}
-      {/* {currentTab === "inventory" && filteredAssets.length > 0 && (
-        <View style={styles.paginationContainer}>
-          <TouchableOpacity
-            style={styles.paginationArrow}
-            onPress={goToPreviousPage}
-            disabled={currentPage === 1}
-          >
-            <Feather
-              name="chevron-left"
-              size={24}
-              color={currentPage === 1 ? "#ccc" : "#333"}
-            />
-          </TouchableOpacity>
-
-          {[...Array(totalPages)].map((_, index) => (
-            <TouchableOpacity
-              key={index}
-              style={[
-                styles.paginationButton,
-                currentPage === index + 1 && styles.paginationButtonActive,
-              ]}
-              onPress={() => handlePageChange(index + 1)}
-            >
-              <Text
-                style={[
-                  styles.paginationButtonText,
-                  currentPage === index + 1 &&
-                    styles.paginationButtonTextActive,
-                ]}
-              >
-                {index + 1}
-              </Text>
-            </TouchableOpacity>
-          ))}
-
-          <TouchableOpacity
-            style={styles.paginationArrow}
-            onPress={goToNextPage}
-            disabled={currentPage === totalPages}
-          >
-            <Feather
-              name="chevron-right"
-              size={24}
-              color={currentPage === totalPages ? "#ccc" : "#333"}
-            />
-          </TouchableOpacity>
-        </View>
-      )} */}
-
-      {/* Modal with ReturnForm */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={handleCloseModal}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Return Asset</Text>
-              <TouchableOpacity onPress={handleCloseModal}>
-                <AntDesign name="close" size={24} color="#333" />
-              </TouchableOpacity>
-            </View>
-
-            {/* Pass the selected asset to ReturnForm if needed */}
-            {selectedAsset && (
-              <View style={styles.modalBody}>
-                <ReturnForm
-                  // You can pass any props needed to ReturnForm
-                  assetName={selectedAsset.name}
-                  assetId={selectedAsset.serialNumber}
-                  onClose={handleCloseModal}
-                />
-              </View>
-            )}
-          </View>
-        </View>
-      </Modal>
     </SafeAreaView>
   );
 }
