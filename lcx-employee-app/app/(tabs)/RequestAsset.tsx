@@ -2,19 +2,17 @@ import React, { useState, useEffect } from "react";
 import {
   Text,
   View,
-  Image,
-  TextInput,
   TouchableOpacity,
   ScrollView,
   Alert,
   Modal,
+  StyleSheet,
+  StatusBar,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
-import { images } from "@/constants";
-import FormField from "@/components/FormField";
-import CustomButton from "@/components/CustomButton";
-import { ArrowDown2, SearchNormal1 } from "iconsax-react-native";
+import { Input, Button } from "@rneui/themed";
+import { ArrowDown2, SearchNormal1, Briefcase, Calendar } from "iconsax-react-native";
 import { useAssets } from '@/context/AssetContext';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { AntDesign } from "@expo/vector-icons";
@@ -24,8 +22,6 @@ const RequestAssets = () => {
   const params = useLocalSearchParams();
   const assetIdFromParams = params.assetId; 
   const { assets, requestAsset } = useAssets();
-  console.log('AssetsParams: ', assetIdFromParams);
-  
 
   const [search, setSearch] = useState("");
   const [purpose, setPurpose] = useState("");
@@ -36,23 +32,19 @@ const RequestAssets = () => {
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [filteredAssets, setFilteredAssets] = useState([]);
   const [selectedAsset, setSelectedAsset] = useState(null);
-
-  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
-    // Initialize filtered assets with all available assets
     setFilteredAssets(assets);
     
-    // Preselect asset if assetIdFromParams is provided
     if (assetIdFromParams && assets.length > 0) {
-      // Manual loop for precise matching
       for (let i = 0; i < assets.length; i++) {
         if (assets[i].asset_id == assetIdFromParams) {
           setSelectedAsset(assets[i]);
           setPurpose(assets[i].purpose || '');
           setDuration(assets[i].duration || '');
           setDropdownVisible(false);
-          break;  // Exit loop once asset is found
+          break;
         }
       }
     }
@@ -83,7 +75,7 @@ const RequestAssets = () => {
     setShowDatePicker(false);
     if (selectedDate) {
       setReturnDate(selectedDate);
-      setDuration(selectedDate.toISOString().split('T')[0]); // Format as YYYY-MM-DD
+      setDuration(selectedDate.toISOString().split('T')[0]);
     }
   };
 
@@ -91,11 +83,10 @@ const RequestAssets = () => {
     setShowDatePicker(true);
   };
 
-  // Handle modal close
   const handleCloseModal = (): void => {
     setModalVisible(false);
     setSelectedAsset(null);
-  };
+  }; 
 
   const validateForm = () => {
     if (!selectedAsset) {
@@ -131,139 +122,420 @@ const RequestAssets = () => {
     }
   };
 
-  console.log('AssetIdFromParams:', assetIdFromParams);
-// console.log('Assets:', assets);
-console.log('Preselected Asset:', selectedAsset);
-
   return (
-    <SafeAreaView className="bg-white flex-1">
-      <ScrollView>
-        <View className="flex-1 px-4 pb-8 bg-white rounded-3xl mx-4 my-4 relative">
-          <Text className="text-3xl font-bold mb-5">Request Asset</Text>
+    <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Request Asset</Text>
+        </View>
 
-          {/* Asset selection */}
-          <View className="mb-6">
-            <Text className="text-sm font-medium mb-2">Select Asset</Text>
-            <TouchableOpacity 
-              onPress={() => setDropdownVisible(!dropdownVisible)} 
-              className="border border-gray-300 rounded-lg flex-row justify-between items-center px-4 py-3"
-            >
-              <Text className="text-base">
-                {selectedAsset ? selectedAsset.asset_name : "Select an asset"}
-              </Text>
-              <ArrowDown2 size="20" color="#333" />
-            </TouchableOpacity>
+        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+          <View style={styles.contentContainer}>
+            {/* Asset Selection */}
+            <View style={styles.formContainer}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Select Asset</Text>
+                <View style={styles.sectionDivider} />
+              </View>
 
-            {dropdownVisible && (
-              <View className="mt-2 border border-gray-300 rounded-lg max-h-60 overflow-hidden">
-                <View className="border-b border-gray-200 p-2">
-                  <View className="flex-row items-center bg-gray-100 rounded-md px-2">
+              <TouchableOpacity 
+                onPress={() => setDropdownVisible(!dropdownVisible)} 
+                style={styles.dropdownContainer}
+              >
+                <Text style={styles.dropdownText}>
+                  {selectedAsset ? selectedAsset.asset_name : "Select an asset"}
+                </Text>
+                <ArrowDown2 size="20" color="#333" />
+              </TouchableOpacity>
+
+              {dropdownVisible && (
+                <View style={styles.dropdownList}>
+                  <View style={styles.searchContainer}>
                     <SearchNormal1 size="18" color="#666" />
-                    <TextInput
-                      className="flex-1 h-10 ml-2"
-                      placeholder="Search assets"
+                    <Input
                       value={search}
                       onChangeText={(text) => handleInputChange("search", text)}
+                      placeholder="Search assets"
+                      containerStyle={styles.searchInputContainer}
+                      inputContainerStyle={styles.searchInput}
+                      inputStyle={styles.searchInputText}
                     />
                   </View>
+                  
+                  <ScrollView style={styles.assetScrollView}>
+                    {filteredAssets.length > 0 ? (
+                      filteredAssets.map((asset) => (
+                        <TouchableOpacity
+                          key={asset.asset_id}
+                          style={styles.assetItem}
+                          onPress={() => {
+                            setSelectedAsset(asset);
+                            setDropdownVisible(false);
+                          }}
+                        >
+                          <Text style={styles.assetName}>{asset.asset_name}</Text>
+                          <Text style={styles.assetCode}>{asset.asset_code}</Text>
+                        </TouchableOpacity>
+                      ))
+                    ) : (
+                      <Text style={styles.noAssetsText}>No assets found</Text>
+                    )}
+                  </ScrollView>
                 </View>
-                
-                <ScrollView className="max-h-44">
-                  {filteredAssets.length > 0 ? (
-                    filteredAssets.map((asset) => (
-                      <TouchableOpacity
-                        key={asset.asset_id}
-                        className="px-4 py-3 border-b border-gray-200"
-                        onPress={() => {
-                          setSelectedAsset(asset);
-                          setDropdownVisible(false);
-                        }}
-                      >
-                        <Text className="font-medium">{asset.asset_name}</Text>
-                        <Text className="text-sm text-gray-500">{asset.asset_code}</Text>
-                      </TouchableOpacity>
-                    ))
-                  ) : (
-                    <Text className="text-center py-4 text-gray-500">No assets found</Text>
-                  )}
-                </ScrollView>
-              </View>
-            )}
-          </View>
-
-          {/* Purpose field */}
-          <View className="mb-6">
-            <FormField
-              title="Purpose"
-              value={purpose}
-              handleChangeText={(text) => handleInputChange("purpose", text)}
-              placeholder="Why do you need this asset?"
-            />
-          </View>
-
-          {/* Duration/Return Date field */}
-          <View className="mb-6">
-            <Text className="text-sm font-medium mb-2">Expected Return Date</Text>
-            <TouchableOpacity 
-              onPress={showDatePickerModal}
-              className="border border-gray-300 rounded-lg p-3"
-            >
-              <Text>{duration || "Select a return date"}</Text>
-            </TouchableOpacity>
-            
-            {showDatePicker && (
-              <DateTimePicker
-                value={returnDate}
-                mode="date"
-                display="default"
-                onChange={handleDateChange}
-                minimumDate={new Date()}
-              />
-            )}
-          </View>
-
-          {/* Submit Button */}
-          <CustomButton
-            title="Submit Request"
-            handlePress={submitRequest}
-            containerStyles={isSubmitting ? "bg-gray-400" : "bg-blue-500"}
-            textStyles="text-white font-bold"
-            isLoading={isSubmitting}
-          />
-        </View>
-      </ScrollView>
-
-      {/* Modal with ReturnForm */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={handleCloseModal}
-      >
-        <View className="flex-1 justify-center bg-black/50">
-          <View className="bg-white flex-1 mt-16 rounded-t-3xl overflow-hidden">
-            <View className="flex-row justify-between items-center p-5 border-b border-gray-100 bg-gray-50">
-              <Text className="text-xl font-bold">Return Asset</Text>
-              <TouchableOpacity onPress={handleCloseModal}>
-                <AntDesign name="close" size={24} color="#333" />
-              </TouchableOpacity>
+              )}
             </View>
 
-            {/* Pass the selected asset to ReturnForm if needed */}
-            {selectedAsset && (
-              <View className="flex-1">
-                <ReturnForm
-                  assetName={selectedAsset.asset_name}
-                  assetId={selectedAsset.asset_sn}
-                  onClose={handleCloseModal}
-                />
+            {/* Purpose */}
+            <View style={styles.formContainer}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Purpose</Text>
+                <View style={styles.sectionDivider} />
               </View>
-            )}
+
+              <Input
+                value={purpose}
+                onChangeText={(text) => handleInputChange("purpose", text)}
+                placeholder="Why do you need this asset?"
+                leftIcon={<Briefcase size="20" color="#b8ca41" variant="Bold" />}
+                labelStyle={styles.inputLabel}
+                containerStyle={styles.inputContainer}
+                inputContainerStyle={styles.input}
+              />
+            </View>
+
+            {/* Return Date */}
+            <View style={styles.formContainer}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Expected Return Date</Text>
+                <View style={styles.sectionDivider} />
+              </View>
+
+              <TouchableOpacity 
+                onPress={showDatePickerModal}
+                style={styles.datePickerContainer}
+              >
+                <View style={styles.datePickerContent}>
+                  <Calendar size="20" color="#b8ca41" variant="Bold" />
+                  <Text style={styles.datePickerText}>
+                    {duration || "Select a return date"}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+              
+              {showDatePicker && (
+                <DateTimePicker
+                  value={returnDate}
+                  mode="date"
+                  display="default"
+                  onChange={handleDateChange}
+                  minimumDate={new Date()}
+                />
+              )}
+            </View>
+
+            {/* Submit Button */}
+            <Button
+              title="Submit Request"
+              onPress={submitRequest}
+              loading={isSubmitting}
+              disabled={isSubmitting}
+              buttonStyle={styles.submitButton}
+              titleStyle={styles.buttonTitle}
+              containerStyle={styles.buttonContainer}
+              loadingProps={{ color: "white" }}
+              icon={{
+                name: "check",
+                type: "feather",
+                size: 20,
+                color: "white",
+              }}
+              iconRight
+              iconContainerStyle={{ marginLeft: 10 }}
+            />
           </View>
-        </View>
-      </Modal>
-    </SafeAreaView>
+        </ScrollView>
+
+        {/* Modal with ReturnForm */}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={handleCloseModal}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Return Asset</Text>
+                <TouchableOpacity onPress={handleCloseModal}>
+                  <AntDesign name="close" size={24} color="#333" />
+                </TouchableOpacity>
+              </View>
+
+              {selectedAsset && (
+                <View style={styles.modalBody}>
+                  <ReturnForm
+                    assetName={selectedAsset.asset_name}
+                    assetId={selectedAsset.asset_sn}
+                    onClose={handleCloseModal}
+                  />
+                </View>
+              )}
+            </View>
+          </View>
+        </Modal>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    // backgroundColor: '#f8f9fa',
+  },
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#f8f9fa',
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    backgroundColor: "#fff",
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#333",
+    textAlign: "center",
+    paddingVertical: 20,
+  },
+  scrollView: {
+    flex: 1,
+    backgroundColor: "#f8f9fa",
+  },
+  contentContainer: {
+    flex: 1,
+    paddingHorizontal: 20,
+    backgroundColor: "#f8f9fa",
+    marginTop: 30,
+  },
+  formContainer: {
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  sectionHeader: {
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#666",
+    marginBottom: 8,
+  },
+  sectionDivider: {
+    height: 3,
+    width: 40,
+    backgroundColor: "#b8ca41",
+    borderRadius: 2,
+  },
+  dropdownContainer: {
+    borderWidth: 1,
+    borderColor: "#eee",
+    borderRadius: 12,
+    paddingHorizontal: 15,
+    paddingVertical: 15,
+    backgroundColor: "#f9f9f9",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  dropdownText: {
+    fontSize: 16,
+    color: "#333",
+  },
+  dropdownList: {
+    marginTop: 10,
+    borderWidth: 1,
+    borderColor: "#eee",
+    borderRadius: 12,
+    maxHeight: 300,
+  },
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    backgroundColor: "#f5f5f5",
+  },
+  searchInputContainer: {
+    flex: 1,
+    paddingHorizontal: 0,
+  },
+  searchInput: {
+    borderBottomWidth: 0,
+  },
+  searchInputText: {
+    fontSize: 16,
+    color: "#333",
+  },
+  assetScrollView: {
+    maxHeight: 200,
+  },
+  assetItem: {
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+  },
+  assetName: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#333",
+  },
+  assetCode: {
+    fontSize: 14,
+    color: "#666",
+  },
+  noAssetsText: {
+    textAlign: "center",
+    paddingVertical: 20,
+    color: "#888",
+  },
+  inputLabel: {
+    color: "#555",
+    fontSize: 14,
+    fontWeight: "500",
+    marginBottom: 5,
+  },
+  inputContainer: {
+    paddingHorizontal: 0,
+    marginBottom: 10,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#eee",
+    borderRadius: 12,
+    paddingHorizontal: 15,
+    paddingVertical: 5,
+    backgroundColor: "#f9f9f9",
+    height: 50,
+  },
+  datePickerContainer: {
+    borderWidth: 1,
+    borderColor: "#eee",
+    borderRadius: 12,
+    paddingHorizontal: 15,
+    paddingVertical: 15,
+    backgroundColor: "#f9f9f9",
+  },
+  datePickerContent: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  datePickerText: {
+    marginLeft: 10,
+    fontSize: 16,
+    color: "#333",
+  },
+  buttonContainer: {
+    marginVertical: 20,
+    width: "100%",
+    borderRadius: 15,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+  submitButton: {
+    backgroundColor: "#b8ca41",
+    borderRadius: 15,
+    paddingVertical: 15,
+    height: 55,
+  },
+  buttonTitle: {
+    fontWeight: "600",
+    fontSize: 16,
+    color: "#fff",
+  },
+  cardContainer: {
+    marginBottom: 30,
+  },
+  card: {
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 20,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  cardIconContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: "#333",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 15,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 10,
+    color: "#333",
+  },
+  cardText: {
+    textAlign: "center",
+    marginBottom: 20,
+    color: "#666",
+    lineHeight: 20,
+  },
+  cardButton: {
+    borderColor: "#333",
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderWidth: 2,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    flex: 1,
+    marginTop: 80,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    overflow: "hidden",
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  modalBody: {
+    flex: 1,
+  },
+});
 
 export default RequestAssets;

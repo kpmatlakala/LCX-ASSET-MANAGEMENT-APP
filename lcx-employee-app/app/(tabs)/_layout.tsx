@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
     bottom: 10,
   },
   activeAddButtonContainer: {
-    backgroundColor: 'transparent', // Remove the background color
+    backgroundColor: 'transparent', 
   },
   tabLabel: {
     color: "#8E8E93",
