@@ -129,7 +129,7 @@ const RequestAssets = () => {
           <View className="mb-6">
             <Text className="text-sm font-medium mb-2">Select Asset</Text>
             <TouchableOpacity 
-              onPress={() => setDropdownVisible(!dropdownVisible)}
+              onPress={() => setDropdownVisible(!dropdownVisible)} 
               className="border border-gray-300 rounded-lg flex-row justify-between items-center px-4 py-3"
             >
               <Text className="text-base">
