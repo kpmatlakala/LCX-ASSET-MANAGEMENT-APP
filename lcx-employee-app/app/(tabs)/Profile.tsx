@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Platform,
+  StatusBar,
 } from "react-native"
 import { Button, Input, Avatar, Icon } from "@rneui/themed"
 import { useRouter } from "expo-router"
@@ -310,39 +311,6 @@ const Profile = () => {
     ])
   }
 
-  const handleSignOut = async () => {
-    Alert.alert(
-      "Sign Out",
-      "Are you sure you want to sign out?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Sign Out",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              const { error } = await supabase.auth.signOut();
-              
-              if (error) {
-                throw error;
-              }
-              
-              // The onAuthStateChange listener in useEffect will handle navigation
-            } catch (error) {
-              if (error instanceof Error) {
-                Alert.alert("Sign Out Error", error.message);
-              }
-            }
-          },
-        },
-      ]
-    );
-  };
-
-
   if (loading) {
     return (
       <View style={styles.loader}>
@@ -365,18 +333,6 @@ const Profile = () => {
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
-        <View style={styles.header}>
-          {/* <TouchableOpacity >
-            <Icon name="" type="feather" size={24} color="#fff" />
-          </TouchableOpacity> */}
-          <Text style={styles.headerTitle}>Profile</Text>
-          <TouchableOpacity style={styles.searchButton}
-            onPress={handleSignOut}
-          >
-            <Icon name="log-out" type="feather" size={24} color="#fff" />
-          </TouchableOpacity>
-        </View>
-
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.profileHeader}>
             <View style={styles.avatarContainer}>
@@ -650,12 +606,6 @@ const Profile = () => {
               titleStyle={styles.buttonTitle}
               containerStyle={styles.buttonContainer}
               loadingProps={{ color: "white" }}
-              icon={{
-                name: "check",
-                type: "feather",
-                size: 20,
-                color: "white",
-              }}
               iconRight
               iconContainerStyle={{ marginLeft: 10 }}
             />
@@ -688,17 +638,9 @@ const Profile = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#b8ca41",
   },
   safeArea: {
     flex: 1,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 15,
   },
   backButton: {
     width: 40,
