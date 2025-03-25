@@ -2,208 +2,366 @@ import React, { useState } from "react";
 import {
   Text,
   View,
-  FlatList,
-  TouchableOpacity,
   ScrollView,
+  SafeAreaView,
+  StatusBar,
+  TouchableOpacity,
+  TextInput,
+  Modal,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Feather, AntDesign } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { Feather } from "@expo/vector-icons";
-import { Notification, User, DirectInbox } from "iconsax-react-native";
+import { useAssets } from "@/context/AssetContext";
+import { useAuth } from "@/context/AuthContext";
+import ReturnForm from "@/components/ReturnForm";
 
 interface Asset {
-  id: string;
+  id: number;
   name: string;
-  code: string;
-  requestDate: string;
   status: string;
+  category: string;
+  serialNumber: string;
+  location: string;
+  condition: string;
+  acquisitionDate: string;
+  lastUpdated: string;
 }
 
-const MyAssetsScreen: React.FC = () => {
-  const [pendingAssets, setPendingAssets] = useState<Asset[]>([
-    {
-      id: "1",
-      name: "MacBook Pro",
-      code: "MBP2023-001",
-      requestDate: "12 Mar 2025",
-      status: "Pending Approval",
-    },
-    {
-      id: "2",
-      name: "Dell XPS 15 Laptop",
-      code: "DXP2023-003",
-      requestDate: "10 Mar 2025",
-      status: "Processing",
-    },
-    {
-      id: "3",
-      name: 'iPad Pro 12.9"',
-      code: "IPP2023-007",
-      requestDate: "09 Mar 2025",
-      status: "Pending Collection",
-    },
-  ]);
+export default function MyAssetsScreen() {
+  const { employeeId } = useAuth();
+  const { myAssetRequests, getAssetById, cancelRequest } = useAssets();
+  console.log(employeeId, " | asset: ", myAssetRequests );
+  
+  const [selectedFilter, setSelectedFilter] = useState<string>("All...");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [expandedAssetId, setExpandedAssetId] = useState<number | null>(null);
+  const [showFilterDropdown, setShowFilterDropdown] = useState<boolean>(false);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
 
-  const [selectedTab, setSelectedTab] = useState<string>("All Requests");
+  // Filter options
+  const filterOptions: string[] = [
+    "All...",
+    "Available",
+    "Assigned",
+    "Maintenance",
+    "Reserved",
+  ];
 
-  const getStatusColor = (status: string): string => {
+  const getStatusStyles = (
+    status: string
+  ): { backgroundColor: string; borderColor: string } => {
     switch (status) {
-      case "Pending Approval":
-        return "text-yellow-600";
-      case "Processing":
-        return "text-blue-600";
-      case "Pending Collection":
-        return "text-green-600";
-      default:
-        return "text-gray-600";
-    }
-  };
-
-  const getStatusStyles = (status: string): { backgroundColor: string; borderColor: string } => {
-    switch (status) {
-      case "Pending Approval":
-        return { backgroundColor: "#fdd0df", borderColor: "#f5426c" }; // Light pink background, dark pink border
-      case "Processing":
-        return { backgroundColor: "#fdedd3", borderColor: "#f5a524" }; // Light orange background, dark orange border
-      case "Pending Collection":
+      case "Dispatched":
         return { backgroundColor: "#d1f4e0", borderColor: "#17c964" }; // Light green background, dark green border
+      case "Pending":
+        return { backgroundColor: "#fdedd3", borderColor: "#f5a524" }; // Light orange background, dark orange border
+      case "Rejected":
+        return { backgroundColor: "#fdd0df", borderColor: "#f5426c" }; // Light pink background, dark pink border
+      case "Reserved":
+        return { backgroundColor: "#f3f1260", borderColor: "#f3f1260" }; // Light yellow background, yellow border
       default:
         return { backgroundColor: "#f0f0f0", borderColor: "#cccccc" }; // Default light gray background, dark gray border
     }
   };
 
-  const filteredAssets = pendingAssets.filter((asset) => {
-    if (selectedTab === "All Requests") return true;
-    if (selectedTab === "Pending") return asset.status === "Pending Approval";
-    if (selectedTab === "Approved")
-      return asset.status === "Pending Collection";
-    return false;
-  });
-
-  const renderAssetItem = ({ item }: { item: Asset }) => {
-    const { backgroundColor, borderColor } = getStatusStyles(item.status);
-
-    return (
-      <TouchableOpacity
-        className="border border-texts rounded-lg p-4 mb-4"
-        onPress={() => router.push(`/asset-details/${item.id}`)}
-      >
-        <View className="flex-row justify-between items-center">
-          <View>
-            <Text className="text-base font-semibold">{item.name}</Text>
-            <Text className="text-sm text-gray-500">{item.code}</Text>
-            <Text className="text-sm text-texts mt-2">
-              Requested: {item.requestDate}
-            </Text>
-          </View>
-          <View
-            style={{
-              backgroundColor,
-              borderColor,
-              borderWidth: 1,
-              borderRadius: 12,
-              paddingHorizontal: 8,
-              paddingVertical: 4,
-            }}
-          >
-            <Text
-              style={{
-                color: borderColor,
-                fontWeight: "500",
-              }}
-            >
-              {item.status}
-            </Text>
-          </View>
-        </View>
-      </TouchableOpacity>
-    );
+  // Toggle expanded asset details
+  const toggleAssetDetails = (assetId: number): void => {
+    if (expandedAssetId === assetId) {
+      setExpandedAssetId(null);
+    } else {
+      setExpandedAssetId(assetId);
+    }
   };
 
+  // Navigate to request asset screen
+  const handleRequestNewAsset = (): void => {
+    router.push("/RequestAsset");
+  };
+
+  // Handle modal close
+  const handleCloseModal = (): void => {
+    setModalVisible(false);
+    setSelectedAsset(null);
+  };
+
+  // Handle asset review
+  const handleAssetReview = (assetId: number): void => {
+    console.log(`Reviewing asset ${assetId}`);
+    router.push("/AssetDetails");
+  };
+
+  // Handle asset return
+  const handleAssetReturn = (requestId: number): void => {
+    console.log(`Returning asset request ${requestId}`);
+    setModalVisible(true);
+  };
+
+  // Filter logic for asset requests
+  const filteredAssetRequests = myAssetRequests.filter((request) => {
+    const matchesSearch =
+      request.status?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (request.destination && request.destination.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    const matchesFilter =
+      selectedFilter === "All..." ||
+      (request.status && request.status === selectedFilter);
+
+    return matchesSearch && matchesFilter && request.employee_id === employeeId;
+  });
+
   return (
-    <SafeAreaView className="bg-white flex-1">
-      <ScrollView>
-        <View className="flex-1 px-4 pb-8 bg-white rounded-3xl mx-4 my-4 relative">
-          {/* Page Title */}
-          <View className="flex-row justify-between items-center mb-6">
-            <Text className="text-3xl font-bold mb-4">Pending Approvals</Text>
-          </View>
+    <SafeAreaView className="flex-1 bg-white">
+      <StatusBar backgroundColor="#fff" barStyle="dark-content" />
 
-          {/* Filter Tabs */}
-          <View className="flex-row mb-6">
-            <TouchableOpacity
-              className={`mr-4 pb-2 ${
-                selectedTab === "All Requests" ? "border-b-2 border-black" : ""
-              }`}
-              onPress={() => setSelectedTab("All Requests")}
-            >
-              <Text
-                className={`text-base font-medium ${
-                  selectedTab === "All Requests" ? "text-black" : "text-texts"
-                }`}
-              >
-                All Requests
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              className={`mr-4 pb-2 ${
-                selectedTab === "Pending" ? "border-b-2 border-black" : ""
-              }`}
-              onPress={() => setSelectedTab("Pending")}
-            >
-              <Text
-                className={`text-base font-medium ${
-                  selectedTab === "Pending" ? "text-black" : "text-texts"
-                }`}
-              >
-                Pending
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              className={`pb-2 ${
-                selectedTab === "Approved" ? "border-b-2 border-black" : ""
-              }`}
-              onPress={() => setSelectedTab("Approved")}
-            >
-              <Text
-                className={`text-base font-medium ${
-                  selectedTab === "Approved" ? "text-black" : "text-texts"
-                }`}
-              >
-                Approved
-              </Text>
-            </TouchableOpacity>
-          </View>
+      {/* Assets Inventory section title with Request Asset button */}
+      <View className="flex-row justify-between items-center mx-5 mt-4 mb-4">
+       
+        <Text className="text-2xl font-bold">  
+          <Feather
+            name="user"
+            size={20}
+            color={ "#0d1a31" }
+          /> My Assets</Text>
+        {/* <TouchableOpacity
+          className="flex-row items-center bg-[#0d1a31] px-4 py-2.5 rounded-full"
+          onPress={handleRequestNewAsset}
+        >
+          <Feather name="plus" size={18} color="#fff" />
+          <Text className="text-white font-bold ml-1.5">Request Asset</Text>
+        </TouchableOpacity> */}
+      </View>
 
-          {/* Pending Assets List */}
-          {filteredAssets.length > 0 ? (
-            <FlatList
-              data={filteredAssets}
-              renderItem={renderAssetItem}
-              keyExtractor={(item) => item.id}
-              scrollEnabled={false}
-            />
-          ) : (
-            <View className="items-center justify-center py-12">
-              <Feather name="inbox" size={56} color="#CCCCCC" />
-              <DirectInbox size="32" color="#CCCCCC" />
-              <Text className="text-lg text-texts mt-4">No assets found</Text>
-            </View>
+      {/* Search and Filter Bar */}
+      <View className="flex-row mx-5 mb-4">
+        <View className="flex-1 flex-row items-center bg-white rounded-full px-4 py-1 mr-2.5 border border-gray-200">
+          <Feather name="search" size={20} color="#666" className="mr-2" />
+          <TextInput
+            className="flex-1 text-sm text-gray-800"
+            placeholder="Search my requests..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchQuery("")}>
+              <Feather name="x" size={20} color="#666" />
+            </TouchableOpacity>
           )}
-
-          {/* Request Assets Button */}
-          {/* <View className="mt-4">
-            <CustomButton
-              title="View All Assets"
-              handlePress={() => router.push("/all-assets")}
-              containerStyles="bg-gray-200"
-              textStyles="text-black"
-            />
-          </View> */}
         </View>
+
+        <TouchableOpacity
+          className="flex-row items-center bg-white px-4 py-2.5 rounded-full border border-gray-200"
+          onPress={() => setShowFilterDropdown(!showFilterDropdown)}
+        >
+          <Text className="text-sm text-gray-500 mr-1">{selectedFilter}</Text>
+          <Feather name="chevron-down" size={20} color="#666" />
+        </TouchableOpacity>
+      </View>
+
+      {/* Filter dropdown menu */}
+      {showFilterDropdown && (
+        <View className="absolute top-[185px] right-5 bg-white rounded-lg border border-gray-200 z-10 shadow-sm">
+          {filterOptions.map((option) => (
+            <TouchableOpacity
+              key={option}
+              className="py-2.5 px-5 border-b border-gray-100"
+              onPress={() => {
+                setSelectedFilter(option);
+                setShowFilterDropdown(false);
+              }}
+            >
+              <Text className="text-sm text-gray-800">{option}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+
+      {/* My Assets List */}
+      <ScrollView className="mx-5 flex-1">
+        {filteredAssetRequests.length > 0 ? (
+          filteredAssetRequests.map((request) => (
+            <View key={request.request_id} className="bg-white rounded-lg p-4 mb-4 shadow-sm border border-gray-200">
+              {/* Request Card Header */}
+              <View className="flex-row">
+                <View className="flex-1 flex-row items-center justify-between">
+                  <Text className="text-lg font-bold mb-1">
+                    Request #{request.request_id}                      
+                  </Text>
+                  
+                  <View
+                    style={{
+                      backgroundColor: getStatusStyles(request.status || "").backgroundColor,
+                      borderColor: getStatusStyles(request.status || "").borderColor,
+                      borderWidth: 1,
+                    }}
+                    className="px-3.5 py-1.5 rounded-full mb-2"
+                  >
+                    <Text
+                      style={{
+                        color: getStatusStyles(request.status).borderColor,
+                      }}
+                      className="font-bold text-xs"
+                    >
+                      {request.status || "Processing"}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Summary Info Always Visible */}
+              <View className="mt-1">
+                <View className="flex-col">
+                  <View className="flex-row items-center">
+                    <Text className="text-sm text-gray-500 mr-1">Asset:</Text>
+                    <Text className="text-sm text-gray-800">
+                      {getAssetById(request.asset_id)?.asset_name || "Unknown Asset"} | {(request.asset_id) || "Unknown Serial Number"}
+                    </Text>
+                  </View>                 
+                  
+                </View>
+                <View className="flex-1 flex-row items-center justify-between">
+                <View className="flex-row items-center">
+                  <Text className="text-sm text-gray-500 mr-1">Requested:</Text>
+                  <Text className="text-sm text-gray-800">
+                    {request.created_at 
+                      ? new Date(request.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) 
+                      : "Unknown date"}
+                  </Text>
+                </View>
+
+                  <TouchableOpacity
+                    onPress={() => toggleAssetDetails(request.request_id)}
+                  >
+                    <Feather
+                      name={
+                        expandedAssetId === request.request_id
+                          ? "chevron-up"
+                          : "chevron-down"
+                      }
+                      size={24}
+                      color="#666"
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* Expanded Details and Actions */}
+              {expandedAssetId === request.request_id && (
+                <View className="mt-2.5">
+                  <View className="h-px bg-gray-100 my-2.5" />
+
+                  {/* Additional Details */}
+                  <View className="mb-2.5">
+                    <View className="flex-row">
+                      <View className="flex-1">
+                        <Text className="text-sm text-gray-500 mb-0.5">Purpose:</Text>
+                        <Text className="text-sm text-gray-800">
+                          {request.purpose || "Not specified"}
+                        </Text>
+                      </View>
+                      {/* <View className="flex-1">
+                        <Text className="text-sm text-gray-500 mb-0.5">Destination:</Text>
+                        <Text className="text-sm text-gray-800">
+                          {request.destination || "Not specified"}
+                        </Text>
+                      </View> */}
+                    </View>
+                    <Text className="text-xs text-gray-400 mt-1">
+                      Last updated: {request.updated_at 
+                        ? new Date(request.updated_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) 
+                        : "Not updated"}
+                    </Text>
+
+                  </View>
+
+                  <View className="h-px bg-gray-100 my-2.5" />
+
+                  {/* Action Buttons */}
+                  <View className="flex-row flex-wrap justify-between">
+                    <TouchableOpacity
+                      className="flex-row items-center bg-gray-100 px-3 py-2 rounded-full mr-2 mb-2"
+                      onPress={() => handleAssetReview(request.request_id)}
+                    >
+                      <Feather name="eye" size={16} color="#333" />
+                      <Text className="text-sm text-gray-800 ml-1">
+                        View Details
+                      </Text>
+                    </TouchableOpacity>
+
+                    {request.status === "Assigned" && (
+                      <TouchableOpacity
+                        className="flex-row items-center bg-[#f5a524] px-3 py-2 rounded-full mr-2 mb-2"
+                        onPress={() => handleAssetReturn(request.request_id)}
+                      >
+                        <Feather
+                          name="corner-up-left"
+                          size={16}
+                          color="#fff"
+                        />
+                        <Text className="text-sm text-white ml-1">
+                          Return Asset
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+
+                    {request.status === "Pending" && (
+                      <TouchableOpacity
+                        className="flex-row items-center bg-[#f44336] px-3 py-2 rounded-full mr-2 mb-2"
+                        onPress={() => {
+                          console.log("Cancel request");
+                          cancelRequest(request.request_id);
+                        }}
+                      >
+                        <Feather name="x-circle" size={16} color="#fff" />
+                        <Text className="text-sm text-white ml-1">
+                          Cancel Request
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                </View>
+              )}
+            </View>
+          ))
+        ) : (
+          <View className="items-center justify-center py-10">
+            <Feather name="box" size={48} color="#ccc" />
+            <Text className="text-base text-gray-500 mt-4 text-center">
+              You have no asset requests
+            </Text>
+          </View>
+        )}
       </ScrollView>
+
+      {/* Modal with ReturnForm */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={handleCloseModal}
+      >
+        <View className="flex-1 justify-center bg-black/50">
+          <View className="bg-white flex-1 mt-16 rounded-t-3xl overflow-hidden">
+            <View className="flex-row justify-between items-center p-5 border-b border-gray-100 bg-gray-50">
+              <Text className="text-xl font-bold">Return Asset</Text>
+              <TouchableOpacity onPress={handleCloseModal}>
+                <AntDesign name="close" size={24} color="#333" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Pass the selected asset to ReturnForm if needed */}
+            {selectedAsset && (
+              <View className="flex-1">
+                <ReturnForm
+                  assetName={selectedAsset.name}
+                  assetId={selectedAsset.serialNumber}
+                  onClose={handleCloseModal}
+                />
+              </View>
+            )}
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
-};
-
-export default MyAssetsScreen;
+}

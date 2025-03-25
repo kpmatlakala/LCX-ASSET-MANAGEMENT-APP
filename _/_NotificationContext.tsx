@@ -5,7 +5,7 @@ import { AppState } from 'react-native';
 
 // Notification interface
 export interface Notification { 
-  notification_id?: string;
+  id?: string;
   title: string;
   subtext: string;
   message: string;
@@ -37,11 +37,11 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [session, setSession] = useState<Session | null>(null);
   const [appState, setAppState] = useState(AppState.currentState);
-  const [isModalVisible, setModalVisible] = useState(true);
+  const [isModalVisible, setModalVisible] = useState(false);
 
   const showModal = (notificationsData?: Notification[]) => {
     if (notificationsData) 
-    {
+      {
       setNotifications(notificationsData);
     }
     setModalVisible(true);
@@ -186,13 +186,13 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       const { error } = await supabase
         .from('notifications')
         .update({ is_read: true })
-        .eq('notification_id', id);  // Changed from 'id' to 'notification_id'
-  
+        .eq('id', id);
+
       if (error) {
         console.error('Error marking notification as read:', error);
         return;
       }
-  
+
       // Update local state
       setNotifications(prev =>
         prev.map(notification =>
@@ -249,7 +249,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       const { error } = await supabase
         .from('notifications')
         .delete()
-        .eq('notification_id', id);
+        .eq('id', id);
 
       if (error) {
         console.error('Error deleting notification:', error);

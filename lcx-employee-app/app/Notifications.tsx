@@ -1,165 +1,210 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, SafeAreaView, StatusBar, TouchableOpacity, Image } from 'react-native';
-import { Feather } from '@expo/vector-icons';
-import { images } from '@/constants';
-import { useAssets } from '@/context/AssetContext';
+import {
+  Text,
+  View,
+  ScrollView,
+  SafeAreaView,
+  StatusBar,
+  TouchableOpacity,
+  Modal,
+  StyleSheet
+} from 'react-native';
+import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { useNotifications } from '@/context/NotificationContext';
 
 export default function NotificationsScreen() {
-  const { notifications } = useNotifications();
-  const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = 4;
+  const {
+    notifications,
+    markAsRead,
+    deleteNotification
+  } = useNotifications();
 
-  console.log(notifications);  
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [selectedNotification, setSelectedNotification] = useState(null);
+  const [detailsModalVisible, setDetailsModalVisible] = useState(false);
 
-  // Sample notifications data
-  // const notifications = [
-  //   { 
-  //     id: 1, 
-  //     type: 'approved',
-  //     title: 'Request Approved', 
-  //     message: 'Dell XPS 15 Laptop request approved',
-  //     subtext: 'Please wait Patiently for dispatch',
-  //     time: '10 minutes ago' 
-  //   },
-  //   { 
-  //     id: 2, 
-  //     type: 'rejected',
-  //     title: 'Request rejected', 
-  //     message: 'Dell XPS 19 Laptop request approved',
-  //     subtext: '',
-  //     time: '1 hour ago' 
-  //   },
-  //   { 
-  //     id: 3, 
-  //     type: 'approved',
-  //     title: 'Request Approved', 
-  //     message: 'Dell XPS 19 Laptop request approved',
-  //     subtext: 'Please wait Patiently for dispatch',
-  //     time: 'yesterday' 
-  //   },
-  //   { 
-  //     id: 4, 
-  //     type: 'approved',
-  //     title: 'Request Approved', 
-  //     message: 'Dell XPS 15 Laptop request approved',
-  //     subtext: 'Please wait Patiently for dispatch',
-  //     time: '22/02/2025' 
-  //   },
-  //   { 
-  //     id: 5, 
-  //     type: 'approved',
-  //     title: 'Request Approved', 
-  //     message: 'Dell XPS 15 Laptop request approved',
-  //     subtext: 'Please wait Patiently for dispatch',
-  //     time: '24/01/2025' 
-  //   },
-  // ];
-
-  // For pagination functionality
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
+  const toggleDropdown = (notificationId) => {
+    setActiveDropdown((prev) => (prev === notificationId ? null : notificationId));
   };
 
-  const goToPreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
+  const handleMarkAsRead = (notification) => {
+    markAsRead(notification.notification_id);
+    setActiveDropdown(null);
   };
 
-  const goToNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
+  const handleDelete = (notification) => {
+    deleteNotification(notification.notification_id);
+    setActiveDropdown(null);
+  };
+
+  const handleNotificationPress = (notification) => {
+    markAsRead(notification.notification_id);
+    setSelectedNotification(notification);
+    setDetailsModalVisible(true);
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
       <StatusBar backgroundColor="#e8eac6" barStyle="dark-content" />
 
-      {/* Notifications section with dropdown */}
-      <View style={styles.notificationHeader}>
-        <Text style={styles.sectionTitle}>Notifications</Text>
-
-        <TouchableOpacity style={styles.dropdown}>
-          <Text style={styles.dropdownText}>Recent first</Text>
+      {/* Header section */}
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginHorizontal: 20, marginTop: 20, marginBottom: 10 }}>
+        <Text style={{ fontSize: 24, fontWeight: 'bold' }}>
+          {/* Notifications */}
+        </Text>
+        <TouchableOpacity style={styles.sortButton}>
+          <Text style={styles.sortButtonText}>Recent first</Text>
           <Feather name="chevron-down" size={20} color="#666" />
         </TouchableOpacity>
-        
-        {/* <TouchableOpacity onPress={clearAllNotifications}>
-          <Feather name="trash-2" size={20} color="#666" />
-        </TouchableOpacity> */}
       </View>
 
       {/* Notifications List */}
-      <ScrollView style={styles.notificationsContainer}>
+      <ScrollView style={{ marginHorizontal: 20, flex: 1 }}>
         {notifications.map((notification) => (
-          <View key={notification.id} style={styles.notificationCard}>
-            <View style={styles.notificationContent}>
-              <Text style={styles.notificationTitle}>{notification.title}</Text>
-              
-              <View style={styles.notificationDetails}>
-                <View style={styles.bulletPoint} />
-                <Text style={styles.notificationMessage}>{notification.message}</Text>
-              </View>
-              
-              {notification.subtext && (
-                <View style={styles.notificationDetails}>
-                  <View style={styles.bulletPoint} />
-                  <Text style={styles.notificationSubtext}>{notification.subtext}</Text>
-                </View>
-              )}
+          <View
+            key={notification.notification_id}
+            style={{ backgroundColor: 'white', borderRadius: 8, padding: 12, marginBottom: 10, borderWidth: 1, borderColor: '#ddd', minHeight: 86 }}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <TouchableOpacity
+                style={{ flex: 1 }}
+                onPress={() => handleNotificationPress(notification)}
+              >
+                <Text style={{ 
+                  fontSize: 18, 
+                  fontWeight: 'bold', 
+                  marginBottom: 4,  
+                  color: notification.is_read ? '#999' : 'black', // Gray for read, black for unread
+                  opacity: notification.is_read ? 0.7 : 1
+                }}
+                  numberOfLines={1}>{notification.title}
+                </Text>
+
+                <Text style={{ fontSize: 14, color: '#666' }} 
+                  numberOfLines={1}>{notification.message}
+                </Text>
+              </TouchableOpacity>
+
+              {/* Dropdown Trigger */}
+              <TouchableOpacity
+                style={{ width: 40, height: 40, justifyContent: 'center', alignItems: 'center' }}
+                onPress={() => toggleDropdown(notification.notification_id)}
+              >
+                <Text style={{ fontSize: 24, color: '#666' }}>⁝</Text>
+              </TouchableOpacity>
             </View>
-            
-            <Text style={styles.notificationTime}>{notification.created_at}</Text>
+
+            {activeDropdown === notification.notification_id && (
+              <View style={{ marginTop: 10, backgroundColor: '#f9f9f9', borderRadius: 8, padding: 8, borderWidth: 1, borderColor: '#ddd' }}>
+                <TouchableOpacity
+                  style={{ padding: 8 }}
+                  onPress={() => handleNotificationPress(notification)}
+                >
+                  <Text style={{ fontSize: 16, color: '#007bff' }}>View</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{ padding: 8 }}
+                  onPress={() => handleMarkAsRead(notification)}
+                >
+                  <Text style={{ fontSize: 16, color: '#28a745' }}>Mark as Read</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{ padding: 8 }}
+                  onPress={() => handleDelete(notification)}
+                >
+                  <Text style={{ fontSize: 16, color: '#FF6347' }}>Delete</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            <Text style={{ fontSize: 12, color: '#999', position: 'absolute', bottom: 8, right: 16 }}>
+              {notification.created_at}
+            </Text>
           </View>
         ))}
       </ScrollView>
-      
-      {/* Pagination */}
-      <View style={styles.paginationContainer}>
-        <TouchableOpacity 
-          style={styles.paginationArrow} 
-          onPress={goToPreviousPage}
-          disabled={currentPage === 1}
-        >
-          <Feather 
-            name="chevron-left" 
-            size={24} 
-            color={currentPage === 1 ? "#ccc" : "#333"} 
-          />
-        </TouchableOpacity>
-        
-        {[...Array(totalPages)].map((_, index) => (
-          <TouchableOpacity
-            key={index}
-            style={[
-              styles.paginationButton,
-              currentPage === index + 1 && styles.paginationButtonActive
-            ]}
-            onPress={() => handlePageChange(index + 1)}
-          >
-            <Text style={[
-              styles.paginationButtonText,
-              currentPage === index + 1 && styles.paginationButtonTextActive
-            ]}>
-              {index + 1}
-            </Text>
-          </TouchableOpacity>
-        ))}
-        
-        <TouchableOpacity 
-          style={styles.paginationArrow} 
-          onPress={goToNextPage}
-          disabled={currentPage === totalPages}
-        >
-          <Feather 
-            name="chevron-right" 
-            size={24} 
-            color={currentPage === totalPages ? "#ccc" : "#333"} 
-          />
-        </TouchableOpacity>
-      </View>
+
+      {/* Notification Details Modal */}
+      <Modal
+        visible={detailsModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setDetailsModalVisible(false)}
+      >
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+          <View style={{ width: '90%', backgroundColor: 'white', padding: 20, borderRadius: 10, maxHeight: '80%' }}>
+            {selectedNotification && (
+              <ScrollView>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 }}>
+                  <Text style={{ fontSize: 22, fontWeight: 'bold', flex: 1, marginRight: 10 }}>{selectedNotification.title}</Text>
+                  <MaterialIcons
+                    name={selectedNotification.is_read ? "mark-email-read" : "mark-email-unread"}
+                    size={24}
+                    color={selectedNotification.is_read ? "#888" : "#007bff"}
+                  />
+                </View>
+
+                <View style={{ marginBottom: 15 }}>
+                  <Text style={{ fontSize: 16, color: '#333', marginBottom: 5 }}>{selectedNotification.message}</Text>
+                  {selectedNotification.subtext && (
+                    <Text style={{ fontSize: 14, color: '#666' }}>{selectedNotification.subtext}</Text>
+                  )}
+                </View>
+
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 15 }}>
+                  <Text style={{ fontSize: 12, color: '#999' }}>Type: {selectedNotification.type}</Text>
+                  <Text style={{ fontSize: 12, color: '#999' }}>
+                    {new Date(selectedNotification.created_at).toLocaleString()}
+                  </Text>
+                </View>
+
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      handleMarkAsRead(selectedNotification.notification_id);
+                      setDetailsModalVisible(false);
+                    }}
+                    style={{
+                      backgroundColor: selectedNotification.is_read ? '#f0f0f0' : '#007bff',
+                      padding: 10,
+                      borderRadius: 5,
+                      flex: 0.45
+                    }}
+                  >
+                    <Text style={{
+                      color: selectedNotification.is_read ? '#999' : 'white',
+                      textAlign: 'center'
+                    }}>
+                      {selectedNotification.is_read ? 'Already Read' : 'Mark as Read'}
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={() => {
+                      handleDelete(selectedNotification);
+                      setDetailsModalVisible(false);
+                    }}
+                    style={{
+                      backgroundColor: '#FF6347',
+                      padding: 10,
+                      borderRadius: 5,
+                      flex: 0.45
+                    }}
+                  >
+                    <Text style={{ color: 'white', textAlign: 'center' }}>Delete</Text>
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
+            )}
+            <TouchableOpacity
+              onPress={() => setDetailsModalVisible(false)}
+              style={{ marginTop: 15, alignItems: 'center' }}
+            >
+              <Text style={{ fontSize: 16, color: '#007bff' }}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -167,152 +212,33 @@ export default function NotificationsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: 'white'
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#e8eac6',
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
-  },
-  logo: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  logoImage: {
-    width: 180,
-    height: 60,
-    resizeMode: 'contain',
-  },
-  notificationIcon: {
-    position: 'relative',
-  },
-  badge: {
-    position: 'absolute',
-    right: 0,
-    top: 0,
-    backgroundColor: '#d13838',
-    borderRadius: 12,
-    width: 24,
-    height: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1,
-  },
-  badgeText: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  notificationHeader: {
+  headerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginHorizontal: 20,
-    marginTop: 25,
-    marginBottom: 15,
+    marginTop: 24,
+    marginBottom: 16
   },
-  sectionTitle: {
+  headerTitle: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontWeight: 'bold'
   },
-  dropdown: {
+  sortButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    paddingHorizontal: 15,
+    backgroundColor: 'white',
+    paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#e0e0e0'
   },
-  dropdownText: {
+  sortButtonText: {
     fontSize: 14,
     color: '#666',
-    marginRight: 5,
-  },
-  notificationsContainer: {
-    marginHorizontal: 20,
-    flex: 1,
-  },
-  notificationCard: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  notificationContent: {
-    flex: 1,
-  },
-  notificationTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  notificationDetails: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 5,
-  },
-  bulletPoint: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#666',
-    marginRight: 8,
-  },
-  notificationMessage: {
-    fontSize: 14,
-    color: '#666',
-    flex: 1,
-  },
-  notificationSubtext: {
-    fontSize: 14,
-    color: '#666',
-    flex: 1,
-  },
-  notificationTime: {
-    fontSize: 12,
-    color: '#999',
-    marginTop: 10,
-    alignSelf: 'flex-end',
-  },
-  paginationContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
-    backgroundColor: '#fff',
-  },
-  paginationArrow: {
-    padding: 10,
-  },
-  paginationButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 5,
-  },
-  paginationButtonActive: {
-    backgroundColor: '#0d1a31',
-  },
-  paginationButtonText: {
-    fontSize: 16,
-    color: '#666',
-  },
-  paginationButtonTextActive: {
-    color: '#fff',
+    marginRight: 8
   },
 });

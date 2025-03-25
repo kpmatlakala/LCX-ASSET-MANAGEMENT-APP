@@ -4,6 +4,8 @@ import { Session } from "@supabase/supabase-js";
 import { useNotifications } from "./NotificationContext";
 
 interface Asset {
+  duration: string;
+  purpose: string;
   asset_type: any;
   location: string;
   condition: string;
@@ -39,6 +41,7 @@ interface AssetRequest {
 
 interface AssetContextType {
   assets: Asset[];
+  getAssetById: (assetId: number) => Asset | undefined;
   myAssetRequests: AssetRequest[]; // Renamed to myAssetRequests
   fetchAssets: () => Promise<void>;
   fetchAssetRequests: () => Promise<void>;
@@ -94,6 +97,14 @@ export const AssetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     setAssets(data || []);
     setIsLoading(false);
+  };
+
+  const getAssetById = (assetId: number): Asset | undefined => {
+    console.log("AssetId: ", assetId);
+    const assetById = assets.find((asset) => asset.asset_id === assetId);
+    console.log("AssetById: ", assetById);
+    
+    return assets.find((asset) => asset.asset_id === assetId);
   };
 
   // Fetch asset requests from Supabase for the current user
@@ -266,7 +277,8 @@ export const AssetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   return (
     <AssetContext.Provider value={{
       assets,
-      myAssetRequests, // Changed state to myAssetRequests
+      getAssetById,
+      myAssetRequests, 
       fetchAssets,
       fetchAssetRequests,
       requestAsset,

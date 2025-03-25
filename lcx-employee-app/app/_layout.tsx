@@ -29,13 +29,13 @@ export default function RootLayout() {
   if (!fontsLoaded && !error) return null;
 
   return (
-   <AuthProvider>
+    <AuthProvider>
       <NotificationProvider>
         <AssetProvider>      
           <Stack screenOptions={{headerShown:true}}>
             <Stack.Screen name="index" options={{ headerShown: false }} /> 
             <Stack.Screen name="app/Notifications" options={{ headerShown: true, headerTitle:()=> null, headerBackTitle:"" }} />
-            <Stack.Screen name="app/AssetDetails/:id" options={{ headerShown: true, headerTitle:()=> null, headerBackTitle:"" }} /> 
+            <Stack.Screen name="app/AssetDetails" options={{ headerShown: false, headerTitle:()=> null, headerBackTitle:"" }} /> 
             <Stack.Screen name="(auth)/Auth" options={{ headerShown: false }} />
             <Stack.Screen name="(onboarding)/onboarding" options={{ headerShown: false }} />   
             
@@ -48,6 +48,5 @@ export default function RootLayout() {
         </AssetProvider> 
       </NotificationProvider>
     </AuthProvider>
-  
   );
 }
