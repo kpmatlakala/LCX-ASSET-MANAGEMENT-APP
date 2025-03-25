@@ -234,17 +234,17 @@ export default function AssetManagementDashboard() {
               <View className="mx-5">
                 {filteredAssets.slice(0, 3).map((asset) => (
                   <TouchableOpacity
-                    key={asset.id}
+                    key={asset.asset_id}
                     className="bg-white rounded-xl p-4 mb-3 shadow-[#edf2f4] border border-gray-200"
                     onPress={() => router.push(`/RequestAsset`)}
                   >
                     <View className="flex-row justify-between items-center">
                       <View>
                         <Text className="text-base font-bold text-gray-800">
-                          {asset.name}
+                          {asset.asset_name}
                         </Text>
                         <Text className="text-sm text-gray-500 mt-1">
-                          ID: {asset.id}
+                          ID: {asset.asset_type}
                         </Text>
                       </View>
                       <Text
