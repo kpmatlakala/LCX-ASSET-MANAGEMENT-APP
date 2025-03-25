@@ -202,7 +202,7 @@ export const AssetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       asset_id,
       purpose,
       destination: "Office", // Default destination
-      expected_return_date,
+      return_date: expected_return_date,
       status: "Pending",
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()

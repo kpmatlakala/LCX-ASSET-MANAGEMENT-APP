@@ -16,48 +16,47 @@ import { useAssets } from '@/context/AssetContext';
 import { useLocalSearchParams } from 'expo-router';
 
 const AssetManagementScreen = () => {
-    const params = useLocalSearchParams();
-    const assetIdFromParams = params.assetId;
-    console.log("selected asset|param:", assetIdFromParams);
-    const [currentUserRequest, setCurrentUserRequest] = useState(null);
+  const params = useLocalSearchParams();
+  const assetIdFromParams = params.assetId;
+  console.log("selected asset|param:", assetIdFromParams);
 
-    const { assets } = useAssets();
-    const [selectedAsset, setSelectedAsset] = useState(null);
-    const [modalVisible, setModalVisible] = useState(false);
-    
-    // Find the selected asset when component mounts or assets/params change
-    useEffect(() => {
-      if (assetIdFromParams && assets.length > 0) {
-        for (let i = 0; i < assets.length; i++)
+  const { assets } = useAssets();
+  const [selectedAsset, setSelectedAsset] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  
+  // Find the selected asset when component mounts or assets/params change
+  useEffect(() => {
+    if (assetIdFromParams && assets.length > 0) {
+      for (let i = 0; i < assets.length; i++)
+      {
+        if (assets[i].asset_id == assetIdFromParams) 
         {
-          if (assets[i].asset_id == assetIdFromParams) 
-          {
-            setSelectedAsset(assets[i]);
-            break;
-          }
+          setSelectedAsset(assets[i]);
+          break;
         }
       }
-    }, [assets, assetIdFromParams]);
-
-    const renderStatusBadge = (status) => {
-    let backgroundColor;
-    switch(status) {
-        case 'Approved':
-        backgroundColor = '#D4EDDA';
-        break;
-        case 'Failed':
-        backgroundColor = '#F8D7DA';
-        break;
-        default:
-        backgroundColor = '#D4EDDA';
     }
+  }, [assets, assetIdFromParams]);
 
-    return (
-        <View style={[styles.badge, { backgroundColor }]}>
-        <Text style={styles.badgeText}>{status}</Text>
-        </View>
-    );
-    };
+  const renderStatusBadge = (status) => {
+  let backgroundColor;
+  switch(status) {
+      case 'Approved':
+      backgroundColor = '#D4EDDA';
+      break;
+      case 'Failed':
+      backgroundColor = '#F8D7DA';
+      break;
+      default:
+      backgroundColor = '#D4EDDA';
+  }
+
+  return (
+      <View style={[styles.badge, { backgroundColor }]}>
+      <Text style={styles.badgeText}>{status}</Text>
+      </View>
+  );
+  };
 
   const renderAssetItem = ({ item }) => (
     <View style={styles.tableRow}>
@@ -69,21 +68,6 @@ const AssetManagementScreen = () => {
       </View>
     </View>
   );
-
-  const handleRequestAsset = () => {
-    // Logic to request an asset
-    console.log("Asset requested");
-  };
-  
-  const handleConfirmReceipt = () => {
-    // Logic to confirm asset receipt
-    console.log("Asset receipt confirmed");
-  };
-  
-  const handleInitiateReturn = () => {
-    // Logic to initiate asset return
-    console.log("Asset return initiated");
-  };
 
   // Function to handle cancel request
   const handleCancelRequest = () => {
@@ -199,69 +183,14 @@ const AssetManagementScreen = () => {
           
           {/* Cancel Request Button - now at the bottom of the asset info card */}
           <View style={styles.cardButtonContainer}>
-            {/* Request Button - Only show when asset is truly available */}
-            {selectedAsset.status === 'available' && !currentUserRequest && (
-              <TouchableOpacity
-                style={styles.requestButton}
-                onPress={handleRequestAsset}
-              >
-                <MaterialIcons name="add-circle-outline" size={16} color="white" style={styles.buttonIcon} />
-                <Text style={styles.requestButtonText}>Request Asset</Text>
-              </TouchableOpacity>
-            )}
-
-            {/* Scenarios based on asset status */}
-            {selectedAsset.status === 'assigned' && (
-              <View style={styles.statusInfoContainer}>
-                <Text style={styles.statusInfoText}>Currently in use</Text>
-              </View>
-            )}
-
-            {/* {selectedAsset.status === 'maintenance' && (
-              <View style={styles.statusInfoContainer}>
-                <Text style={styles.statusInfoText}>Under Maintenance</Text>
-              </View>
-            )} */}
-
-            {/* Request-specific actions */}
-            {currentUserRequest && (
-              <>
-                {/* Cancel Pending Request */}
-                {(currentUserRequest.status === 'pending' || currentUserRequest.status === 'processing') && (
-                  <TouchableOpacity
-                    style={styles.cancelRequestButton}
-                    onPress={handleCancelRequest}
-                  >
-                    <MaterialIcons name="cancel" size={16} color="white" style={styles.buttonIcon} />
-                    <Text style={styles.cancelRequestButtonText}>Cancel Request</Text>
-                  </TouchableOpacity>
-                )}
-
-                {/* Confirm Receipt - Approved and Dispatched */}
-                {(currentUserRequest.status === 'approved' && selectedAsset.status === 'dispatched') && (
-                  <TouchableOpacity
-                    style={styles.confirmReceiptButton}
-                    onPress={handleConfirmReceipt}
-                  >
-                    <MaterialIcons name="check-circle" size={16} color="white" style={styles.buttonIcon} />
-                    <Text style={styles.confirmReceiptButtonText}>Confirm Receipt</Text>
-                  </TouchableOpacity>
-                )}
-
-                
-                {(currentUserRequest.status === 'received' && selectedAsset.status === 'in_use') && (
-                  <TouchableOpacity
-                    style={styles.returnAssetButton}
-                    onPress={handleInitiateReturn}
-                  >
-                    <MaterialIcons name="keyboard-return" size={16} color="white" style={styles.buttonIcon} />
-                    <Text style={styles.returnAssetButtonText}>Return Asset</Text>
-                  </TouchableOpacity>
-                )}
-              </>
-            )}
+            <TouchableOpacity 
+              style={styles.cancelRequestButton} 
+              onPress={() => setModalVisible(true)}
+            >
+              <MaterialIcons name="cancel" size={16} color="white" style={styles.buttonIcon} />
+              <Text style={styles.cancelRequestButtonText}>Cancel request</Text>
+            </TouchableOpacity>
           </View>
-
         </View>
 
         {/* Asset Table */}
