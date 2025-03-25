@@ -5,7 +5,7 @@ import { AppState } from 'react-native';
 
 // Notification interface
 export interface Notification { 
-  id?: string;
+  notification_id?: string;
   title: string;
   subtext: string;
   message: string;
@@ -186,13 +186,13 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       const { error } = await supabase
         .from('notifications')
         .update({ is_read: true })
-        .eq('id', id);
-
+        .eq('notification_id', id);  // Changed from 'id' to 'notification_id'
+  
       if (error) {
         console.error('Error marking notification as read:', error);
         return;
       }
-
+  
       // Update local state
       setNotifications(prev =>
         prev.map(notification =>
@@ -249,7 +249,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       const { error } = await supabase
         .from('notifications')
         .delete()
-        .eq('id', id);
+        .eq('notification_id', id);
 
       if (error) {
         console.error('Error deleting notification:', error);

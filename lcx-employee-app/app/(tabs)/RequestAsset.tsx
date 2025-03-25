@@ -43,15 +43,17 @@ const RequestAssets = () => {
     // Initialize filtered assets with all available assets
     setFilteredAssets(assets);
     
-    // If an asset ID was passed in the params, find and select that asset
-    if (assetIdFromParams) 
-    {
-      const preselectedAsset = assets.find(asset => asset.asset_id === assetIdFromParams);
-      if (preselectedAsset) 
-      {
-        setSelectedAsset(preselectedAsset);
-        setPurpose(preselectedAsset.purpose || ''); // If you want to pre-fill any field with asset-related data
-        setDuration(preselectedAsset.duration || ''); // Same for duration if needed
+    // Preselect asset if assetIdFromParams is provided
+    if (assetIdFromParams && assets.length > 0) {
+      // Manual loop for precise matching
+      for (let i = 0; i < assets.length; i++) {
+        if (assets[i].asset_id == assetIdFromParams) {
+          setSelectedAsset(assets[i]);
+          setPurpose(assets[i].purpose || '');
+          setDuration(assets[i].duration || '');
+          setDropdownVisible(false);
+          break;  // Exit loop once asset is found
+        }
       }
     }
   }, [assets, assetIdFromParams]);
@@ -128,6 +130,10 @@ const RequestAssets = () => {
       setIsSubmitting(false);
     }
   };
+
+  console.log('AssetIdFromParams:', assetIdFromParams);
+// console.log('Assets:', assets);
+console.log('Preselected Asset:', selectedAsset);
 
   return (
     <SafeAreaView className="bg-white flex-1">

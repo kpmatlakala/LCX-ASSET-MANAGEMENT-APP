@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   View, 
   Text, 
@@ -20,7 +20,22 @@ const AssetManagementScreen = () => {
     console.log("selected asset:", assetIdFromParams);
 
     const { assets } = useAssets();
-    const [modalVisible, setModalVisible] = useState(false); 
+    const [selectedAsset, setSelectedAsset] = useState(null);
+    const [modalVisible, setModalVisible] = useState(false);
+    
+    // Find the selected asset when component mounts or assets/params change
+    useEffect(() => {
+      if (assetIdFromParams && assets.length > 0) {
+        for (let i = 0; i < assets.length; i++)
+        {
+          if (assets[i].asset_id == assetIdFromParams) 
+          {
+            setSelectedAsset(assets[i]);
+            break;
+          }
+        }
+      }
+    }, [assets, assetIdFromParams]);
 
     const renderStatusBadge = (status) => {
     let backgroundColor;
@@ -142,15 +157,15 @@ const AssetManagementScreen = () => {
             <View style={styles.infoColumn}>
               <View style={styles.infoRow}>
                 <Text style={styles.infoLabel}>Asset Name:</Text>
-                <Text style={styles.infoValue}>DELL XPS LAPTOP</Text>
+                <Text style={styles.infoValue}>{selectedAsset?.asset_name}</Text>
               </View>
               <View style={styles.infoRow}>
                 <Text style={styles.infoLabel}>Serial Number:</Text>
-                <Text style={styles.infoValue}>QZF0196567</Text>
+                <Text style={styles.infoValue}>{selectedAsset?.asset_sn}</Text>
               </View>
               <View style={styles.infoRow}>
                 <Text style={styles.infoLabel}>Category:</Text>
-                <Text style={styles.infoValue}>Electronic</Text>
+                <Text style={styles.infoValue}>{selectedAsset?.asset_category}</Text>
               </View>
               <View style={styles.infoRow}>
                 <Text style={styles.infoLabel}>Warranty:</Text>
@@ -158,22 +173,24 @@ const AssetManagementScreen = () => {
               </View>
               <View style={styles.infoRow}>
                 <Text style={styles.infoLabel}>Purchase Date:</Text>
-                <Text style={styles.infoValue}>4 years ago</Text>
+                <Text style={styles.infoValue}>{selectedAsset?.purchase_date}</Text>
               </View>
             </View>
             <View style={styles.infoColumn}>
               <View style={styles.infoRow}>
                 <Text style={styles.infoLabel}>Cost:</Text>
-                <Text style={styles.infoValue}>$1,200.00</Text>
+                <Text style={styles.infoValue}>{selectedAsset?.purchase_price}</Text>
+              </View>
+
+              <View style={styles.infoRow}>
+                <Text style={styles.infoLabel}>Assigned To:</Text>
+                <Text style={styles.infoValue}>Nathan</Text>
               </View>
               <View style={styles.infoRow}>
                 <Text style={styles.infoLabel}>Location Office:</Text>
                 <Text style={styles.infoValue}>Third-floor Room</Text>
               </View>
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Assigned To:</Text>
-                <Text style={styles.infoValue}>Nathan</Text>
-              </View>
+              
               <View style={styles.infoRow}>
                 <Text style={styles.infoLabel}>Return Date:</Text>
                 <Text style={styles.infoValue}>2 years</Text>

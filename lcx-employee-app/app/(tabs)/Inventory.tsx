@@ -59,7 +59,10 @@ export default function AssetInventoryScreen() {
 
   // Handle asset review
   const handleAssetReview = (assetId: number): void => {
-    router.push("/AssetDetails");
+    router.push({
+      pathname: "/AssetDetails",
+      params: { assetId: assetId.toString() }
+    });
   };
 
   // Handle asset request

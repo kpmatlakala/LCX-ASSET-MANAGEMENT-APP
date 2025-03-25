@@ -4,6 +4,8 @@ import { Session } from "@supabase/supabase-js";
 import { useNotifications } from "./NotificationContext";
 
 interface Asset {
+  duration: string;
+  purpose: string;
   asset_type: any;
   location: string;
   condition: string;
