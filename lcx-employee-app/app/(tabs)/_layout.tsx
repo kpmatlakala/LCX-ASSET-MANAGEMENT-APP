@@ -60,7 +60,6 @@ export default function TabLayout() {
             shadowOffset: { width: 0, height: 0 },
             shadowOpacity: 0,
             shadowRadius: 0,
-
           },
           headerRight: () => (
             <View style={styles.headerRight}>
@@ -69,7 +68,7 @@ export default function TabLayout() {
                 onPress={() => router.push("/Notifications")}
               >
                 <View style={styles.notificationContainer}>
-                  <Notification size={24} color="#b8ca41" variant="Bold"/>
+                  <Notification size={24} color="#4d4d4d" variant="Bold"/>
                   {notificationCount > 0 && (
                     <View style={styles.badge}>
                       <Text style={styles.badgeText}>
@@ -83,7 +82,7 @@ export default function TabLayout() {
                 style={styles.headerButton}
                 onPress={() => router.push("/Profile")}
               >
-                <User size={24} color="#b8ca41" variant="Bold"/>
+                <User size={24} color="#4d4d4d" variant="Bold"/>
               </TouchableOpacity>
             </View>
           ),
@@ -131,16 +130,19 @@ export default function TabLayout() {
           name="RequestAsset"
           options={{
             tabBarIcon: ({ color, focused }) => (
-              <View style={[styles.addButtonContainer, focused && styles.activeAddButtonContainer]} className="pb-10">
-                <AddCircle size={90}  color={focused ? "#FFFFFF" : "#b8ca41"} variant="Bold" />
+              <View className="pb-12" style={[styles.addButtonContainer, focused && styles.activeAddButtonContainer]}>
+                <AddCircle 
+                  size={90} 
+                  color="#b8ca41" 
+                  variant="Bold" 
+                />
               </View>
             ),
             title: "",
-            tabBarLabel: () => <Text className="text-[#8E8E93]">Request</Text>,
+            tabBarLabel: () => <Text style={styles.tabLabel}>Request</Text>,
           }}
           listeners={{
             tabPress: () => setActiveTab("RequestAsset"),
-            
           }}
         />
         <Tabs.Screen
@@ -240,6 +242,11 @@ const styles = StyleSheet.create({
     bottom: 10,
   },
   activeAddButtonContainer: {
-    backgroundColor: '#b8ca41',
+    backgroundColor: 'transparent', // Remove the background color
+  },
+  tabLabel: {
+    color: "#8E8E93",
+    fontSize: 12,
+    fontWeight: '500',
   },
 });

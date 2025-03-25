@@ -42,7 +42,7 @@ export default function RootLayout() {
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="(tabs)/Dashboard" options={{ headerShown: false }} />
             
-            <Stack.Screen name="(tabs)/AssetsInventory" options={{ headerShown: false }} />    
+            <Stack.Screen name="(tabs)/Inventory" options={{ headerShown: false }} />    
             <Stack.Screen name="(tabs)/MyAssets" options={{ headerShown: false }} />     
           </Stack>     
         </AssetProvider> 

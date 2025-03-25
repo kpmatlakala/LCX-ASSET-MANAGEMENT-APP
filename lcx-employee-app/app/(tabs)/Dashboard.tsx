@@ -167,7 +167,7 @@ export default function AssetManagementDashboard() {
             <View className="flex-row px-5 mb-4">
               {/* Pending Card */}
               <View className="flex-1 mr-2 rounded-xl overflow-hidden border border-gray-200 shadow-sm bg-white">
-                <View className="flex-row justify-between items-center p-4" style={{ height: 120 }}>
+                <View className="flex-row justify-between items-center p-4" style={{ height: 100 }}>
                   <View className="bg-[#f8f8f8] rounded-full p-2 w-10 h-10 flex items-center justify-center">
                     <Clock size={25} color="#4a90e2" variant="Bold" />
                   </View>
@@ -182,7 +182,7 @@ export default function AssetManagementDashboard() {
 
               {/* Overdue Card */}
               <View className="flex-1 ml-2 rounded-xl overflow-hidden border border-gray-200 shadow-sm bg-white">
-                <View className="flex-row justify-between items-center p-4" style={{ height: 120 }}>
+                <View className="flex-row justify-between items-center p-4" style={{ height: 100 }}>
                   <View className="bg-[#f8f8f8] rounded-full p-2 w-10 h-10 flex items-center justify-center">
                     <Danger size={25} color="#FF6B6B" variant="Bold" />
                   </View>
@@ -226,7 +226,7 @@ export default function AssetManagementDashboard() {
             <View className="mt-4 mb-2">
               <View className="flex-row justify-between items-center mb-3 mx-5">
                 <Text className="text-xl font-bold">Available Assets</Text>
-                <TouchableOpacity onPress={() => router.push("/all-assets")}>
+                <TouchableOpacity onPress={() => router.push("/Inventory")}>
                   <Text className="text-sm font-medium">View All</Text>
                 </TouchableOpacity>
               </View>
@@ -234,17 +234,17 @@ export default function AssetManagementDashboard() {
               <View className="mx-5">
                 {filteredAssets.slice(0, 3).map((asset) => (
                   <TouchableOpacity
-                    key={asset.id}
+                    key={asset.asset_id}
                     className="bg-white rounded-xl p-4 mb-3 shadow-[#edf2f4] border border-gray-200"
-                    onPress={() => router.push(`/asset-details/${asset.id}`)}
+                    onPress={() => router.push(`/RequestAsset`)}
                   >
                     <View className="flex-row justify-between items-center">
                       <View>
                         <Text className="text-base font-bold text-gray-800">
-                          {asset.name}
+                          {asset.asset_name}
                         </Text>
                         <Text className="text-sm text-gray-500 mt-1">
-                          ID: {asset.id}
+                          ID: {asset.asset_type}
                         </Text>
                       </View>
                       <Text
