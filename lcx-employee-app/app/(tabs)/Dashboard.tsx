@@ -10,7 +10,7 @@ import {
   Image,
   ActivityIndicator,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+
 import {
   Box,
   Clock,
@@ -43,27 +43,6 @@ export default function AssetManagementDashboard() {
       return "Good Evening";
     }
   }
-
-  const notifications = [
-    {
-      id: 1,
-      title: "Request Approved",
-      message: "Dell XPS 15 Laptop request approved",
-      subtext: "Please wait patiently for dispatch",
-      time: "10 minutes ago",
-      read: false,
-    },
-    {
-      id: 2,
-      title: "Request Pending",
-      message: "MacBook Pro request is pending approval",
-      subtext: "Please check back later",
-      time: "1 hour ago",
-      read: true,
-    },
-  ];
-
-  const categories = ["All", "Laptops", "Phones", "Other"];
 
   const quickActions = [
     {
@@ -236,7 +215,12 @@ export default function AssetManagementDashboard() {
                   <TouchableOpacity
                     key={asset.asset_id}
                     className="bg-white rounded-xl p-4 mb-3 shadow-[#edf2f4] border border-gray-200"
-                    onPress={() => router.push(`/RequestAsset`)}
+                    onPress={() => router.push({
+                      pathname:`/RequestAsset`,
+                      params: { assetId: asset.asset_id}
+                      
+                    }
+                  )}
                   >
                     <View className="flex-row justify-between items-center">
                       <View>
@@ -264,55 +248,7 @@ export default function AssetManagementDashboard() {
           )}
         </ScrollView>
       )}
-
-      {/* Notifications Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={notificationModalVisible}
-        onRequestClose={() => setNotificationModalVisible(false)}
-      >
-        <View className="flex-1 bg-black/50 justify-end">
-          <View className="bg-white rounded-t-3xl pb-6 max-h-[80%]">
-            <View className="flex-row justify-between items-center p-4 border-b border-gray-100">
-              <Text className="text-lg font-bold">Notifications</Text>
-              <TouchableOpacity
-                onPress={() => setNotificationModalVisible(false)}
-              >
-                <Text className="text-base text-blue-500 font-medium">
-                  Close
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            <ScrollView className="max-h-[400px]">
-              {notifications.map((notification) => (
-                <View
-                  key={notification.id}
-                  className={`p-4 border-b border-gray-100 ${
-                    !notification.read ? "bg-blue-50" : ""
-                  }`}
-                >
-                  <View>
-                    <Text className="text-base font-bold mb-1">
-                      {notification.title}
-                    </Text>
-                    <Text className="text-sm text-gray-800 mb-0.5">
-                      {notification.message}
-                    </Text>
-                    <Text className="text-xs text-gray-600 mb-1">
-                      {notification.subtext}
-                    </Text>
-                    <Text className="text-xs text-gray-400 mt-1.5">
-                      {notification.time}
-                    </Text>
-                  </View>
-                </View>
-              ))}
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
+ 
     </SafeAreaView>
   );
 }
