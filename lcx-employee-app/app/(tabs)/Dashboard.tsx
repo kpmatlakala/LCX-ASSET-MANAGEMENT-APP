@@ -70,19 +70,19 @@ export default function AssetManagementDashboard() {
       id: 1,
       name: "Inventory",
       icon: <DocumentText size={22} color="#666" />,
-      onPress: () => router.push("/inventory"),
+      onPress: () => router.push("/(tabs)/Inventory"),
     },
     {
       id: 2,
       name: "Request Asset",
       icon: <Add size={22} color="#666" />,
-      onPress: () => router.push("/request-asset"),
+      onPress: () => router.push("/(tabs)/RequestAsset"),
     },
     {
       id: 3,
       name: "View Assets History",
       icon: <ArchiveBook size={22} color="#666" />,
-      onPress: () => router.push("/asset-history"),
+      onPress: () => router.push("/(tabs)/MyAssets"),
     },
   ];
 
@@ -244,7 +244,7 @@ export default function AssetManagementDashboard() {
                           {asset.asset_name}
                         </Text>
                         <Text className="text-sm text-gray-500 mt-1">
-                          ID: {asset.asset_type}
+                          {asset.asset_type}
                         </Text>
                       </View>
                       <Text
