@@ -179,24 +179,10 @@ export default function AssetInventoryScreen() {
 
               {/* Summary Info Always Visible */}
               <View className="mt-1">
-                <View className="flex-col">
-                  <View className="flex-row items-center">
-                    {/* <Text className="text-sm text-gray-500 mr-1"></Text> */}
-                    <Text className="text-sm text-gray-800">
-                      {asset.asset_type}
-                    </Text>
-                  </View>
-                  
-                  <View className="flex-row items-center">
-                    <Text className="text-sm text-gray-500 mr-1">Serial No:</Text>
-                    <Text className="text-sm text-gray-800">
-                      {asset.asset_sn}
-                    </Text>
-                  </View>
-                </View>
+                
                 <View className="flex-1 flex-row items-center justify-between">
                   <Text className="text-xs text-gray-400 mt-1">
-                    Last updated: {asset.updated_at}
+                    {asset.asset_type}
                   </Text>
                   <TouchableOpacity
                     onPress={() => toggleAssetDetails(asset.asset_id)}

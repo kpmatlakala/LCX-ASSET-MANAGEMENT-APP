@@ -358,7 +358,7 @@ export default function AssetInventoryScreen() {
                     }}
                   >
                     <Text style={styles.assetLastUpdated}>
-                      Last updated: {asset.updated_at}
+                      {/* Last updated: {asset.updated_at} */}
                     </Text>
                     <TouchableOpacity
                       onPress={() => toggleAssetDetails(asset.asset_id)}

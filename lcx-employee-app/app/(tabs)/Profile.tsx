@@ -79,7 +79,8 @@ const Profile = () => {
   const requestMediaLibraryPermissions = async () => {
     if (Platform.OS !== "web") {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync()
-      if (status !== "granted") {
+      if (status !== "granted") 
+      {
         Alert.alert(
           "Permission needed",
           "Please grant permission to access your media library to upload a profile picture.",
@@ -109,7 +110,8 @@ const Profile = () => {
         .single()
 
       if (error) throw error
-      if (data) {
+      if (data) 
+      {
         setFullName(data.full_name || "")
         setPhoneNumber(data.phone_number || "")
         setAddress(data.address || "")
@@ -335,8 +337,10 @@ const Profile = () => {
             <Icon name="" type="feather" size={24} color="#fff" />
           </TouchableOpacity> */}
           <Text style={styles.headerTitle}>Profile</Text>
-          <TouchableOpacity style={styles.searchButton}>
-            {/* <Icon name="search" type="feather" size={24} color="#fff" /> */}
+          <TouchableOpacity style={styles.searchButton}
+            onPress={()=>{}}
+          >
+            <Icon name="log-out" type="feather" size={24} color="#fff" />
           </TouchableOpacity>
         </View>
 
