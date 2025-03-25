@@ -310,6 +310,39 @@ const Profile = () => {
     ])
   }
 
+  const handleSignOut = async () => {
+    Alert.alert(
+      "Sign Out",
+      "Are you sure you want to sign out?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Sign Out",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const { error } = await supabase.auth.signOut();
+              
+              if (error) {
+                throw error;
+              }
+              
+              // The onAuthStateChange listener in useEffect will handle navigation
+            } catch (error) {
+              if (error instanceof Error) {
+                Alert.alert("Sign Out Error", error.message);
+              }
+            }
+          },
+        },
+      ]
+    );
+  };
+
+
   if (loading) {
     return (
       <View style={styles.loader}>
@@ -338,7 +371,7 @@ const Profile = () => {
           </TouchableOpacity> */}
           <Text style={styles.headerTitle}>Profile</Text>
           <TouchableOpacity style={styles.searchButton}
-            onPress={()=>{}}
+            onPress={handleSignOut}
           >
             <Icon name="log-out" type="feather" size={24} color="#fff" />
           </TouchableOpacity>

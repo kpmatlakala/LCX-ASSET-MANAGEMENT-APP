@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import {
   View,
@@ -20,10 +20,27 @@ import { Tabs } from "expo-router";
 import { router } from "expo-router";
 import { images } from "@/constants";
 import { supabase } from "@/lib/supabase";
+import { useNotifications } from '@/context/NotificationContext';
 
-export default function TabLayout() {
-  const [notificationCount, setNotificationCount] = React.useState(3);
+
+export default function TabLayout() 
+{
+const {
+    notifications,
+    markAsRead,
+    deleteNotification
+  } = useNotifications();
+
+  console.log(notifications);
+
+  const [notificationCount, setNotificationCount] = React.useState(0);
   const [activeTab, setActiveTab] = React.useState("Dashboard");
+
+  useEffect(() => {
+    const unreadNotifications = notifications.filter((notification) => !notification.is_read);
+    setNotificationCount(unreadNotifications.length);
+  }
+  , [notifications]);
   
   const handleSignOut = async () => {
     Alert.alert("Sign Out", "Are you sure you want to sign out?", [
@@ -55,7 +72,7 @@ export default function TabLayout() {
             borderTopWidth: 1,
             borderColor: "#f3f4f6",
             backgroundColor: '#FFFFFF',
-            elevation: 0, // Android shadow
+            elevation: 0, 
             shadowColor: '#000000',
             shadowOffset: { width: 0, height: 0 },
             shadowOpacity: 0,
@@ -201,7 +218,7 @@ const styles = StyleSheet.create({
   },
   headerRight: {
     flexDirection: "row",
-    marginRight: 16,
+    marginRight: 28,
   },
   headerButton: {
     marginLeft: 16,

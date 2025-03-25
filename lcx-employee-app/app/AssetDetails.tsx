@@ -8,7 +8,8 @@ import {
   TextInput,
   SafeAreaView,
   FlatList,
-  Modal
+  Modal,
+  Image
 } from 'react-native';
 import { MaterialIcons, MaterialCommunityIcons, Ionicons, Feather } from '@expo/vector-icons';
 import { useAssets } from '@/context/AssetContext';
@@ -17,7 +18,8 @@ import { useLocalSearchParams } from 'expo-router';
 const AssetManagementScreen = () => {
     const params = useLocalSearchParams();
     const assetIdFromParams = params.assetId;
-    console.log("selected asset:", assetIdFromParams);
+    console.log("selected asset|param:", assetIdFromParams);
+    const [currentUserRequest, setCurrentUserRequest] = useState(null);
 
     const { assets } = useAssets();
     const [selectedAsset, setSelectedAsset] = useState(null);
@@ -67,6 +69,21 @@ const AssetManagementScreen = () => {
       </View>
     </View>
   );
+
+  const handleRequestAsset = () => {
+    // Logic to request an asset
+    console.log("Asset requested");
+  };
+  
+  const handleConfirmReceipt = () => {
+    // Logic to confirm asset receipt
+    console.log("Asset receipt confirmed");
+  };
+  
+  const handleInitiateReturn = () => {
+    // Logic to initiate asset return
+    console.log("Asset return initiated");
+  };
 
   // Function to handle cancel request
   const handleCancelRequest = () => {
@@ -154,60 +171,97 @@ const AssetManagementScreen = () => {
           </View>
 
           <View style={styles.assetInfoContent}>
+            {
+              selectedAsset?.asset_image_url && (
+                <View style={styles.imageContainer}>
+                  <Image 
+                    source={{ uri: selectedAsset.asset_image_url }}
+                    style={styles.assetImage}
+                    resizeMode="cover"
+                    // defaultSource={require('@/assets/placeholder-image.png')}
+                  />
+                </View>
+            )}           
+
             <View style={styles.infoColumn}>
+
               <View style={styles.infoRow}>
                 <Text style={styles.infoLabel}>Asset Name:</Text>
                 <Text style={styles.infoValue}>{selectedAsset?.asset_name}</Text>
-              </View>
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Serial Number:</Text>
-                <Text style={styles.infoValue}>{selectedAsset?.asset_sn}</Text>
-              </View>
+              </View> 
+              
               <View style={styles.infoRow}>
                 <Text style={styles.infoLabel}>Category:</Text>
                 <Text style={styles.infoValue}>{selectedAsset?.asset_category}</Text>
-              </View>
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Warranty:</Text>
-                <Text style={styles.infoValue}>2 years</Text>
-              </View>
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Purchase Date:</Text>
-                <Text style={styles.infoValue}>{selectedAsset?.purchase_date}</Text>
-              </View>
-            </View>
-            <View style={styles.infoColumn}>
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Cost:</Text>
-                <Text style={styles.infoValue}>{selectedAsset?.purchase_price}</Text>
-              </View>
-
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Assigned To:</Text>
-                <Text style={styles.infoValue}>Nathan</Text>
-              </View>
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Location Office:</Text>
-                <Text style={styles.infoValue}>Third-floor Room</Text>
-              </View>
-              
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Return Date:</Text>
-                <Text style={styles.infoValue}>2 years</Text>
-              </View>
+              </View>             
             </View>
           </View>
           
           {/* Cancel Request Button - now at the bottom of the asset info card */}
           <View style={styles.cardButtonContainer}>
-            <TouchableOpacity 
-              style={styles.cancelRequestButton} 
-              onPress={() => setModalVisible(true)}
-            >
-              <MaterialIcons name="cancel" size={16} color="white" style={styles.buttonIcon} />
-              <Text style={styles.cancelRequestButtonText}>Cancel request</Text>
-            </TouchableOpacity>
+            {/* Request Button - Only show when asset is truly available */}
+            {selectedAsset.status === 'available' && !currentUserRequest && (
+              <TouchableOpacity
+                style={styles.requestButton}
+                onPress={handleRequestAsset}
+              >
+                <MaterialIcons name="add-circle-outline" size={16} color="white" style={styles.buttonIcon} />
+                <Text style={styles.requestButtonText}>Request Asset</Text>
+              </TouchableOpacity>
+            )}
+
+            {/* Scenarios based on asset status */}
+            {selectedAsset.status === 'assigned' && (
+              <View style={styles.statusInfoContainer}>
+                <Text style={styles.statusInfoText}>Currently in use</Text>
+              </View>
+            )}
+
+            {/* {selectedAsset.status === 'maintenance' && (
+              <View style={styles.statusInfoContainer}>
+                <Text style={styles.statusInfoText}>Under Maintenance</Text>
+              </View>
+            )} */}
+
+            {/* Request-specific actions */}
+            {currentUserRequest && (
+              <>
+                {/* Cancel Pending Request */}
+                {(currentUserRequest.status === 'pending' || currentUserRequest.status === 'processing') && (
+                  <TouchableOpacity
+                    style={styles.cancelRequestButton}
+                    onPress={handleCancelRequest}
+                  >
+                    <MaterialIcons name="cancel" size={16} color="white" style={styles.buttonIcon} />
+                    <Text style={styles.cancelRequestButtonText}>Cancel Request</Text>
+                  </TouchableOpacity>
+                )}
+
+                {/* Confirm Receipt - Approved and Dispatched */}
+                {(currentUserRequest.status === 'approved' && selectedAsset.status === 'dispatched') && (
+                  <TouchableOpacity
+                    style={styles.confirmReceiptButton}
+                    onPress={handleConfirmReceipt}
+                  >
+                    <MaterialIcons name="check-circle" size={16} color="white" style={styles.buttonIcon} />
+                    <Text style={styles.confirmReceiptButtonText}>Confirm Receipt</Text>
+                  </TouchableOpacity>
+                )}
+
+                
+                {(currentUserRequest.status === 'received' && selectedAsset.status === 'in_use') && (
+                  <TouchableOpacity
+                    style={styles.returnAssetButton}
+                    onPress={handleInitiateReturn}
+                  >
+                    <MaterialIcons name="keyboard-return" size={16} color="white" style={styles.buttonIcon} />
+                    <Text style={styles.returnAssetButtonText}>Return Asset</Text>
+                  </TouchableOpacity>
+                )}
+              </>
+            )}
           </View>
+
         </View>
 
         {/* Asset Table */}
@@ -328,6 +382,19 @@ const styles = StyleSheet.create({
   assetInfoContent: {
     flexDirection: 'row',
     marginBottom: 20,
+  },
+  imageContainer: {
+    marginRight: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  assetImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 10,
   },
   infoColumn: {
     flex: 1,

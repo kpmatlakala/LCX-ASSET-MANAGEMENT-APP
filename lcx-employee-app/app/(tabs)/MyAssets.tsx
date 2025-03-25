@@ -88,7 +88,10 @@ export default function MyAssetsScreen() {
   // Handle asset review
   const handleAssetReview = (assetId: number): void => {
     console.log(`Reviewing asset ${assetId}`);
-    router.push("/AssetDetails");
+    router.push({
+      pathname: "/AssetDetails",
+      params: { assetId: assetId.toString() }
+    });
   };
 
   // Handle asset return
@@ -259,12 +262,17 @@ export default function MyAssetsScreen() {
                           {request.purpose || "Not specified"}
                         </Text>
                       </View>
-                      {/* <View className="flex-1">
-                        <Text className="text-sm text-gray-500 mb-0.5">Destination:</Text>
-                        <Text className="text-sm text-gray-800">
-                          {request.destination || "Not specified"}
-                        </Text>
-                      </View> */}
+                      {
+                        request.return_date != null && (
+                          <View className="flex-1">
+                            <Text className="text-sm text-gray-500 mb-0.5">Return Date:</Text>
+                            <Text className="text-sm text-gray-800">
+                              {request.return_date || "Not specified"}
+                            </Text>
+                          </View>
+                        )
+                      }
+                      
                     </View>
                     <Text className="text-xs text-gray-400 mt-1">
                       Last updated: {request.updated_at 
