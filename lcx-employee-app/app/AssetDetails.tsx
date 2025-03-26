@@ -9,9 +9,14 @@ import {
   SafeAreaView,
   FlatList,
   Modal,
-  Image
+  Image,
+  Alert
 } from 'react-native';
 import { MaterialIcons, MaterialCommunityIcons, Ionicons, Feather } from '@expo/vector-icons';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
+import * as XLSX from 'xlsx';
+import * as Print from 'expo-print';
 import { useAssets } from '@/context/AssetContext';
 import { useLocalSearchParams } from 'expo-router';
 
@@ -37,6 +42,82 @@ const AssetManagementScreen = () => {
       }
     }
   }, [assets, assetIdFromParams]);
+
+  // Export functions
+  const exportToCsv = async () => {
+    try 
+    {
+      // Prepare CSV content
+      const csvHeader = 'Asset Name,Serial Number,Category,Cost,Purchase Date,Status\n';
+      const csvRows = assets.map(asset => 
+          `"${asset.asset_name}","${asset.asset_sn}","${asset.asset_category}","${asset.purchase_price}","${asset.purchase_date}","${asset.status}"`
+      ).join('\n');
+      const csvContent = csvHeader + csvRows;
+
+      // Write to file
+      const fileUri = `${FileSystem.documentDirectory}assets_export.csv`;
+      await FileSystem.writeAsStringAsync(fileUri, csvContent, { encoding: FileSystem.EncodingType.UTF8 });
+
+      // Share the file
+      if (await Sharing.isAvailableAsync()) 
+      {
+        await Sharing.shareAsync(fileUri);
+      } 
+      else { Alert.alert('Sharing is not available'); }
+    } 
+    catch (error) 
+    {
+        console.error('CSV Export Error:', error);
+        Alert.alert('Export Failed', 'Unable to export CSV file');
+    }
+  };
+
+  const exportToExcel = async () => {
+    try 
+    {
+        // Prepare workbook and worksheet
+        const wb = XLSX.utils.book_new();
+        const wsData = [
+            ['Asset Name', 'Serial Number', 'Category', 'Cost', 'Purchase Date', 'Status'],
+            ...assets.map(asset => [
+                asset.asset_name, 
+                asset.asset_sn, 
+                asset.asset_category, 
+                asset.purchase_price, 
+                asset.purchase_date, 
+                asset.status
+            ])
+        ];
+        const ws = XLSX.utils.aoa_to_sheet(wsData);
+        XLSX.utils.book_append_sheet(wb, ws, 'Assets');
+
+        // Write to file
+        const fileUri = `${FileSystem.documentDirectory}assets_export.xlsx`;
+        const wbout = XLSX.write(wb, { type: 'base64', bookType: 'xlsx' });
+        
+        await FileSystem.writeAsStringAsync(fileUri, wbout, { encoding: FileSystem.EncodingType.Base64 });
+
+        // Share the file
+        if (await Sharing.isAvailableAsync()) {
+            await Sharing.shareAsync(fileUri, { 
+              mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 
+              dialogTitle: 'Export Assets' 
+            });
+        } 
+        else { Alert.alert('Sharing is not available'); }
+    } 
+    catch (error) 
+    {
+      console.error('Excel Export Error:', error);
+      Alert.alert('Export Failed', 'Unable to export Excel file');
+    }
+  };
+
+  const exportToPdf = async () => {
+  };
+
+  const renderExportOptions = () => {
+  };
 
   const renderStatusBadge = (status) => {
   let backgroundColor;
@@ -135,8 +216,34 @@ const AssetManagementScreen = () => {
               <TextInput style={styles.searchInput} placeholder="Search..." />
             </View>
           </View>
+          
           <View style={styles.exportContainer}>
-            <TouchableOpacity style={styles.exportButton}>
+            <TouchableOpacity style={styles.exportButton}
+              onPress={() => {
+                Alert.alert(
+                    'Export Options',
+                    'Choose Export Format',
+                    [
+                        { 
+                            text: 'CSV', 
+                            onPress: exportToCsv 
+                        },
+                        { 
+                            text: 'Excel', 
+                            onPress: exportToExcel 
+                        },
+                        { 
+                            text: 'PDF', 
+                            onPress: exportToPdf 
+                        },
+                        { 
+                            text: 'Cancel', 
+                            style: 'cancel' 
+                        }
+                    ]
+                );
+              }}
+            >
               <MaterialIcons name="file-download" size={16} color="#666" />
               <Text style={styles.exportButtonText}>Export PDF</Text>
             </TouchableOpacity>
