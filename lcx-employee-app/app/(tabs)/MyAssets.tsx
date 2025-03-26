@@ -91,7 +91,7 @@ export default function MyAssetsScreen() {
     console.log(`Reviewing asset ${assetId}`);
     router.push({
       pathname: "/AssetDetails",
-      params: { assetId: assetId.toString() }
+      params: { assetId: assetId }
     });
   };
 
@@ -286,7 +286,7 @@ export default function MyAssetsScreen() {
                   <View className="flex-row flex-wrap justify-between">
                     <TouchableOpacity
                       className="flex-row items-center bg-gray-100 px-3 py-2 rounded-full mr-2 mb-2"
-                      onPress={() => handleAssetReview(request.request_id)}
+                      onPress={() => handleAssetReview(request.asset_id)}
                     >
                       <Feather name="eye" size={16} color="#333" />
                       <Text className="text-sm text-gray-800 ml-1">

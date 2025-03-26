@@ -18,7 +18,7 @@ import * as Sharing from 'expo-sharing';
 import * as XLSX from 'xlsx';
 import * as Print from 'expo-print';
 import { useAssets } from '@/context/AssetContext';
-import { useLocalSearchParams } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 
 const AssetManagementScreen = () => {
   const params = useLocalSearchParams();
@@ -29,23 +29,54 @@ const AssetManagementScreen = () => {
   const [selectedAsset, setSelectedAsset] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
 
-  console.log("selected asset:", selectedAsset);
-
+  // console.log("selected asset:", selectedAsset);
   
   // Find the selected asset when component mounts or assets/params change
   useEffect(() => {
+    console.log("if:", assetIdFromParams);
     if (assetIdFromParams && assets.length > 0) 
     {
+      console.log("& assets.count", assets.length );
       for (let i = 0; i < assets.length; i++)
       {
+        console.log("assets[i].asset_id", assets[i].asset_id);
+        
         if (assets[i].asset_id == assetIdFromParams) 
         {
+          console.log("selected asset:", assets[i]);
+          
           setSelectedAsset(assets[i]);
           break;
         }
+
+        console.log("assets[i].asset_id", assets[i].asset_id);
       }
     }
   }, [assets, assetIdFromParams]);
+
+  // Using useFocusEffect to handle screen focus (whenever the screen is focused)
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     console.log('Screen focused, refreshing asset selection...');
+      
+  //     if (assetIdFromParams && assets.length > 0) 
+  //     {
+  //       for (let i = 0; i < assets.length; i++) 
+  //       {
+  //         if (assets[i].asset_id == assetIdFromParams) {
+  //           console.log("selected asset (focused):", assets[i]);
+  //           setSelectedAsset(assets[i]);
+  //           break;
+  //         }
+  //       }
+  //     }
+
+  //     // Optionally return a cleanup function when the screen is unfocused
+  //     return () => {
+  //       console.log('Screen unfocused');
+  //     };
+  //   }, [assets, assetIdFromParams])  // Dependencies, similar to useEffect
+  // );
 
   const getStatusStyles = (
     status: string
@@ -327,6 +358,15 @@ const AssetManagementScreen = () => {
           </View>
 
           {
+             selectedAsset?.status === 'Available' ? (
+              <TouchableOpacity
+                style={styles.returnRequestButton}
+                onPress={() => console.log("Return action triggered")}
+              >
+                <MaterialIcons name="replay" size={16} color="white" style={styles.buttonIcon} />
+                <Text style={styles.returnRequestButtonText}>Return asset</Text>
+              </TouchableOpacity>
+            ) :
             selectedAsset?.status === 'Dispatched' ? (
               <TouchableOpacity
                 style={styles.returnRequestButton}
