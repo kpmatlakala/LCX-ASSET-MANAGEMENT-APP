@@ -242,14 +242,6 @@ const RequestAssets = () => {
               titleStyle={styles.buttonTitle}
               containerStyle={styles.buttonContainer}
               loadingProps={{ color: "white" }}
-              icon={{
-                name: "check",
-                type: "feather",
-                size: 20,
-                color: "white",
-              }}
-              iconRight
-              iconContainerStyle={{ marginLeft: 10 }}
             />
           </View>
         </ScrollView>
