@@ -28,10 +28,14 @@ const AssetManagementScreen = () => {
   const { assets } = useAssets();
   const [selectedAsset, setSelectedAsset] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+
+  console.log("selected asset:", selectedAsset);
+
   
   // Find the selected asset when component mounts or assets/params change
   useEffect(() => {
-    if (assetIdFromParams && assets.length > 0) {
+    if (assetIdFromParams && assets.length > 0) 
+    {
       for (let i = 0; i < assets.length; i++)
       {
         if (assets[i].asset_id == assetIdFromParams) 
@@ -42,6 +46,23 @@ const AssetManagementScreen = () => {
       }
     }
   }, [assets, assetIdFromParams]);
+
+  const getStatusStyles = (
+    status: string
+  ): { backgroundColor: string; borderColor: string } => {
+    switch (status) {
+      case "Available":
+        return { backgroundColor: "#d1f4e0", borderColor: "#17c964" }; // Light green background, dark green border
+      case "In_Transit":
+        return { backgroundColor: "#fdedd3", borderColor: "#f5a524" }; // Light orange background, dark orange border
+      case "Maintanace":
+        return { backgroundColor: "#fdd0df", borderColor: "#f5426c" }; // Light pink background, dark pink border
+      case "Assigned":
+        return { backgroundColor: "#f3f1260", borderColor: "#f3f1260" }; // Light yellow background, yellow border
+      default:
+        return { backgroundColor: "#f0f0f0", borderColor: "#cccccc" }; // Default light gray background, dark gray border
+    }
+  };
 
   // Export functions
   const exportToCsv = async () => {
@@ -254,10 +275,27 @@ const AssetManagementScreen = () => {
         <View style={styles.assetInfoCard}>
           <View style={styles.assetInfoHeader}>
             <Text style={styles.assetInfoTitle}>Asset Information</Text>
-            <View style={styles.assetInfoActions}>
+            {/* <View style={styles.assetInfoActions}>
               <TouchableOpacity>
                 <MaterialIcons name="more-vert" size={20} color="#666" />
               </TouchableOpacity>
+            </View> */}
+            <View
+              style={{
+                backgroundColor: getStatusStyles(selectedAsset?.status).backgroundColor,
+                borderColor: getStatusStyles(selectedAsset?.status).borderColor,
+                borderWidth: 1,
+              }}
+              className="px-2.5 py-0.5 rounded-full mb-2"
+            >
+              <Text
+                style={{
+                  color: getStatusStyles(selectedAsset?.status).borderColor,
+                }}
+                className="font-bold text-xs"
+              >
+                { selectedAsset?.status }
+              </Text>
             </View>
           </View>
 
@@ -287,17 +325,31 @@ const AssetManagementScreen = () => {
               </View>             
             </View>
           </View>
+
+          {
+            selectedAsset?.status === 'Dispatched' ? (
+              <TouchableOpacity
+                style={styles.returnRequestButton}
+                onPress={() => console.log("Return action triggered")}
+              >
+                <MaterialIcons name="replay" size={16} color="white" style={styles.buttonIcon} />
+                <Text style={styles.returnRequestButtonText}>Return asset</Text>
+              </TouchableOpacity>
+            ) : (
+              <View style={styles.cardButtonContainer}>
+                <TouchableOpacity 
+                  style={styles.cancelRequestButton} 
+                  onPress={() => setModalVisible(true)}
+                >
+                  <MaterialIcons name="cancel" size={16} color="white" style={styles.buttonIcon} />
+                  <Text style={styles.cancelRequestButtonText}>Cancel request</Text>
+                </TouchableOpacity>
+              </View>
+            )
+          }
           
           {/* Cancel Request Button - now at the bottom of the asset info card */}
-          <View style={styles.cardButtonContainer}>
-            <TouchableOpacity 
-              style={styles.cancelRequestButton} 
-              onPress={() => setModalVisible(true)}
-            >
-              <MaterialIcons name="cancel" size={16} color="white" style={styles.buttonIcon} />
-              <Text style={styles.cancelRequestButtonText}>Cancel request</Text>
-            </TouchableOpacity>
-          </View>
+          
         </View>
 
         {/* Asset Table */}
@@ -463,15 +515,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 4,
+  },returnRequestButton: {
+    backgroundColor: '#4CAF50', // Color for return button
+    padding: 10,
+    borderRadius: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   buttonIcon: {
-    marginRight: 6,
+    marginRight: 5,
   },
   cancelRequestButtonText: {
-    fontSize: 14,
     color: 'white',
-    fontFamily: 'Poppins-Regular'
+    fontSize: 14,
   },
+  returnRequestButtonText: {
+    color: 'white',
+    fontSize: 14,
+  },    
   tableContainer: {
     padding: 8,
     marginHorizontal: 16,
