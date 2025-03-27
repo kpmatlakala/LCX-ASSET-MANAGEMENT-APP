@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import {
   View,
@@ -30,11 +30,16 @@ export default function TabLayout() {
   } = useNotifications();
 
   console.log(notifications);
-
   const [notificationCount, setNotificationCount] = React.useState(0);
   const [activeTab, setActiveTab] = useState("Dashboard");
   const [isProfileDropdownVisible, setIsProfileDropdownVisible] = useState(false);
   
+  useEffect(() => {
+    const unreadNotifications = notifications.filter((notification) => !notification.is_read);
+    setNotificationCount(unreadNotifications.length);
+  }
+  , [notifications]);
+
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     router.replace("/(auth)/Auth");

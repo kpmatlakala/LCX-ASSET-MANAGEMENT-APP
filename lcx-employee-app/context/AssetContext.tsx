@@ -42,7 +42,7 @@ interface AssetRequest {
 interface AssetContextType {
   assets: Asset[];
   getAssetById: (assetId: number) => Asset | undefined;
-  myAssetRequests: AssetRequest[]; // Renamed to myAssetRequests
+  myAssetRequests: AssetRequest[];
   fetchAssets: () => Promise<void>;
   fetchAssetRequests: () => Promise<void>;
   requestAsset: (asset_id: number, purpose: string, expected_return_date: string) => Promise<void>;
@@ -54,7 +54,9 @@ const AssetContext = createContext<AssetContextType | undefined>(undefined);
 
 export const AssetProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [assets, setAssets] = useState<Asset[]>([]);
-  const [myAssetRequests, setMyAssetRequests] = useState<AssetRequest[]>([]); // Changed state name to myAssetRequests
+  const [previousAssets, setPreviousAssets] = useState<Asset[]>([]);
+  const [myAssetRequests, setMyAssetRequests] = useState<AssetRequest[]>([]);
+  const [previousAssetRequests, setPreviousAssetRequests] = useState<AssetRequest[]>([]);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { addNotification } = useNotifications();
@@ -76,7 +78,7 @@ export const AssetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return () => subscription.unsubscribe();
   }, []);
 
-  // Fetch assets from Supabase
+  // Fetch assets from Supabase with new asset notifications
   const fetchAssets = async () => {
     setIsLoading(true);
     const { data, error } = await supabase
@@ -95,20 +97,33 @@ export const AssetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return;
     }
 
+    // Detect and notify about new assets
+    const newAssets = data?.filter(
+      asset => !previousAssets.some(prevAsset => prevAsset.asset_id === asset.asset_id)
+    ) || [];
+
+    if (newAssets.length > 0) {
+      newAssets.forEach(newAsset => {
+        addNotification({
+          title: "New Asset Available",
+          message: `A new ${newAsset.asset_name} (${newAsset.asset_code}) is now available in the inventory!`,
+          type: "info"
+        });
+      });
+    }
+
     setAssets(data || []);
+    setPreviousAssets(data || []);
     setIsLoading(false);
   };
 
   const getAssetById = (assetId: number): Asset | undefined => {
-    console.log("AssetId: ", assetId);
-    const assetById = assets.find((asset) => asset.asset_id === assetId);
-    console.log("AssetById: ", assetById);
-    
     return assets.find((asset) => asset.asset_id === assetId);
   };
 
-  // Fetch asset requests from Supabase for the current user
+  // Fetch asset requests with status change notifications
   const fetchAssetRequests = async () => {
+
     if (!session?.user?.id) return;
     setIsLoading(true);
 
@@ -132,7 +147,7 @@ export const AssetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     const employee_id = employeeData.employee_id;
 
-    // Now fetch the asset requests for this employee
+    // Fetch the asset requests for this employee
     const { data, error } = await supabase
       .from("asset_requests")
       .select(`
@@ -142,7 +157,7 @@ export const AssetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           asset_code
         )
       `)
-      .eq("employee_id", employee_id) // Filter by employee_id
+      .eq("employee_id", employee_id)
       .order("request_date", { ascending: false });
 
     if (error) {
@@ -156,9 +171,96 @@ export const AssetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return;
     }
 
-    setMyAssetRequests(data || []); // Set filtered requests in state
+    // Detect and notify about request status changes
+    const requestStatusChanges = data?.filter(
+      request => {
+        const prevRequest = previousAssetRequests.find(
+          prev => prev.request_id === request.request_id
+        );
+        return prevRequest && prevRequest.status !== request.status;
+      }
+    ) || [];
+
+    // Send notifications for status changes
+    requestStatusChanges.forEach(changedRequest => {
+      let notificationMessage = "";
+      let notificationType: "success" | "error" | "info" = "info";
+
+      switch (changedRequest.status) {
+        case "Approved":
+          notificationMessage = `Your request for ${changedRequest.assets?.asset_name} has been approved and is ready for dispatch.`;
+          notificationType = "success";
+          break;
+        case "Rejected":
+          notificationMessage = `Your request for ${changedRequest.assets?.asset_name} has been rejected.`;
+          notificationType = "error";
+          break;
+        case "In Progress":
+          notificationMessage = `Your request for ${changedRequest.assets?.asset_name} is now being processed.`;
+          break;
+        case "Returned":
+          notificationMessage = `The asset ${changedRequest.assets?.asset_name} has been marked as returned.`;
+          break;
+        case "Cancelled":
+          notificationMessage = `Your request for ${changedRequest.assets?.asset_name} has been cancelled.`;
+          break;
+      }
+
+      if (notificationMessage) {
+        addNotification({
+          title: "Asset Request Update",
+          message: notificationMessage,
+          type: notificationType
+        });
+      }
+    });
+
+    setMyAssetRequests(data || []);
+    setPreviousAssetRequests(data || []);
     setIsLoading(false);
   };
+
+  // Real-time subscriptions
+  useEffect(() => {
+    if (!session) return;
+
+    const assetRequestsChannel = supabase.channel('asset_requests')
+      .on(
+        'postgres_changes', 
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'asset_requests' 
+        },
+        (payload) => {
+          console.log('Asset Request Change:', payload);
+          fetchAssetRequests();
+        }
+      )
+      .subscribe();
+
+    // Assets Subscription
+    const assetsChannel = supabase.channel('assets')
+      .on(
+        'postgres_changes', 
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'assets' 
+        },
+        (payload) => {
+          console.log('Asset Change:', payload);
+          fetchAssets();
+        }
+      )
+      .subscribe();
+
+    // Cleanup function
+    return () => {
+      supabase.removeChannel(assetRequestsChannel);
+      supabase.removeChannel(assetsChannel);
+    };
+  }, [session, supabase]);
 
   // Request an asset
   const requestAsset = async (
@@ -202,9 +304,9 @@ export const AssetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       asset_id,
       purpose,
       destination: "Office", // Default destination
-      return_date: expected_return_date,
+      expected_return_date,
       status: "Pending",
-      created_at: new Date().toISOString(),
+      request_date: new Date().toISOString(),
       updated_at: new Date().toISOString()
     }]);
 
@@ -241,7 +343,10 @@ export const AssetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     const { error } = await supabase
       .from("asset_requests")
-      .update({ status: "Cancelled", updated_at: new Date().toISOString() })
+      .update({ 
+        status: "Cancelled", 
+        updated_at: new Date().toISOString() 
+      })
       .eq("request_id", request_id);
 
     if (error) {
@@ -267,6 +372,7 @@ export const AssetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setIsLoading(false);
   };
 
+  // Fetch assets and requests when session is available
   useEffect(() => {
     if (session) {
       fetchAssets();

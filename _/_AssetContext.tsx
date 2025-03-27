@@ -55,7 +55,9 @@ const AssetContext = createContext<AssetContextType | undefined>(undefined);
 
 export const AssetProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [assets, setAssets] = useState<Asset[]>([]);
+  const [previousAssets, setPreviousAssets] = useState<Asset[]>([]);
   const [myAssetRequests, setMyAssetRequests] = useState<AssetRequest[]>([]);
+  const [previousAssetRequests, setPreviousAssetRequests] = useState<AssetRequest[]>([]);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { addNotification } = useNotifications();
@@ -88,11 +90,13 @@ export const AssetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
       setAppState(nextAppState);
     };
-
-    AppState.addEventListener("change", appStateListener);
-
+  
+    // Modern method to add event listener
+    const subscription = AppState.addEventListener("change", appStateListener);
+  
+    // Cleanup function using the new remove() method
     return () => {
-      AppState.removeEventListener("change", appStateListener);
+      subscription.remove();
     };
   }, [appState]);
 
@@ -115,7 +119,23 @@ export const AssetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return;
     }
 
+    // Compare current assets with previous assets to detect new additions
+    const newAssets = data?.filter(
+      asset => !previousAssets.some(prevAsset => prevAsset.asset_id === asset.asset_id)) || [];
+
+    if (newAssets.length > 0) 
+    {
+      newAssets.forEach(newAsset => {
+        addNotification({
+          title: "New Asset Available",
+          message: `A new ${newAsset.asset_name} (${newAsset.asset_code}) is now available in the inventory!`,
+          type: "info"
+        });
+      });
+    }
+
     setAssets(data || []);
+    setPreviousAssets(data || []);
     setIsLoading(false);
   };
 
@@ -162,7 +182,45 @@ export const AssetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return;
     }
 
-    setMyAssetRequests(data || []); // Set filtered requests in state
+    // Compare current requests with previous requests to detect status changes
+    const requestStatusChanges = data?.filter(
+      request => {
+        const prevRequest = previousAssetRequests.find(
+          prev => prev.request_id === request.request_id
+        );
+        return prevRequest && prevRequest.status !== request.status;
+      }
+    ) || [];
+
+    // Send notifications for status changes
+    requestStatusChanges.forEach(changedRequest => {
+      let notificationMessage = "";
+      switch (changedRequest.status) {
+        case "Approved":
+          notificationMessage = `Your request for ${changedRequest.assets?.asset_name} has been approved and is ready for dispatch.`;
+          break;
+        case "Rejected":
+          notificationMessage = `Your request for ${changedRequest.assets?.asset_name} has been rejected.`;
+          break;
+        case "In Progress":
+          notificationMessage = `Your request for ${changedRequest.assets?.asset_name} is now being processed.`;
+          break;
+        case "Returned":
+          notificationMessage = `The asset ${changedRequest.assets?.asset_name} has been marked as returned.`;
+          break;
+      }
+
+      if (notificationMessage) {
+        addNotification({
+          title: "Asset Request Update",
+          message: notificationMessage,
+          type: changedRequest.status === "Rejected" ? "error" : "success"
+        });
+      }
+    });
+
+    setMyAssetRequests(data || []);
+    setPreviousAssetRequests(data || []);
     setIsLoading(false);
   };
 

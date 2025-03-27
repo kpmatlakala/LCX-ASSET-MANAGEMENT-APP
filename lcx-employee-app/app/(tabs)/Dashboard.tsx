@@ -27,7 +27,7 @@ import { images } from "@/constants";
 
 export default function AssetManagementDashboard() {
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const { assets, loading } = useAssets();
+  const { assets, myAssetRequests, loading } = useAssets();
   const [filteredAssets, setFilteredAssets] = useState([]);
   const [notificationModalVisible, setNotificationModalVisible] =
     useState(false);
@@ -94,12 +94,14 @@ export default function AssetManagementDashboard() {
 
   // Calculate stats
   const pendingCount =
-    assets.filter((asset) => asset.status === "Pending").length || 1;
+  myAssetRequests.filter((asset) => (asset.status === "Pending") || ((asset.status === "Approved")) ).length || 0;
+  
   const overdueCount =
-    assets.filter((asset) => asset.status === "Overdue").length || 1;
+  myAssetRequests.filter((asset) => asset.status === "Overdue").length || 0;
+  
   const borrowedCount =
-    assets.filter((asset) => asset.status === "Borrowed").length ||
-    assets.length;
+  myAssetRequests.filter((asset) => asset.status === "Dispatched").length ||
+  myAssetRequests.length;
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -204,7 +206,7 @@ export default function AssetManagementDashboard() {
           {filteredAssets.length > 0 && (
             <View className="mt-4 mb-2">
               <View className="flex-row justify-between items-center mb-3 mx-5">
-                <Text className="text-xl font-bold">Available Assets</Text>
+                <Text className="text-xl font-bold">Available Assets ({assets?.length})</Text>
                 <TouchableOpacity onPress={() => router.push("/Inventory")}>
                   <Text className="text-sm font-medium">View All</Text>
                 </TouchableOpacity>
