@@ -1,12 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  Alert,
-  Image,
+  Modal,
+  Pressable,
+  Dimensions
 } from "react-native";
 import {
   Notification,
@@ -18,28 +19,52 @@ import {
 } from "iconsax-react-native";
 import { Tabs } from "expo-router";
 import { router } from "expo-router";
-import { images } from "@/constants";
 import { supabase } from "@/lib/supabase";
 
+const { width } = Dimensions.get('window');
+
 export default function TabLayout() {
-  const [notificationCount, setNotificationCount] = React.useState(3);
-  const [activeTab, setActiveTab] = React.useState("Dashboard");
+  const [notificationCount, setNotificationCount] = useState(3);
+  const [activeTab, setActiveTab] = useState("Dashboard");
+  const [isProfileDropdownVisible, setIsProfileDropdownVisible] = useState(false);
   
   const handleSignOut = async () => {
-    Alert.alert("Sign Out", "Are you sure you want to sign out?", [
-      {
-        text: "Cancel",
-        style: "cancel",
-      },
-      {
-        text: "Sign Out",
-        onPress: async () => {
-          await supabase.auth.signOut();
-          router.replace("/(auth)/Auth");
-        },
-        style: "destructive",
-      },
-    ]);
+    await supabase.auth.signOut();
+    router.replace("/(auth)/Auth");
+  };
+
+  const ProfileDropdownMenu = () => {
+    return (
+      <View style={styles.dropdownContainer}>
+        <TouchableOpacity 
+          style={styles.dropdownItem}
+          onPress={() => {
+            router.push("/Profile");
+            setIsProfileDropdownVisible(false);
+          }}
+        >
+          <Text style={styles.dropdownItemText}>Profile</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.dropdownItem}
+          onPress={() => {
+            router.push("/Settings");
+            setIsProfileDropdownVisible(false);
+          }}
+        >
+          <Text style={styles.dropdownItemText}>Settings</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.dropdownItem}
+          onPress={() => {
+            setIsProfileDropdownVisible(false);
+            handleSignOut();
+          }}
+        >
+          <Text style={styles.dropdownItemText}>Sign Out</Text>
+        </TouchableOpacity>
+      </View>
+    );
   };
 
   return (
@@ -55,7 +80,7 @@ export default function TabLayout() {
             borderTopWidth: 1,
             borderColor: "#f3f4f6",
             backgroundColor: '#FFFFFF',
-            elevation: 0, // Android shadow
+            elevation: 0,
             shadowColor: '#000000',
             shadowOffset: { width: 0, height: 0 },
             shadowOpacity: 0,
@@ -80,7 +105,7 @@ export default function TabLayout() {
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.headerButton}
-                onPress={() => router.push("/Profile")}
+                onPress={() => setIsProfileDropdownVisible(!isProfileDropdownVisible)}
               >
                 <User size={24} color="#4d4d4d" variant="Bold"/>
               </TouchableOpacity>
@@ -100,7 +125,7 @@ export default function TabLayout() {
           name="Dashboard"
           options={{
             tabBarIcon: ({ color, focused }) => (
-              <View style={[styles.tabIconContainer, focused && styles.activeTabIconContainer]}>
+              <View style={styles.tabIconContainer}>
                 <Home2 size={26} color={color} variant={focused ? "Bold" : "Linear"} />
               </View>
             ),
@@ -115,7 +140,7 @@ export default function TabLayout() {
           name="Inventory"
           options={{
             tabBarIcon: ({ color, focused }) => (
-              <View style={[styles.tabIconContainer, focused && styles.activeTabIconContainer]}>
+              <View style={styles.tabIconContainer}>
                 <ClipboardText size={26} color={color} variant={focused ? "Bold" : "Linear"} />
               </View>
             ),
@@ -130,7 +155,7 @@ export default function TabLayout() {
           name="RequestAsset"
           options={{
             tabBarIcon: ({ color, focused }) => (
-              <View className="pb-12" style={[styles.addButtonContainer, focused && styles.activeAddButtonContainer]}>
+              <View style={[styles.addButtonContainer, focused && styles.activeAddButtonContainer]}>
                 <AddCircle 
                   size={90} 
                   color="#b8ca41" 
@@ -149,7 +174,7 @@ export default function TabLayout() {
           name="MyAssets"
           options={{
             tabBarIcon: ({ color, focused }) => (
-              <View style={[styles.tabIconContainer, focused && styles.activeTabIconContainer]}>
+              <View style={styles.tabIconContainer}>
                 <ClipboardTick size={26} color={color} variant={focused ? "Bold" : "Linear"} />
               </View>
             ),
@@ -164,7 +189,7 @@ export default function TabLayout() {
           name="Profile"
           options={{
             tabBarIcon: ({ color, focused }) => (
-              <View style={[styles.tabIconContainer, focused && styles.activeTabIconContainer]}>
+              <View style={styles.tabIconContainer}>
                 <User size={26} color={color} variant={focused ? "Bold" : "Linear"} />
               </View>
             ),
@@ -176,77 +201,107 @@ export default function TabLayout() {
           }}
         />
       </Tabs>
+
+      {isProfileDropdownVisible && (
+        <Modal
+          transparent={true}
+          visible={isProfileDropdownVisible}
+          onRequestClose={() => setIsProfileDropdownVisible(false)}
+        >
+          <Pressable 
+            style={styles.modalOverlay}
+            onPress={() => setIsProfileDropdownVisible(false)}
+          >
+            <View style={styles.dropdownMenuContainer}>
+              <ProfileDropdownMenu />
+            </View>
+          </Pressable>
+        </Modal>
+      )}
     </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
-  screenContent: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  logoutButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 10,
-    backgroundColor: "#f00",
-    borderRadius: 8,
-    marginTop: 20,
-  },
-  logoutButtonText: {
-    color: "white",
-    marginLeft: 8,
-  },
   headerRight: {
-    flexDirection: "row",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginRight: 16,
   },
   headerButton: {
     marginLeft: 16,
+    padding: 5,
   },
   notificationContainer: {
-    position: "relative",
+    position: 'relative',
   },
   badge: {
-    position: "absolute",
+    position: 'absolute',
     right: -6,
     top: -6,
-    backgroundColor: "#FF3B30",
+    backgroundColor: '#FF3B30',
     borderRadius: 10,
     minWidth: 20,
     height: 20,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     paddingHorizontal: 4,
   },
   badgeText: {
-    color: "white",
+    color: 'white',
     fontSize: 10,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   tabIconContainer: {
-    padding: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
     borderRadius: 10,
   },
-  // activeTabIconContainer: {
-  //   backgroundColor: 'rgb(236, 242, 193)',
-  // },
   addButtonContainer: {
     width: 50,
     height: 50,
     borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
-    bottom: 10,
+    bottom: 30,
   },
   activeAddButtonContainer: {
     backgroundColor: 'transparent', 
   },
   tabLabel: {
-    color: "#8E8E93",
+    color: '#8E8E93',
     fontSize: 12,
     fontWeight: '500',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-end',
+  },
+  dropdownMenuContainer: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    marginRight: 16,
+    marginTop: 60,
+    width: 200,
+  },
+  dropdownContainer: {
+    width: '100%',
+  },
+  dropdownItem: {
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  dropdownItemText: {
+    fontSize: 16,
+    color: '#333',
   },
 });
