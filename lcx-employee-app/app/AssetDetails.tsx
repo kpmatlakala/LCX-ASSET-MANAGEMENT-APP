@@ -18,7 +18,7 @@ import * as Sharing from 'expo-sharing';
 import * as XLSX from 'xlsx';
 import * as Print from 'expo-print';
 import { useAssets } from '@/context/AssetContext';
-import { useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 
 const AssetManagementScreen = () => {
   const params = useLocalSearchParams();
@@ -361,16 +361,28 @@ const AssetManagementScreen = () => {
              selectedAsset?.status === 'Available' ? (
               <TouchableOpacity
                 style={styles.returnRequestButton}
-                onPress={() => console.log("Return action triggered")}
+                onPress={() => {
+                  console.log("request action triggered");
+                  router.push({  
+                    pathname:`/RequestAsset`,
+                    params: { assetId: selectedAsset?.asset_id }
+                  })
+                }}
               >
-                <MaterialIcons name="replay" size={16} color="white" style={styles.buttonIcon} />
-                <Text style={styles.returnRequestButtonText}>Return asset</Text>
+                <MaterialIcons name="assignment" size={16} color="white" style={styles.buttonIcon} />
+                <Text style={styles.returnRequestButtonText}>Request Asset</Text>
               </TouchableOpacity>
             ) :
             selectedAsset?.status === 'Dispatched' ? (
               <TouchableOpacity
                 style={styles.returnRequestButton}
-                onPress={() => console.log("Return action triggered")}
+                onPress={() => {
+                  console.log("Return action triggered")
+                  router.push({
+                    pathname:`/ReturnAsset`,
+                    params: { assetId: selectedAsset?.asset_id }
+                  })
+                }}
               >
                 <MaterialIcons name="replay" size={16} color="white" style={styles.buttonIcon} />
                 <Text style={styles.returnRequestButtonText}>Return asset</Text>

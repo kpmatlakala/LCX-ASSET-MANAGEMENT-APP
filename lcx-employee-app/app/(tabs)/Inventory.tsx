@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   TextInput,
 } from "react-native";
-import { Feather } from "@expo/vector-icons";
+import { MaterialIcons, MaterialCommunityIcons, Ionicons, Feather } from '@expo/vector-icons';
 import { router } from "expo-router";
 import { useAssets } from "@/context/AssetContext";
 import { useAuth } from "@/context/AuthContext";
@@ -242,7 +242,8 @@ export default function AssetInventoryScreen() {
                         className="flex-row items-center bg-[#0d1a31] px-3 py-2 rounded-full mr-2 mb-2"
                         onPress={() => handleAssetRequest(asset.asset_id)}
                       >
-                        <Feather name="shopping-cart" size={16} color="#fff" />
+                        <MaterialIcons name="assignment" size={16} color="white" />
+                        {/* <Feather name="assignment" size={16} color="#fff" /> */}
                         <Text className="text-sm text-white ml-1">
                           Request Asset
                         </Text>

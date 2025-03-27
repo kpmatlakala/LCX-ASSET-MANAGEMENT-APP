@@ -36,12 +36,12 @@ export default function RootLayout() {
             <Stack.Screen name="index" options={{ headerShown: false }} /> 
             <Stack.Screen name="app/Notifications" options={{ headerShown: true, headerTitle:()=> null, headerBackTitle:"" }} />
             <Stack.Screen name="app/AssetDetails" options={{ headerShown: false, headerTitle:()=> null, headerBackTitle:"" }} /> 
+            <Stack.Screen name="app/ReturnAsset" options={{ headerShown: false, headerTitle:()=> null, headerBackTitle:"" }} /> 
             <Stack.Screen name="(auth)/Auth" options={{ headerShown: false }} />
             <Stack.Screen name="(onboarding)/onboarding" options={{ headerShown: false }} />   
             
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="(tabs)/Dashboard" options={{ headerShown: false }} />
-            
+            <Stack.Screen name="(tabs)/Dashboard" options={{ headerShown: false }} />            
             <Stack.Screen name="(tabs)/Inventory" options={{ headerShown: false }} />    
             <Stack.Screen name="(tabs)/MyAssets" options={{ headerShown: false }} />     
           </Stack>     
