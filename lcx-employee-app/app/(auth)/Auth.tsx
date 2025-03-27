@@ -33,48 +33,46 @@ const Auth = () => {
       if (action === 'signIn') 
       {
         const { error } = await supabase.auth.signInWithPassword({ email, password })
-        if (error) errorMessage = error.message
-
-        
+        if (error) errorMessage = error.message;        
       } 
-      else if (action === 'signUp') 
-      {
-        const { data: { user, session }, error } = await supabase.auth.signUp({ email, password })
+      // else if (action === 'signUp') 
+      // {
+      //   const { data: { user, session }, error } = await supabase.auth.signUp({ email, password })
         
-        if (error) 
-        {
-          errorMessage = error.message
-        } 
-        else if (user) 
-        {
-          // Generate a unique employee ID (you might want to customize this)
-          const employeeId = `EMP-${Math.floor(100000 + Math.random() * 900000)}`;
+      //   if (error) 
+      //   {
+      //     errorMessage = error.message
+      //   } 
+      //   else if (user) 
+      //   {
+      //     // Generate a unique employee ID (you might want to customize this)
+      //     const employeeId = `EMP-${Math.floor(100000 + Math.random() * 900000)}`;
           
-          // Insert user data into the 'employees' table
-          const { error: dbError } = await supabase.from('employees').insert([
-            {
-              id: user.id,                       // References auth.users(id)
-              email: user.email,
-              employee_id: employeeId,           // Unique employee ID
-              full_name: '',                     // To be filled later
-              department: '',                    // Required field - placeholder
-              position: '',                      // Required field - placeholder
-              office_location: '',               // Required field - placeholder
-              date_joined: new Date().toISOString().split('T')[0], // Current date in YYYY-MM-DD format
-              employment_status: 'Active',    // Default status
+      //     // Insert user data into the 'employees' table
+      //     const { error: dbError } = await supabase.from('employees').insert([
+      //       {
+      //         id: user.id,                       // References auth.users(id)
+      //         email: user.email,
+      //         adminId: employeeId,           // Unique employee ID
+      //         full_name: '',                     // To be filled later
+      //         department: '',                    // Required field - placeholder
+      //         position: '',                      // Required field - placeholder
+      //         office_location: '',               // Required field - placeholder
+      //         date_joined: new Date().toISOString().split('T')[0], // Current date in YYYY-MM-DD format
+      //         employment_status: 'Active',    // Default status
               
-              // Employee-managed fields are left empty as they'll be updated on first login
-              // System fields will use their default values
-            },
-          ])
+      //         // Employee-managed fields are left empty as they'll be updated on first login
+      //         // System fields will use their default values
+      //       },
+      //     ])
 
-          if (dbError) {
-            errorMessage = dbError.message
-          } else if (!session) {
-            errorMessage = 'Please check your inbox for email verification!'
-          }
-        }
-      }
+      //     if (dbError) {
+      //       errorMessage = dbError.message
+      //     } else if (!session) {
+      //       errorMessage = 'Please check your inbox for email verification!'
+      //     }
+      //   }
+      // }
 
       if (errorMessage) {
         Alert.alert(errorMessage)
@@ -140,12 +138,12 @@ const Auth = () => {
             </Link>
           </View> */}
 
-          <CustomButton
+          {/* <CustomButton
             title="Signup"
             handlePress={() => handleAuth('signUp')}
             containerStyles="mb-6"            
             isLoading={loading}
-          />
+          /> */}
           
         </View>
       </ScrollView>

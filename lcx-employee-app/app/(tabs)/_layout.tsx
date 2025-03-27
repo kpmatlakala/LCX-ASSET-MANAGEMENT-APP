@@ -29,7 +29,7 @@ export default function TabLayout() {
     deleteNotification
   } = useNotifications();
 
-  console.log(notifications);
+  // console.log(notifications);
   const [notificationCount, setNotificationCount] = React.useState(0);
   const [activeTab, setActiveTab] = useState("Dashboard");
   const [isProfileDropdownVisible, setIsProfileDropdownVisible] = useState(false);

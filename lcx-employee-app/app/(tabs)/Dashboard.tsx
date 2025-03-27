@@ -29,9 +29,7 @@ export default function AssetManagementDashboard() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const { assets, myAssetRequests, loading } = useAssets();
   const [filteredAssets, setFilteredAssets] = useState([]);
-  const [notificationModalVisible, setNotificationModalVisible] =
-    useState(false);
-  const [expandedActionId, setExpandedActionId] = useState(null);
+    const [expandedActionId, setExpandedActionId] = useState(null);
 
   const greetUser = (): string => {
     const hours = new Date().getHours();
@@ -66,7 +64,8 @@ export default function AssetManagementDashboard() {
   ];
 
   useEffect(() => {
-    if (assets && assets.length > 0) {
+    if (assets && assets.length > 0) 
+    {
       filterAssets(selectedCategory);
     }
   }, [assets, selectedCategory]);

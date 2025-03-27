@@ -1,418 +1,355 @@
-import React, { useState } from 'react';
-import { 
-  Text, 
-  View, 
-  ScrollView, 
-  SafeAreaView, 
-  StatusBar, 
-  TouchableOpacity, 
-  Modal,
-  StyleSheet
-} from 'react-native';
-import { Feather, MaterialIcons } from '@expo/vector-icons';
-import { useNotifications } from '@/context/NotificationContext';
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { Session } from "@supabase/supabase-js";
+import { AppState } from 'react-native';
 
-// Dropdown Menu Component
-const DropdownMenu = ({ 
-  visible, 
-  onClose, 
-  onMarkAsRead, 
-  onDelete 
-}) => {
-  return (
-    <Modal 
-      transparent={true} 
-      visible={visible} 
-      onRequestClose={onClose}
-    >
-      <TouchableOpacity 
-        style={styles.dropdownOverlay} 
-        activeOpacity={1} 
-        onPressOut={onClose}
-      >
-        <View style={styles.dropdownContainer}>
-          <TouchableOpacity 
-            style={styles.dropdownItem}
-            onPress={onMarkAsRead}
-          >
-            <MaterialIcons name="mark-email-read" size={20} color="#666" />
-            <Text style={styles.dropdownItemText}>Mark as Read</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={styles.dropdownItem}
-            onPress={onDelete}
-          >
-            <MaterialIcons name="delete" size={20} color="#FF6347" />
-            <Text style={styles.dropdownItemTextDelete}>Delete</Text>
-          </TouchableOpacity>
-        </View>
-      </TouchableOpacity>
-    </Modal>
-  );
-};
-
-// Notification Details Modal
-const NotificationDetailsModal = ({ 
-  notification, 
-  visible, 
-  onClose 
-}) => {
-  return (
-    <Modal 
-      visible={visible} 
-      transparent={true} 
-      animationType="slide"
-      onRequestClose={onClose}
-    >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContainer}>
-          <Text style={styles.modalTitle}>{notification.title}</Text>
-          <Text style={styles.modalMessage}>{notification.message}</Text>
-          
-          {notification.subtext && (
-            <Text style={styles.modalSubtext}>{notification.subtext}</Text>
-          )}
-          
-          <Text style={styles.modalDate}>
-            Received: {notification.created_at}
-          </Text>
-          
-          <TouchableOpacity 
-            style={styles.modalCloseButton}
-            onPress={onClose}
-          >
-            <Text style={styles.modalCloseButtonText}>Close</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </Modal>
-  );
-};
-
-export default function NotificationsScreen() {   
-  const { 
-    notifications, 
-    markAsRead, 
-    deleteNotification 
-  } = useNotifications();   
-  
-  const [currentPage, setCurrentPage] = useState(1);   
-  const [dropdownStates, setDropdownStates] = useState({});
-  const [selectedNotification, setSelectedNotification] = useState(null);
-  const [detailsModalVisible, setDetailsModalVisible] = useState(false);
-  
-  const totalPages = Math.ceil(notifications.length / 10);    
-
-  const toggleDropdown = (notificationId) => {
-    setDropdownStates(prev => ({
-      ...Object.fromEntries(
-        Object.keys(prev).map(key => [key, false])
-      ),
-      [notificationId]: !prev[notificationId]
-    }));
-  };
-
-  const handleMarkAsRead = (notification) => {
-    markAsRead(notification.id);
-    toggleDropdown(notification.id);
-  };
-
-  const handleDelete = (notification) => {
-    deleteNotification(notification.id);
-    toggleDropdown(notification.id);
-  };
-
-  const handleNotificationPress = (notification) => {
-    // Mark as read and show details
-    markAsRead(notification.id);
-    setSelectedNotification(notification);
-    setDetailsModalVisible(true);
-  };
-
-  return (     
-    <SafeAreaView style={styles.container}>       
-      <StatusBar backgroundColor="#e8eac6" barStyle="dark-content" />        
-
-      {/* Header section with dropdown */}       
-      <View style={styles.headerContainer}>         
-        <Text style={styles.headerTitle}>Notifications</Text>          
-        <TouchableOpacity style={styles.sortButton}>           
-          <Text style={styles.sortButtonText}>Recent first</Text>           
-          <Feather name="chevron-down" size={20} color="#666" />         
-        </TouchableOpacity>       
-      </View>        
-
-      {/* Notifications List */}       
-      <ScrollView style={styles.scrollContainer}>         
-        {notifications.map((notification) => (           
-          <View 
-            key={notification.id} 
-            style={[
-              styles.notificationCard,
-              notification.is_read ? styles.readNotification : styles.unreadNotification
-            ]}
-          >             
-            <View style={styles.notificationContent}>
-              <TouchableOpacity 
-                style={styles.notificationTouchable} 
-                onPress={() => handleNotificationPress(notification)}
-              >
-                <Text style={styles.notificationTitle}>{notification.title}</Text>                              
-                <View style={styles.notificationMessageContainer}>                 
-                  <Text 
-                    style={[
-                      styles.notificationMessage,
-                      notification.is_read ? styles.readText : styles.unreadText
-                    ]}
-                  >
-                    <View 
-                      style={[
-                        styles.notificationDot,
-                        notification.is_read ? styles.readDot : styles.unreadDot
-                      ]} 
-                    /> 
-                    { notification.message }                 
-                  </Text>               
-                </View>                              
-                {notification.subtext && (                 
-                  <View style={styles.notificationSubtextContainer}>                   
-                    <Text style={styles.notificationSubtext}>
-                      <View style={styles.subtextDot} /> -                     
-                      { notification.subtext }                   
-                    </Text>                 
-                  </View>               
-                )}             
-              </TouchableOpacity>
-
-              {/* Dropdown Trigger */}
-              <TouchableOpacity 
-                style={styles.dropdownTrigger}
-                onPress={() => toggleDropdown(notification.id)}
-              >
-                <Text style={styles.dropdownTriggerText}>⁝</Text>
-              </TouchableOpacity>
-
-              <DropdownMenu 
-                visible={dropdownStates[notification.id]} 
-                onClose={() => toggleDropdown(notification.id)}
-                onMarkAsRead={() => handleMarkAsRead(notification)}
-                onDelete={() => handleDelete(notification)}
-              />
-            </View>
-                          
-            <Text style={styles.notificationDate}>
-              {notification.created_at}
-            </Text>           
-          </View>         
-        ))}       
-      </ScrollView>     
-
-      {/* Notification Details Modal */}
-      {selectedNotification && (
-        <NotificationDetailsModal 
-          notification={selectedNotification}
-          visible={detailsModalVisible}
-          onClose={() => setDetailsModalVisible(false)}
-        />
-      )}
-    </SafeAreaView>   
-  ); 
+// Notification interface
+export interface Notification { 
+  notification_id?: string;
+  title: string;
+  subtext: string;
+  message: string;
+  type: "success" | "error" | "warning" | "info";
+  is_read?: boolean;
+  created_at?: string;
+  employee_id?: string;
+  request_id?: number;
+  asset_id?: number;
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'white'
-  },
-  headerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginHorizontal: 20,
-    marginTop: 24,
-    marginBottom: 16
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: 'bold'
-  },
-  sortButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'white',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#e0e0e0'
-  },
-  sortButtonText: {
-    fontSize: 14,
-    color: '#666',
-    marginRight: 8
-  },
-  scrollContainer: {
-    marginHorizontal: 20,
-    flex: 1
-  },
-  notificationCard: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 16,
-    marginBottom: 16,
-    shadowOpacity: 0.1,
-    borderWidth: 1
-  },
-  readNotification: {
-    borderColor: '#e0e0e0'
-  },
-  unreadNotification: {
-    borderColor: '#3b82f6'
-  },
-  notificationContent: {
-    flexDirection: 'row'
-  },
-  notificationTouchable: {
-    flex: 1
-  },
-  notificationTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 8
-  },
-  notificationMessageContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 8
-  },
-  notificationMessage: {
-    fontSize: 14,
-    flex: 1
-  },
-  readText: {
-    color: '#666'
-  },
-  unreadText: {
-    color: '#1a1a1a',
-    fontWeight: '600'
-  },
-  notificationDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginRight: 8
-  },
-  readDot: {
-    backgroundColor: '#999'
-  },
-  unreadDot: {
-    backgroundColor: '#3b82f6'
-  },
-  notificationSubtextContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 8
-  },
-  notificationSubtext: {
-    fontSize: 14,
-    color: '#666',
-    flex: 1
-  },
-  subtextDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#666',
-    marginRight: 8
-  },
-  dropdownTrigger: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  dropdownTriggerText: {
-    fontSize: 24,
-    color: '#666'
-  },
-  notificationDate: {
-    fontSize: 12,
-    color: '#999',
-    marginTop: 12,
-    alignSelf: 'flex-end'
-  },
-  dropdownOverlay: {
-    flex: 1
-  },
-  dropdownContainer: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    width: 200,
-    backgroundColor: 'white',
-    borderRadius: 8,
-    shadowOpacity: 0.1,
-    borderWidth: 1,
-    borderColor: '#e0e0e0'
-  },
-  dropdownItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0'
-  },
-  dropdownItemText: {
-    marginLeft: 12,
-    fontSize: 16,
-    color: '#666'
-  },
-  dropdownItemTextDelete: {
-    marginLeft: 12,
-    fontSize: 16,
-    color: '#FF6347'
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)'
-  },
-  modalContainer: {
-    width: '90%',
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 24
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 16
-  },
-  modalMessage: {
-    fontSize: 16,
-    color: '#333',
-    marginBottom: 16
-  },
-  modalSubtext: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 16
-  },
-  modalDate: {
-    fontSize: 12,
-    color: '#999',
-    marginBottom: 16
-  },
-  modalCloseButton: {
-    backgroundColor: '#3b82f6',
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center'
-  },
-  modalCloseButtonText: {
-    color: 'white',
-    fontWeight: 'bold'
+// Updated context type
+interface NotificationContextType {
+    isModalVisible: boolean;
+    notifications: Notification[];
+    unreadCount: number;
+    addNotification: (notification: Notification) => void;
+    markAsRead: (id: string) => Promise<void>;
+    markAllAsRead: () => Promise<void>;
+    deleteNotification: (id: string) => Promise<void>;
+    clearAll: () => Promise<void>;
+    showModal: (notificationsData?: Notification[]) => void;
+    closeModal: () => void;
+}
+
+const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
+
+export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [session, setSession] = useState<Session | null>(null);
+  const [appState, setAppState] = useState(AppState.currentState);
+  const [isModalVisible, setModalVisible] = useState(true);
+
+  const showModal = (notificationsData?: Notification[]) => {
+    if (notificationsData) 
+    {
+      setNotifications(notificationsData);
+    }
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
+  
+  const unreadCount = notifications.filter(n => !n.is_read).length;
+
+  // Get current session
+  useEffect(() => {
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setSession(session);
+    };
+
+    getSession();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Load notifications on mount and when app comes to foreground
+  useEffect(() => {
+    if (session?.user?.id) {
+      fetchNotifications();
+    }
+    
+    // Set up app state listener to reload notifications when app comes to foreground
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (appState.match(/inactive|background/) && nextAppState === 'active' && session?.user?.id) {
+        fetchNotifications();
+      }
+      setAppState(nextAppState);
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [session]);
+
+  // Fetch notifications from Supabase
+  const fetchNotifications = async () => {
+    try {
+      if (!session?.user?.id) return;
+
+      // Get the employee_id for the current user
+      const { data: employeeData, error: employeeError } = await supabase
+        .from("employees")
+        .select("employee_id")
+        .eq("id", session.user.id)
+        .single();
+
+      if (employeeError) {
+        console.error("Error fetching employee data:", employeeError);
+        return;
+      }
+
+      const employee_id = employeeData.employee_id;
+      
+      // Get notifications for the current user
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('employee_id', employee_id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching notifications:', error);
+        return;
+      }
+
+      setNotifications(data || []);
+       // Automatically show the modal if there are new notifications
+      if (data && data.length > 0) 
+      {
+        showModal(data); // Show the modal with the fetched notifications
+      }
+    } catch (error) {
+      console.error('Failed to fetch notifications:', error);
+    }
+  };
+
+  // Add a new notification
+  const addNotification = async (notification: Notification) => {
+    try {
+      if (!session?.user?.id) return;
+
+      // Get the employee_id for the current user
+      const { data: employeeData, error: employeeError } = await supabase
+        .from("employees")
+        .select("employee_id")
+        .eq("id", session.user.id)
+        .single();
+
+      if (employeeError) {
+        console.error("Error fetching employee data:", employeeError);
+        return;
+      }
+
+      const employee_id = employeeData.employee_id;
+      
+      // Add timestamp and read status
+      const newNotification = {
+        ...notification,
+        employee_id,
+        is_read: false,
+        created_at: new Date().toISOString()
+      };
+      
+      // Insert into database
+      const { data, error } = await supabase
+        .from('notifications')
+        .insert([newNotification])
+        .select();
+
+      if (error) {
+        console.error('Error adding notification:', error);
+        return;
+      }
+
+      // Update local state with the new notification
+      if (data && data.length > 0) {
+        setNotifications(prev => [data[0], ...prev]);
+
+        showModal([data[0]])
+      }
+    } catch (error) {
+      console.error('Failed to add notification:', error);
+    }
+  };
+
+  // Mark a notification as read
+  const markAsRead = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('notification_id', id);  // Changed from 'id' to 'notification_id'
+  
+      if (error) {
+        console.error('Error marking notification as read:', error);
+        return;
+      }
+  
+      // Update local state
+      setNotifications(prev =>
+        prev.map(notification =>
+          notification.id === id ? { ...notification, is_read: true } : notification
+        )
+      );
+    } catch (error) {
+      console.error('Failed to mark notification as read:', error);
+    }
+  };
+
+  // Mark all notifications as read
+  const markAllAsRead = async () => {
+    try {
+      if (!session?.user?.id) return;
+
+      // Get the employee_id for the current user
+      const { data: employeeData, error: employeeError } = await supabase
+        .from("employees")
+        .select("employee_id")
+        .eq("id", session.user.id)
+        .single();
+
+      if (employeeError) {
+        console.error("Error fetching employee data:", employeeError);
+        return;
+      }
+
+      const employee_id = employeeData.employee_id;
+
+      const { error } = await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('employee_id', employee_id)
+        .eq('is_read', false);
+
+      if (error) {
+        console.error('Error marking all notifications as read:', error);
+        return;
+      }
+
+      // Update local state
+      setNotifications(prev =>
+        prev.map(notification => ({ ...notification, is_read: true }))
+      );
+    } catch (error) {
+      console.error('Failed to mark all notifications as read:', error);
+    }
+  };
+
+  // Delete a notification
+  const deleteNotification = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .delete()
+        .eq('notification_id', id);
+
+      if (error) {
+        console.error('Error deleting notification:', error);
+        return;
+      }
+
+      // Update local state
+      setNotifications(prev =>
+        prev.filter(notification => notification.id !== id)
+      );
+    } catch (error) {
+      console.error('Failed to delete notification:', error);
+    }
+  };
+
+  // Clear all notifications for the current user
+  const clearAll = async () => {
+    try {
+      if (!session?.user?.id) return;
+
+      // Get the employee_id for the current user
+      const { data: employeeData, error: employeeError } = await supabase
+        .from("employees")
+        .select("employee_id")
+        .eq("id", session.user.id)
+        .single();
+
+      if (employeeError) {
+        console.error("Error fetching employee data:", employeeError);
+        return;
+      }
+
+      const employee_id = employeeData.employee_id;
+
+      const { error } = await supabase
+        .from('notifications')
+        .delete()
+        .eq('employee_id', employee_id);
+
+      if (error) {
+        console.error('Error clearing all notifications:', error);
+        return;
+      }
+
+      // Update local state
+      setNotifications([]);
+    } catch (error) {
+      console.error('Failed to clear all notifications:', error);
+    }
+  };
+
+  // Set up real-time listener for new notifications
+  useEffect(() => {
+    if (session?.user?.id) {
+      const notificationsChannel = supabase
+        .channel('notifications-changes')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'notifications' },
+          (payload) => {
+            // Fetch updated notifications and show modal if a new notification is added
+            fetchNotifications().then(() => {
+              if (payload.eventType === 'INSERT') {
+                showModal([payload.new]); // Show modal for new notification
+              }
+            });
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(notificationsChannel);
+      };
+    }
+  }, [session]);
+
+  return (
+    <NotificationContext.Provider
+      value={{
+        isModalVisible,
+        notifications,
+        unreadCount,
+        addNotification,
+        markAsRead,
+        markAllAsRead,
+        deleteNotification,
+        clearAll,
+        showModal,
+        closeModal,
+      }}
+    >
+      {children}
+    </NotificationContext.Provider>
+  );
+};
+
+export const useNotifications = () => {
+  const context = useContext(NotificationContext);
+  if (!context) {
+    throw new Error("useNotifications must be used within a NotificationProvider");
   }
-});
+  return context;
+};

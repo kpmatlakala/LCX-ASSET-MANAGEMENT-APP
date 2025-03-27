@@ -29,9 +29,9 @@ interface Asset {
 }
 
 export default function MyAssetsScreen() {
-  const { employeeId } = useAuth();
+  const { adminId } = useAuth();
   const { myAssetRequests, getAssetById, cancelRequest } = useAssets();
-  console.log(employeeId, " | asset: ", myAssetRequests );
+  console.log(adminId, " | asset: ", myAssetRequests );
   
   const [selectedFilter, setSelectedFilter] = useState<string>("All...");
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -111,7 +111,7 @@ export default function MyAssetsScreen() {
       selectedFilter === "All..." ||
       (request.status && request.status === selectedFilter);
 
-    return matchesSearch && matchesFilter && request.employee_id === employeeId;
+    return matchesSearch && matchesFilter && request.adminId === adminId;
   });
 
   return (

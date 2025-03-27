@@ -14,7 +14,7 @@ import { useAssets } from "@/context/AssetContext";
 import { useAuth } from "@/context/AuthContext";
 
 export default function AssetInventoryScreen() {
-  const { user } = useAuth();
+ 
   const { assets } = useAssets();
   const [selectedFilter, setSelectedFilter] = useState<string>("All...");
   const [searchQuery, setSearchQuery] = useState<string>("");

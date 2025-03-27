@@ -12,7 +12,7 @@ export interface Notification {
   type: "success" | "error" | "warning" | "info";
   is_read?: boolean;
   created_at?: string;
-  employee_id?: string;
+  adminId?: string;
   request_id?: number;
   asset_id?: number;
 }
@@ -72,7 +72,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   // Load notifications on mount and when app comes to foreground
   useEffect(() => {
-    if (session?.user?.id) {
+    if (session?.user?.email) {
       fetchNotifications();
     }
     
@@ -92,27 +92,29 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   // Fetch notifications from Supabase
   const fetchNotifications = async () => {
     try {
-      if (!session?.user?.id) return;
+      if (!session?.user?.email) return;
 
-      // Get the employee_id for the current user
+      // Get the adminId for the current user
       const { data: employeeData, error: employeeError } = await supabase
-        .from("employees")
-        .select("employee_id")
-        .eq("id", session.user.id)
+        .from("admins")
+        .select("adminId")
+        .eq("email", session.user.email)
         .single();
 
-      if (employeeError) {
-        console.error("Error fetching employee data:", employeeError);
-        return;
-      }
+        if (employeeError || !employeeData) {
+          console.error("Error or no employee found for email:", session.user.email);
+          console.error("Detailed error:", employeeError); 
+         
+          throw new Error("Employee not found");
+        }
 
-      const employee_id = employeeData.employee_id;
+      const adminId = employeeData.adminId;
       
       // Get notifications for the current user
       const { data, error } = await supabase
         .from('notifications')
         .select('*')
-        .eq('employee_id', employee_id)
+        .eq('adminId', adminId)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -136,24 +138,25 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     try {
       if (!session?.user?.id) return;
 
-      // Get the employee_id for the current user
+      // Get the adminId for the current user
       const { data: employeeData, error: employeeError } = await supabase
-        .from("employees")
-        .select("employee_id")
-        .eq("id", session.user.id)
-        .single();
+  .from("admins")
+  .select("adminId")
+  .eq("email", session.user.email)
+  .single();
 
-      if (employeeError) {
-        console.error("Error fetching employee data:", employeeError);
-        return;
+      if (employeeError || !employeeData) {
+        console.error("Error or no employee found for email:", session.user.email);
+        console.error("Detailed error:", employeeError);
+        throw new Error("Employee not found");
       }
 
-      const employee_id = employeeData.employee_id;
+      const adminId = employeeData.adminId;
       
       // Add timestamp and read status
       const newNotification = {
         ...notification,
-        employee_id,
+        adminId,
         is_read: false,
         created_at: new Date().toISOString()
       };
@@ -209,24 +212,25 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     try {
       if (!session?.user?.id) return;
 
-      // Get the employee_id for the current user
+      // Get the adminId for the current user
       const { data: employeeData, error: employeeError } = await supabase
-        .from("employees")
-        .select("employee_id")
-        .eq("id", session.user.id)
+        .from("admins")
+        .select("adminId")
+        .eq("email", session.user.email)
         .single();
+        if (employeeError || !employeeData) {
+          console.error("Error or no employee found for email:", session.user.email);
+          console.error("Detailed error:", employeeError); 
+      
+          throw new Error("Employee not found");
+        }
 
-      if (employeeError) {
-        console.error("Error fetching employee data:", employeeError);
-        return;
-      }
-
-      const employee_id = employeeData.employee_id;
+      const adminId = employeeData.adminId;
 
       const { error } = await supabase
         .from('notifications')
         .update({ is_read: true })
-        .eq('employee_id', employee_id)
+        .eq('adminId', adminId)
         .eq('is_read', false);
 
       if (error) {
@@ -270,24 +274,39 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     try {
       if (!session?.user?.id) return;
 
-      // Get the employee_id for the current user
+      // Get the adminId for the current user
       const { data: employeeData, error: employeeError } = await supabase
-        .from("employees")
-        .select("employee_id")
-        .eq("id", session.user.id)
+        .from("admins")
+        .select("adminId")
+        .eq("email", session.user.email)
         .single();
 
-      if (employeeError) {
-        console.error("Error fetching employee data:", employeeError);
-        return;
-      }
+        if (employeeError || !employeeData) {
+          console.error("Error or no employee found for email:", session.user.email);
+          console.error("Detailed error:", employeeError);
+          
+          // Optional: Fetch all admin emails to debug
+          const { data: allAdmins, error: allAdminsError } = await supabase
+            .from("admins")
+            .select("email");
+          
+          console.log('All admin emails:', allAdmins);
+        
+          addNotification({
+            title: "Authentication Error",
+            message: "Could not find your employee profile. Please contact support.",
+            type: "error"
+          });          
+         
+          throw new Error("Employee not found");
+        }
 
-      const employee_id = employeeData.employee_id;
+      const adminId = employeeData.adminId;
 
       const { error } = await supabase
         .from('notifications')
         .delete()
-        .eq('employee_id', employee_id);
+        .eq('adminId', adminId);
 
       if (error) {
         console.error('Error clearing all notifications:', error);

@@ -21,7 +21,7 @@ interface Asset {
 
 interface AssetRequest {
   request_id: number;
-  employee_id: string;
+  adminId: string;
   asset_id: number;
   request_date: string;
   purpose: string;
@@ -124,28 +124,43 @@ export const AssetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Fetch asset requests with status change notifications
   const fetchAssetRequests = async () => {
 
-    if (!session?.user?.id) return;
+    if (!session?.user?.email) return;
     setIsLoading(true);
 
-    // First, get the employee_id for the current user
+    // First, get the adminId for the current user
     const { data: employeeData, error: employeeError } = await supabase
-      .from("employees")
-      .select("employee_id")
-      .eq("id", session.user.id)
+      .from("admins")
+      .select("adminId")
+      .eq("email", session.user.email)
       .single();
 
-    if (employeeError) {
-      console.error("Error fetching employee data:", employeeError);
+      console.log('Session user email:', session.user.email);
+      console.log('Employee Data:', employeeData);
+      console.log('Employee Error:', employeeError);
+
+    if (employeeError || !employeeData) 
+    {
+      console.error("Error or no employee found for email:", session.user.email);
+      console.error("Detailed error:", employeeError);
+
+      // Fetch all admin emails to debug
+      const { data: allAdmins, error: allAdminsError } = await supabase
+        .from("admins")
+        .select("email");
+      
+      console.log('All admin emails:', allAdmins);
+
       addNotification({
-        title: "Error",
-        message: "Failed to fetch your employee data. Please try again.",
+        title: "Authentication Error",
+        message: "Could not find your employee profile. Please contact support.",
         type: "error"
       });
+      
       setIsLoading(false);
-      return;
+      throw new Error("Employee not found");
     }
 
-    const employee_id = employeeData.employee_id;
+    const adminId = employeeData.adminId;
 
     // Fetch the asset requests for this employee
     const { data, error } = await supabase
@@ -157,7 +172,7 @@ export const AssetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           asset_code
         )
       `)
-      .eq("employee_id", employee_id)
+      .eq("adminId", adminId)
       .order("request_date", { ascending: false });
 
     if (error) {
@@ -268,31 +283,40 @@ export const AssetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     purpose: string,
     expected_return_date: string
   ) => {
-    if (!session?.user?.id) {
+    if (!session?.user?.email) {
       throw new Error("User not authenticated");
     }
 
     setIsLoading(true);
 
-    // Get the employee_id for the current user
+    // Get the adminId for the current user
     const { data: employeeData, error: employeeError } = await supabase
-      .from("employees")
-      .select("employee_id")
-      .eq("id", session.user.id)
+      .from("admins")
+      .select("adminId")
+      .eq("email", session.user.email)
       .single();
 
-    if (employeeError) {
-      console.error("Error fetching employee data:", employeeError);
-      addNotification({
-        title: "Error",
-        message: "Could not fetch your employee data. Please try again.",
-        type: "error"
-      });
-      setIsLoading(false);
-      throw new Error("Could not fetch employee data");
-    }
-
-    const employee_id = employeeData.employee_id;
+      if (employeeError || !employeeData) {
+        console.error("Error or no employee found for email:", session.user.email);
+        console.error("Detailed error:", employeeError);
+        
+        // Optional: Fetch all admin emails to debug
+        const { data: allAdmins, error: allAdminsError } = await supabase
+          .from("admins")
+          .select("email");
+        
+        console.log('All admin emails:', allAdmins);
+      
+        addNotification({
+          title: "Authentication Error",
+          message: "Could not find your employee profile. Please contact support.",
+          type: "error"
+        });
+        
+        setIsLoading(false);
+        throw new Error("Employee not found");
+      }
+    const adminId = employeeData.adminId;
 
     // Get asset name for notification
     const asset = assets.find(a => a.asset_id === asset_id);
@@ -300,7 +324,7 @@ export const AssetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     // Insert the asset request
     const { error } = await supabase.from("asset_requests").insert([{
-      employee_id,
+      adminId,
       asset_id,
       purpose,
       destination: "Office", // Default destination

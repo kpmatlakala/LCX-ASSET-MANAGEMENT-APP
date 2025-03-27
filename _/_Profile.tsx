@@ -97,10 +97,10 @@ const Profile = () => {
       if (!user) throw new Error("No user found!")
 
       const { data, error } = await supabase
-        .from("admins")
+        .from("employees")
         .select(
           `
-          first_name, last_name, adminId, department, position, 
+          full_name, employee_id, department, position, 
           office_location, date_joined, employment_status,
           phone_number, address, emergency_contact_name, 
           emergency_contact_phone, preferred_language,
@@ -113,7 +113,7 @@ const Profile = () => {
       if (error) throw error
       if (data) 
       {
-        setFullName(`${data.first_name} ${data.last_name}` || "")
+        setFullName(data.full_name || "")
         setPhoneNumber(data.phone_number || "")
         setAddress(data.address || "")
         setEmergencyContactName(data.emergency_contact_name || "")
@@ -122,7 +122,7 @@ const Profile = () => {
         setAvatarUrl(data.avatar_url)
 
         // Read-only fields
-        setEmployeeId(data.adminId)
+        setEmployeeId(data.employee_id)
         setDepartment(data.department)
         setPosition(data.position)
         setOfficeLocation(data.office_location)
@@ -223,7 +223,7 @@ const Profile = () => {
 
       // Update user profile with avatar URL
       const { error: updateError } = await supabase
-        .from("admins")
+        .from("employees")
         .update({ avatar_url: urlData.publicUrl })
         .eq("id", session.user.id)
 
@@ -245,22 +245,22 @@ const Profile = () => {
       const { user } = session!
       if (!user) throw new Error("No user found!")
 
-      // // Basic validation
-      // if (!fullName.trim()) {
-      //   Alert.alert("Error", "Please enter your full name")
-      //   return
-      // }
+      // Basic validation
+      if (!fullName.trim()) {
+        Alert.alert("Error", "Please enter your full name")
+        return
+      }
 
-      // if (!phoneNumber.trim()) {
-      //   Alert.alert("Error", "Please enter your phone number")
-      //   return
-      // }
+      if (!phoneNumber.trim()) {
+        Alert.alert("Error", "Please enter your phone number")
+        return
+      }
 
       const { error } = await supabase
-        .from("admins")
+        .from("employees")
         .update({
-          // full_name: fullName,
-          // phone_number: phoneNumber,
+          full_name: fullName,
+          phone_number: phoneNumber,
           address: address,
           emergency_contact_name: emergencyContactName,
           emergency_contact_phone: emergencyContactPhone,

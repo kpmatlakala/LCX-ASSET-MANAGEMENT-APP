@@ -2,7 +2,6 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Session } from "@supabase/supabase-js";
 import { useNotifications } from "./NotificationContext";
-import { AppState } from "react-native"; // Import AppState to listen to app state changes
 
 interface Asset {
   duration: string;
@@ -61,7 +60,6 @@ export const AssetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { addNotification } = useNotifications();
-  const [appState, setAppState] = useState(AppState.currentState);
 
   // Get current session
   useEffect(() => {
@@ -80,27 +78,7 @@ export const AssetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return () => subscription.unsubscribe();
   }, []);
 
-  // AppState change listener (to detect when app is in foreground or background)
-  useEffect(() => {
-    const appStateListener = (nextAppState: string) => {
-      if (appState.match(/inactive|background/) && nextAppState === "active") {
-        console.log("App has come to the foreground!");
-        fetchAssets();  // Refetch assets when app comes to the foreground
-        fetchAssetRequests();  // Refetch asset requests when app comes to the foreground
-      }
-      setAppState(nextAppState);
-    };
-  
-    // Modern method to add event listener
-    const subscription = AppState.addEventListener("change", appStateListener);
-  
-    // Cleanup function using the new remove() method
-    return () => {
-      subscription.remove();
-    };
-  }, [appState]);
-
-  // Fetch assets from Supabase
+  // Fetch assets from Supabase with new asset notifications
   const fetchAssets = async () => {
     setIsLoading(true);
     const { data, error } = await supabase
@@ -119,12 +97,12 @@ export const AssetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return;
     }
 
-    // Compare current assets with previous assets to detect new additions
+    // Detect and notify about new assets
     const newAssets = data?.filter(
-      asset => !previousAssets.some(prevAsset => prevAsset.asset_id === asset.asset_id)) || [];
+      asset => !previousAssets.some(prevAsset => prevAsset.asset_id === asset.asset_id)
+    ) || [];
 
-    if (newAssets.length > 0) 
-    {
+    if (newAssets.length > 0) {
       newAssets.forEach(newAsset => {
         addNotification({
           title: "New Asset Available",
@@ -139,8 +117,13 @@ export const AssetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setIsLoading(false);
   };
 
-  // Fetch asset requests from Supabase for the current user
+  const getAssetById = (assetId: number): Asset | undefined => {
+    return assets.find((asset) => asset.asset_id === assetId);
+  };
+
+  // Fetch asset requests with status change notifications
   const fetchAssetRequests = async () => {
+
     if (!session?.user?.id) return;
     setIsLoading(true);
 
@@ -164,11 +147,17 @@ export const AssetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     const employee_id = employeeData.employee_id;
 
-    // Now fetch the asset requests for this employee
+    // Fetch the asset requests for this employee
     const { data, error } = await supabase
       .from("asset_requests")
-      .select(`*, assets:asset_id (asset_name, asset_code)`)
-      .eq("employee_id", employee_id) // Filter by employee_id
+      .select(`
+        *,
+        assets:asset_id (
+          asset_name,
+          asset_code
+        )
+      `)
+      .eq("employee_id", employee_id)
       .order("request_date", { ascending: false });
 
     if (error) {
@@ -182,7 +171,7 @@ export const AssetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return;
     }
 
-    // Compare current requests with previous requests to detect status changes
+    // Detect and notify about request status changes
     const requestStatusChanges = data?.filter(
       request => {
         const prevRequest = previousAssetRequests.find(
@@ -195,12 +184,16 @@ export const AssetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     // Send notifications for status changes
     requestStatusChanges.forEach(changedRequest => {
       let notificationMessage = "";
+      let notificationType: "success" | "error" | "info" = "info";
+
       switch (changedRequest.status) {
         case "Approved":
           notificationMessage = `Your request for ${changedRequest.assets?.asset_name} has been approved and is ready for dispatch.`;
+          notificationType = "success";
           break;
         case "Rejected":
           notificationMessage = `Your request for ${changedRequest.assets?.asset_name} has been rejected.`;
+          notificationType = "error";
           break;
         case "In Progress":
           notificationMessage = `Your request for ${changedRequest.assets?.asset_name} is now being processed.`;
@@ -208,13 +201,16 @@ export const AssetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         case "Returned":
           notificationMessage = `The asset ${changedRequest.assets?.asset_name} has been marked as returned.`;
           break;
+        case "Cancelled":
+          notificationMessage = `Your request for ${changedRequest.assets?.asset_name} has been cancelled.`;
+          break;
       }
 
       if (notificationMessage) {
         addNotification({
           title: "Asset Request Update",
           message: notificationMessage,
-          type: changedRequest.status === "Rejected" ? "error" : "success"
+          type: notificationType
         });
       }
     });
@@ -224,44 +220,171 @@ export const AssetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setIsLoading(false);
   };
 
-  // Subscribe to real-time changes in asset_requests table (for status updates)
+  // Real-time subscriptions
   useEffect(() => {
-    const assetRequestSubscription = supabase
-      .from("asset_requests")
-      .on("UPDATE", payload => {
-        console.log("Asset request updated: ", payload);
-        fetchAssetRequests(); // Refetch asset requests when status or any field changes
-      })
-      .on("INSERT", payload => {
-        console.log("New asset request: ", payload);
-        fetchAssetRequests(); // Refetch when a new asset request is created
-      })
-      .on("DELETE", payload => {
-        console.log("Asset request deleted: ", payload);
-        fetchAssetRequests(); // Refetch when an asset request is deleted
-      })
+    if (!session) return;
+
+    const assetRequestsChannel = supabase.channel('asset_requests')
+      .on(
+        'postgres_changes', 
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'asset_requests' 
+        },
+        (payload) => {
+          console.log('Asset Request Change:', payload);
+          fetchAssetRequests();
+        }
+      )
       .subscribe();
 
-    const assetSubscription = supabase
-      .from("assets")
-      .on("UPDATE", payload => {
-        console.log("Asset updated: ", payload);
-        fetchAssets(); // Refetch assets when an asset's status or data changes
-      })
+    // Assets Subscription
+    const assetsChannel = supabase.channel('assets')
+      .on(
+        'postgres_changes', 
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'assets' 
+        },
+        (payload) => {
+          console.log('Asset Change:', payload);
+          fetchAssets();
+        }
+      )
       .subscribe();
 
-    // Clean up subscriptions on unmount
+    // Cleanup function
     return () => {
-      assetRequestSubscription.unsubscribe();
-      assetSubscription.unsubscribe();
+      supabase.removeChannel(assetRequestsChannel);
+      supabase.removeChannel(assetsChannel);
     };
-  }, []);
+  }, [session, supabase]);
+
+  // Request an asset
+  const requestAsset = async (
+    asset_id: number,
+    purpose: string,
+    expected_return_date: string
+  ) => {
+    if (!session?.user?.id) {
+      throw new Error("User not authenticated");
+    }
+
+    setIsLoading(true);
+
+    // Get the employee_id for the current user
+    const { data: employeeData, error: employeeError } = await supabase
+      .from("employees")
+      .select("employee_id")
+      .eq("id", session.user.id)
+      .single();
+
+    if (employeeError) {
+      console.error("Error fetching employee data:", employeeError);
+      addNotification({
+        title: "Error",
+        message: "Could not fetch your employee data. Please try again.",
+        type: "error"
+      });
+      setIsLoading(false);
+      throw new Error("Could not fetch employee data");
+    }
+
+    const employee_id = employeeData.employee_id;
+
+    // Get asset name for notification
+    const asset = assets.find(a => a.asset_id === asset_id);
+    const assetName = asset ? asset.asset_name : `Asset #${asset_id}`;
+
+    // Insert the asset request
+    const { error } = await supabase.from("asset_requests").insert([{
+      employee_id,
+      asset_id,
+      purpose,
+      destination: "Office", // Default destination
+      expected_return_date,
+      status: "Pending",
+      request_date: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }]);
+
+    if (error) {
+      console.error("Error requesting asset:", error);
+      addNotification({
+        title: "Request Failed",
+        message: `Failed to request ${assetName}. Please try again.`,
+        type: "error"
+      });
+      setIsLoading(false);
+      throw new Error("Failed to request asset");
+    }
+
+    // Add a notification for successful request
+    addNotification({
+      title: "Request Submitted",
+      message: `Your request for ${assetName} has been submitted and is pending approval.`,
+      type: "success"
+    });
+
+    // Refresh asset requests after a new one is added
+    await fetchAssetRequests();
+    setIsLoading(false);
+  };
+
+  // Cancel an asset request
+  const cancelRequest = async (request_id: number) => {
+    setIsLoading(true);
+
+    // Find the request to get asset info
+    const request = myAssetRequests.find(req => req.request_id === request_id);
+    const assetName = request?.assets?.asset_name || `Asset #${request?.asset_id}`;
+
+    const { error } = await supabase
+      .from("asset_requests")
+      .update({ 
+        status: "Cancelled", 
+        updated_at: new Date().toISOString() 
+      })
+      .eq("request_id", request_id);
+
+    if (error) {
+      console.error("Error cancelling request:", error);
+      addNotification({
+        title: "Cancellation Failed",
+        message: `Failed to cancel your request for ${assetName}. Please try again.`,
+        type: "error"
+      });
+      setIsLoading(false);
+      throw new Error("Failed to cancel request");
+    }
+
+    // Add a notification for successful cancellation
+    addNotification({
+      title: "Request Cancelled",
+      message: `Your request for ${assetName} has been cancelled.`,
+      type: "info"
+    });
+
+    // Refresh asset requests after cancellation
+    await fetchAssetRequests();
+    setIsLoading(false);
+  };
+
+  // Fetch assets and requests when session is available
+  useEffect(() => {
+    if (session) {
+      fetchAssets();
+      fetchAssetRequests();
+    }
+  }, [session]);
 
   return (
     <AssetContext.Provider value={{
       assets,
       getAssetById,
-      myAssetRequests,
+      myAssetRequests, 
       fetchAssets,
       fetchAssetRequests,
       requestAsset,
