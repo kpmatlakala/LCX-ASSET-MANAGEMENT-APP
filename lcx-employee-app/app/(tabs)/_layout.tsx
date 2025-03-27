@@ -20,11 +20,18 @@ import {
 import { Tabs } from "expo-router";
 import { router } from "expo-router";
 import { supabase } from "@/lib/supabase";
-
-const { width } = Dimensions.get('window');
+import { useNotifications } from '@/context/NotificationContext';
 
 export default function TabLayout() {
-  const [notificationCount, setNotificationCount] = useState(3);
+  const {
+    notifications,
+    markAsRead,
+    deleteNotification
+  } = useNotifications();
+
+  console.log(notifications);
+
+  const [notificationCount, setNotificationCount] = React.useState(0);
   const [activeTab, setActiveTab] = useState("Dashboard");
   const [isProfileDropdownVisible, setIsProfileDropdownVisible] = useState(false);
   
