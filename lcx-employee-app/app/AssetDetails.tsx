@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  ScrollView, 
-  TouchableOpacity, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
   TextInput,
   SafeAreaView,
   FlatList,
@@ -25,70 +25,67 @@ const AssetManagementScreen = () => {
   const assetIdFromParams = params.assetId;
   console.log("selected asset|param:", assetIdFromParams);
 
-  const { assets } = useAssets();
+  const { assets, myAssetRequests, getAssetById } = useAssets();
   const [selectedAsset, setSelectedAsset] = useState(null);
+  const [selectedRequest, setSelectedRequest] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
 
   // console.log("selected asset:", selectedAsset);
-  
+
   // Find the selected asset when component mounts or assets/params change
   useEffect(() => {
     console.log("if:", assetIdFromParams);
     if (assetIdFromParams && assets.length > 0) 
     {
-      console.log("& assets.count", assets.length );
-      for (let i = 0; i < assets.length; i++)
-      {
-        console.log("assets[i].asset_id", assets[i].asset_id);
-        
-        if (assets[i].asset_id == assetIdFromParams) 
-        {
-          console.log("selected asset:", assets[i]);
-          
-          setSelectedAsset(assets[i]);
-          break;
-        }
+      console.log("& assets.count", assets.length);
+      const requestedAsset = myAssetRequests.find(
+        (request) => request.asset_id == assetIdFromParams
+      );
 
-        console.log("assets[i].asset_id", assets[i].asset_id);
-      }
-    }
-  }, [assets, assetIdFromParams]);
+      // Find the asset in assets
+      const asset = assets.find((item) => item.asset_id == assetIdFromParams);
 
-  // Using useFocusEffect to handle screen focus (whenever the screen is focused)
-  // useFocusEffect(
-  //   React.useCallback(() => {
-  //     console.log('Screen focused, refreshing asset selection...');
+      setSelectedAsset(asset || null);    
+      setSelectedRequest(requestedAsset || null);        
       
-  //     if (assetIdFromParams && assets.length > 0) 
-  //     {
-  //       for (let i = 0; i < assets.length; i++) 
-  //       {
-  //         if (assets[i].asset_id == assetIdFromParams) {
-  //           console.log("selected asset (focused):", assets[i]);
-  //           setSelectedAsset(assets[i]);
-  //           break;
-  //         }
-  //       }
-  //     }
+      
+      // for (let i = 0; i < assets.length; i++) 
+      // {
+      //   console.log("assets[i].asset_id", assets[i].asset_id);
 
-  //     // Optionally return a cleanup function when the screen is unfocused
-  //     return () => {
-  //       console.log('Screen unfocused');
-  //     };
-  //   }, [assets, assetIdFromParams])  // Dependencies, similar to useEffect
-  // );
+      //   if (assets[i].asset_id == assetIdFromParams) 
+      //   {
+      //     setSelectedAsset(assets[i]);
+      //     break;
+      //   }
+
+      //   console.log("assets[i].asset_id", assets[i].asset_id);
+      // }
+    }
+  }, [assets, myAssetRequests,assetIdFromParams]);
+ 
 
   const getStatusStyles = (
     status: string
   ): { backgroundColor: string; borderColor: string } => {
     switch (status) {
       case "Available":
-        return { backgroundColor: "#d1f4e0", borderColor: "#17c964" }; // Light green background, dark green border
+        return { backgroundColor: "#d1f4e0", borderColor: "#17c964" }; 
+      case "Approved":
+        return { backgroundColor: "#d1f4e0", borderColor: "#17c964" };// Light green background, dark green border      
+
       case "In_Transit":
         return { backgroundColor: "#fdedd3", borderColor: "#f5a524" }; // Light orange background, dark orange border
-      case "Maintanace":
+      case "Pending":
+        return { backgroundColor: "#fdedd3", borderColor: "#f5a524" };
+
+      case "Rejected":
         return { backgroundColor: "#fdd0df", borderColor: "#f5426c" }; // Light pink background, dark pink border
+
+
       case "Assigned":
+        return { backgroundColor: "#f3f1260", borderColor: "#f3f1260" }; // Light yellow background, yellow border
+      case "Dispatched":
         return { backgroundColor: "#f3f1260", borderColor: "#f3f1260" }; // Light yellow background, yellow border
       default:
         return { backgroundColor: "#f0f0f0", borderColor: "#cccccc" }; // Default light gray background, dark gray border
@@ -97,12 +94,11 @@ const AssetManagementScreen = () => {
 
   // Export functions
   const exportToCsv = async () => {
-    try 
-    {
+    try {
       // Prepare CSV content
       const csvHeader = 'Asset Name,Serial Number,Category,Cost,Purchase Date,Status\n';
-      const csvRows = assets.map(asset => 
-          `"${asset.asset_name}","${asset.asset_sn}","${asset.asset_category}","${asset.purchase_price}","${asset.purchase_date}","${asset.status}"`
+      const csvRows = assets.map(asset =>
+        `"${asset.asset_name}","${asset.asset_sn}","${asset.asset_category}","${asset.purchase_price}","${asset.purchase_date}","${asset.status}"`
       ).join('\n');
       const csvContent = csvHeader + csvRows;
 
@@ -111,55 +107,51 @@ const AssetManagementScreen = () => {
       await FileSystem.writeAsStringAsync(fileUri, csvContent, { encoding: FileSystem.EncodingType.UTF8 });
 
       // Share the file
-      if (await Sharing.isAvailableAsync()) 
-      {
+      if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(fileUri);
-      } 
+      }
       else { Alert.alert('Sharing is not available'); }
-    } 
-    catch (error) 
-    {
-        console.error('CSV Export Error:', error);
-        Alert.alert('Export Failed', 'Unable to export CSV file');
+    }
+    catch (error) {
+      console.error('CSV Export Error:', error);
+      Alert.alert('Export Failed', 'Unable to export CSV file');
     }
   };
 
   const exportToExcel = async () => {
-    try 
-    {
-        // Prepare workbook and worksheet
-        const wb = XLSX.utils.book_new();
-        const wsData = [
-            ['Asset Name', 'Serial Number', 'Category', 'Cost', 'Purchase Date', 'Status'],
-            ...assets.map(asset => [
-                asset.asset_name, 
-                asset.asset_sn, 
-                asset.asset_category, 
-                asset.purchase_price, 
-                asset.purchase_date, 
-                asset.status
-            ])
-        ];
-        const ws = XLSX.utils.aoa_to_sheet(wsData);
-        XLSX.utils.book_append_sheet(wb, ws, 'Assets');
+    try {
+      // Prepare workbook and worksheet
+      const wb = XLSX.utils.book_new();
+      const wsData = [
+        ['Asset Name', 'Serial Number', 'Category', 'Cost', 'Purchase Date', 'Status'],
+        ...assets.map(asset => [
+          asset.asset_name,
+          asset.asset_sn,
+          asset.asset_category,
+          asset.purchase_price,
+          asset.purchase_date,
+          asset.status
+        ])
+      ];
+      const ws = XLSX.utils.aoa_to_sheet(wsData);
+      XLSX.utils.book_append_sheet(wb, ws, 'Assets');
 
-        // Write to file
-        const fileUri = `${FileSystem.documentDirectory}assets_export.xlsx`;
-        const wbout = XLSX.write(wb, { type: 'base64', bookType: 'xlsx' });
-        
-        await FileSystem.writeAsStringAsync(fileUri, wbout, { encoding: FileSystem.EncodingType.Base64 });
+      // Write to file
+      const fileUri = `${FileSystem.documentDirectory}assets_export.xlsx`;
+      const wbout = XLSX.write(wb, { type: 'base64', bookType: 'xlsx' });
 
-        // Share the file
-        if (await Sharing.isAvailableAsync()) {
-            await Sharing.shareAsync(fileUri, { 
-              mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 
-              dialogTitle: 'Export Assets' 
-            });
-        } 
-        else { Alert.alert('Sharing is not available'); }
-    } 
-    catch (error) 
-    {
+      await FileSystem.writeAsStringAsync(fileUri, wbout, { encoding: FileSystem.EncodingType.Base64 });
+
+      // Share the file
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(fileUri, {
+          mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          dialogTitle: 'Export Assets'
+        });
+      }
+      else { Alert.alert('Sharing is not available'); }
+    }
+    catch (error) {
       console.error('Excel Export Error:', error);
       Alert.alert('Export Failed', 'Unable to export Excel file');
     }
@@ -172,23 +164,23 @@ const AssetManagementScreen = () => {
   };
 
   const renderStatusBadge = (status) => {
-  let backgroundColor;
-  switch(status) {
+    let backgroundColor;
+    switch (status) {
       case 'Approved':
-      backgroundColor = '#D4EDDA';
-      break;
+        backgroundColor = '#D4EDDA';
+        break;
       case 'Failed':
-      backgroundColor = '#F8D7DA';
-      break;
+        backgroundColor = '#F8D7DA';
+        break;
       default:
-      backgroundColor = '#D4EDDA';
-  }
+        backgroundColor = '#D4EDDA';
+    }
 
-  return (
+    return (
       <View style={[styles.badge, { backgroundColor }]}>
-      <Text style={styles.badgeText}>{status}</Text>
+        <Text style={styles.badgeText}>{status}</Text>
       </View>
-  );
+    );
   };
 
   const renderAssetItem = ({ item }) => (
@@ -209,6 +201,9 @@ const AssetManagementScreen = () => {
     setModalVisible(false);
   };
 
+  console.log("selected Request:", selectedRequest);
+  console.log("selected asset:", selectedAsset);
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Cancel Request Modal */}
@@ -226,20 +221,20 @@ const AssetManagementScreen = () => {
                 <MaterialIcons name="close" size={24} color="#666" />
               </TouchableOpacity>
             </View>
-            
+
             <Text style={styles.modalText}>
               Are you sure you want to cancel your request for this asset?
             </Text>
-            
+
             <View style={styles.modalActions}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[styles.modalButton, styles.cancelButton]}
                 onPress={() => setModalVisible(false)}
               >
                 <Text style={styles.cancelButtonText}>No</Text>
               </TouchableOpacity>
-              
-              <TouchableOpacity 
+
+              <TouchableOpacity
                 style={[styles.modalButton, styles.confirmButton]}
                 onPress={handleCancelRequest}
               >
@@ -268,31 +263,31 @@ const AssetManagementScreen = () => {
               <TextInput style={styles.searchInput} placeholder="Search..." />
             </View>
           </View>
-          
+
           <View style={styles.exportContainer}>
             <TouchableOpacity style={styles.exportButton}
               onPress={() => {
                 Alert.alert(
-                    'Export Options',
-                    'Choose Export Format',
-                    [
-                        { 
-                            text: 'CSV', 
-                            onPress: exportToCsv 
-                        },
-                        { 
-                            text: 'Excel', 
-                            onPress: exportToExcel 
-                        },
-                        { 
-                            text: 'PDF', 
-                            onPress: exportToPdf 
-                        },
-                        { 
-                            text: 'Cancel', 
-                            style: 'cancel' 
-                        }
-                    ]
+                  'Export Options',
+                  'Choose Export Format',
+                  [
+                    {
+                      text: 'CSV',
+                      onPress: exportToCsv
+                    },
+                    {
+                      text: 'Excel',
+                      onPress: exportToExcel
+                    },
+                    {
+                      text: 'PDF',
+                      onPress: exportToPdf
+                    },
+                    {
+                      text: 'Cancel',
+                      style: 'cancel'
+                    }
+                  ]
                 );
               }}
             >
@@ -313,19 +308,19 @@ const AssetManagementScreen = () => {
             </View> */}
             <View
               style={{
-                backgroundColor: getStatusStyles(selectedAsset?.status).backgroundColor,
-                borderColor: getStatusStyles(selectedAsset?.status).borderColor,
+                backgroundColor: getStatusStyles(selectedRequest?.status || selectedAsset?.status).backgroundColor,
+                borderColor: getStatusStyles(selectedRequest?.status || selectedAsset?.status).borderColor,
                 borderWidth: 1,
               }}
               className="px-2.5 py-0.5 rounded-full mb-2"
             >
               <Text
                 style={{
-                  color: getStatusStyles(selectedAsset?.status).borderColor,
+                  color: getStatusStyles(selectedRequest?.status || selectedAsset?.status).borderColor,
                 }}
                 className="font-bold text-xs"
               >
-                { selectedAsset?.status }
+                { selectedRequest?.status || selectedAsset?.status}
               </Text>
             </View>
           </View>
@@ -334,86 +329,90 @@ const AssetManagementScreen = () => {
             {
               selectedAsset?.asset_image_url && (
                 <View style={styles.imageContainer}>
-                  <Image 
+                  <Image
                     source={{ uri: selectedAsset.asset_image_url }}
                     style={styles.assetImage}
                     resizeMode="cover"
-                    // defaultSource={require('@/assets/placeholder-image.png')}
+                  // defaultSource={require('@/assets/placeholder-image.png')}
                   />
                 </View>
-            )}           
+              )
+            }
 
             <View style={styles.infoColumn}>
 
               <View style={styles.infoRow}>
                 <Text style={styles.infoLabel}>Asset Name:</Text>
                 <Text style={styles.infoValue}>{selectedAsset?.asset_name}</Text>
-              </View> 
-              
+              </View>
+
               <View style={styles.infoRow}>
                 <Text style={styles.infoLabel}>Category:</Text>
                 <Text style={styles.infoValue}>{selectedAsset?.asset_category}</Text>
-              </View>             
+              </View>
             </View>
           </View>
 
           {
-             selectedAsset?.status === 'Available' ? (
-              <TouchableOpacity
-                style={styles.returnRequestButton}
-                onPress={() => {
-                  console.log("request action triggered");
-                  router.push({  
-                    pathname:`/RequestAsset`,
-                    params: { assetId: selectedAsset?.asset_id }
-                  })
-                }}
-              >
-                <MaterialIcons name="assignment" size={16} color="white" style={styles.buttonIcon} />
-                <Text style={styles.returnRequestButtonText}>Request Asset</Text>
-              </TouchableOpacity>
-            ) :
-            selectedAsset?.status === 'Dispatched' ? (
-              <TouchableOpacity
-                style={styles.returnRequestButton}
-                onPress={() => {
-                  console.log("Return action triggered")
-                  router.push({
-                    pathname:`/ReturnAsset`,
-                    params: { assetId: selectedAsset?.asset_id }
-                  })
-                }}
-              >
-                <MaterialIcons name="replay" size={16} color="white" style={styles.buttonIcon} />
-                <Text style={styles.returnRequestButtonText}>Return asset</Text>
-              </TouchableOpacity>
-            ) : (
+            selectedRequest?.status === 'Pending' ||
+            selectedRequest?.status === 'Approved' ? (
+
               <View style={styles.cardButtonContainer}>
-                <TouchableOpacity 
-                  style={styles.cancelRequestButton} 
+                <TouchableOpacity
+                  style={styles.cancelRequestButton}
                   onPress={() => setModalVisible(true)}
                 >
                   <MaterialIcons name="cancel" size={16} color="white" style={styles.buttonIcon} />
                   <Text style={styles.cancelRequestButtonText}>Cancel request</Text>
                 </TouchableOpacity>
               </View>
-            )
+
+            ) :
+              selectedRequest?.status === 'Dispatched' ? (
+                <TouchableOpacity
+                  style={styles.returnRequestButton}
+                  onPress={() => {
+                    console.log("Return action triggered")
+                    router.push({
+                      pathname: `/ReturnAsset`,
+                      params: { assetId: selectedAsset?.asset_id }
+                    })
+                  }}
+                >
+                  <MaterialIcons name="replay" size={16} color="white" style={styles.buttonIcon} />
+                  <Text style={styles.returnRequestButtonText}>Return asset</Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  style={styles.returnRequestButton}
+                  onPress={() => {
+                    console.log("request action triggered");
+                    router.push({
+                      pathname: `/RequestAsset`,
+                      params: { assetId: selectedAsset?.asset_id }
+                    })
+                  }}
+                >
+                  <MaterialIcons name="assignment" size={16} color="white" style={styles.buttonIcon} />
+                  <Text style={styles.returnRequestButtonText}>Request Asset</Text>
+                </TouchableOpacity>
+              )
           }
-          
+
           {/* Cancel Request Button - now at the bottom of the asset info card */}
-          
+
         </View>
 
         {/* Asset Table */}
         <View style={styles.tableContainer}>
           {/* Table Header */}
           <View style={[styles.tableRow, styles.tableHeader]}>
-            <Text style={[styles.tableHeaderCell, styles.descriptionCell]}>Description</Text>            
-            <Text style={[styles.tableHeaderCell, styles.conditionCell]}>Asset Condition</Text>    
-            <Text style={[styles.tableHeaderCell, styles.statusCell]}>Date</Text>      
+            <Text style={[styles.tableHeaderCell, styles.descriptionCell]}>Description</Text>
+            <Text style={[styles.tableHeaderCell, styles.conditionCell]}>Asset Condition</Text>
+            <Text style={[styles.tableHeaderCell, styles.statusCell]}>Date</Text>
             <Text style={[styles.tableHeaderCell, styles.statusCell]}>Status</Text>
           </View>
-          
+
           {/* Table Content */}
           <FlatList
             data={assets}
@@ -567,7 +566,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 4,
-  },returnRequestButton: {
+  }, returnRequestButton: {
     backgroundColor: '#4CAF50', // Color for return button
     padding: 10,
     borderRadius: 5,
@@ -584,7 +583,7 @@ const styles = StyleSheet.create({
   returnRequestButtonText: {
     color: 'white',
     fontSize: 14,
-  },    
+  },
   tableContainer: {
     padding: 8,
     marginHorizontal: 16,

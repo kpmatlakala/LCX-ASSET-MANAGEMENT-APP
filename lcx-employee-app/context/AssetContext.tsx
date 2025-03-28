@@ -84,7 +84,7 @@ export const AssetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const { data, error } = await supabase
       .from("assets")
       .select("*")
-      .eq("status", "Available");
+      // .eq("status", "Available");
 
     if (error) {
       console.error("Error fetching assets:", error);

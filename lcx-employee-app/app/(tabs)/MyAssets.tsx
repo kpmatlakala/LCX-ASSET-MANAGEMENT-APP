@@ -43,10 +43,11 @@ export default function MyAssetsScreen() {
   // Filter options
   const filterOptions: string[] = [
     "All...",
-    "Available",
-    "Assigned",
-    "Maintenance",
-    "Reserved",
+    "Pending",
+    "Rejected",
+    "Approved",
+    "Cancelled",
+    "Dispatched",
   ];
 
   const getStatusStyles = (
@@ -59,7 +60,7 @@ export default function MyAssetsScreen() {
         return { backgroundColor: "#fdedd3", borderColor: "#f5a524" }; // Light orange background, dark orange border
       case "Rejected":
         return { backgroundColor: "#fdd0df", borderColor: "#f5426c" }; // Light pink background, dark pink border
-      case "Reserved":
+      case "Approved":
         return { backgroundColor: "#f3f1260", borderColor: "#f3f1260" }; // Light yellow background, yellow border
       default:
         return { backgroundColor: "#f0f0f0", borderColor: "#cccccc" }; // Default light gray background, dark gray border
