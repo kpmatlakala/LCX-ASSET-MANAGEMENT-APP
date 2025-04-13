@@ -94,7 +94,9 @@ const Profile = () => {
     try {
       setLoading(true)
       const { user } = session
-      if (!user) throw new Error("No user found!")
+      if (!user || !user.id) throw new Error("No user found!")
+
+      console.log('logged inuser', user);        
 
       const { data, error } = await supabase
         .from("admins")
@@ -102,24 +104,27 @@ const Profile = () => {
           `
           first_name, last_name, adminId, department, position, 
           office_location, date_joined, employment_status,
-          phone_number, address, emergency_contact_name, 
+          phone, address, emergency_contact_name, 
           emergency_contact_phone, preferred_language,
-          is_first_login, avatar_url
+          is_first_login, profile_picture
         `,
         )
-        .eq("id", user.id)
+        .eq("adminId", user.id)
         .single()
 
-      if (error) throw error
+      if (error) { throw new Error(error.message) }
+
       if (data) 
       {
+        console.log('Admin profile data', data);
+        
         setFullName(`${data.first_name} ${data.last_name}` || "")
-        setPhoneNumber(data.phone_number || "")
+        setPhoneNumber(data.phone || "")
         setAddress(data.address || "")
         setEmergencyContactName(data.emergency_contact_name || "")
         setEmergencyContactPhone(data.emergency_contact_phone || "")
         setPreferredLanguage(data.preferred_language || "English")
-        setAvatarUrl(data.avatar_url)
+        setAvatarUrl(data.profile_picture)
 
         // Read-only fields
         setEmployeeId(data.adminId)
@@ -133,7 +138,8 @@ const Profile = () => {
         setIsFirstLogin(data.is_first_login)
 
         // If first login, show welcome message
-        if (data.is_first_login) {
+        if (data.is_first_login)
+        {
           Alert.alert("Welcome!", "Please complete your profile information.")
         }
       }
@@ -268,7 +274,7 @@ const Profile = () => {
           is_first_login: false,
           updated_at: new Date().toISOString(),
         })
-        .eq("id", user.id)
+        .eq("adminId", user.id)
 
       if (error) throw error
       Alert.alert("Success", "Profile updated successfully!")
