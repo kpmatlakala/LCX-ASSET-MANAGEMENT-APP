@@ -17,8 +17,8 @@ import { Button, Input, Avatar, Icon } from "@rneui/themed"
 import { useRouter } from "expo-router"
 import { supabase } from "@/lib/supabase"
 import type { Session } from "@supabase/supabase-js"
-import * as ImagePicker from "expo-image-manipulator"
-import { manipulateAsync, SaveFormat } from "expo-image-manipulator"
+import * as ImagePicker from "expo-image-picker"
+import * as ImageManipulator from "expo-image-manipulator"
 import { Briefcase, Calendar, Call, Global, Hashtag, Home2, Location, Sms, User } from "iconsax-react-native"
 
 const Profile = () => {
@@ -171,13 +171,11 @@ const Profile = () => {
 
   const takePhoto = async () => {
     try {
-      // Request camera permissions
       const { status } = await ImagePicker.requestCameraPermissionsAsync()
       if (status !== "granted") {
         Alert.alert("Permission needed", "Please grant camera permission to take a photo")
         return
       }
-
       const result = await ImagePicker.launchCameraAsync({
         allowsEditing: true,
         aspect: [1, 1],
@@ -197,18 +195,21 @@ const Profile = () => {
   const uploadProfilePicture = async (uri: string, base64String?: string | null) => {
     try {
       setUploadingImage(true)
-
       if (!session?.user) throw new Error("No user found")
 
       // Optimize image size before uploading
-      const manipResult = await manipulateAsync(uri, [{ resize: { width: 400, height: 400 } }], {
-        format: SaveFormat.JPEG,
-        compress: 0.7,
-      })
+      const manipResult = await ImageManipulator.manipulateAsync(
+        uri,
+        [{ resize: { width: 400, height: 400 } }],
+        {
+          format: ImageManipulator.SaveFormat.JPEG,
+          compress: 0.7,
+        }
+      )
 
       const fileExt = "jpg"
       const fileName = `${session.user.id}_${Date.now()}.${fileExt}`
-      const filePath = `avatars/${fileName}`
+      const filePath = `profiles/${fileName}`
 
       // Convert the image to Blob
       const response = await fetch(manipResult.uri)
@@ -224,14 +225,13 @@ const Profile = () => {
 
       // Get public URL
       const { data: urlData } = await supabase.storage.from("profiles").getPublicUrl(filePath)
-
       if (!urlData.publicUrl) throw new Error("Failed to get public URL")
 
-      // Update user profile with avatar URL
+      // Update user profile with avatar URL (profile_picture)
       const { error: updateError } = await supabase
         .from("admins")
-        .update({ avatar_url: urlData.publicUrl })
-        .eq("id", session.user.id)
+        .update({ profile_picture: urlData.publicUrl })
+        .eq("adminId", session.user.id)
 
       if (updateError) throw updateError
 
@@ -376,8 +376,8 @@ const Profile = () => {
               </View>
               <View style={styles.statDivider} />
               <View style={styles.statItem}>
-                <Text style={styles.statValue}>{employeeId || "-"}</Text>
-                <Text style={styles.statLabel}>Employee ID</Text>
+                <Text style={styles.statValue}>{employmentStatus || "-"}</Text>
+                <Text style={styles.statLabel}>Status</Text>
               </View>
               <View style={styles.statDivider} />
               <View style={styles.statItem}>

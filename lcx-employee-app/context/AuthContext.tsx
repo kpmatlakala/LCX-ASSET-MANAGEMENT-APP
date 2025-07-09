@@ -6,6 +6,8 @@ import { Session } from '@supabase/supabase-js';
 interface AuthContextType {
   session: Session | null;
   adminId: string | null;
+  firstName: string | null;
+  lastName: string | null;
   setSession: React.Dispatch<React.SetStateAction<Session | null>>;
   isFirstLogin: boolean;
   setIsFirstLogin: React.Dispatch<React.SetStateAction<boolean>>;
@@ -18,6 +20,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [adminId, setAdminId] = useState<string | null>(null);
+  const [firstName, setFirstName] = useState<string | null>(null);
+  const [lastName, setLastName] = useState<string | null>(null);
   const [isFirstLogin, setIsFirstLogin] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -53,14 +57,16 @@ export const AuthProvider: React.FC = ({ children }) => {
 
       const { data, error } = await supabase
         .from("admins")
-        .select("adminId, is_first_login")
-        .eq("email", user.email)
+        .select("adminId, is_first_login, first_name, last_name")
+        .eq("adminId", user.id)
         .single();
 
       if (error) throw error;
       if (data) {
         setAdminId(data.adminId);
         setIsFirstLogin(data.is_first_login);
+        setFirstName(data.first_name);
+        setLastName(data.last_name);
       }
     } catch (error) {
       console.error(error);
@@ -79,6 +85,8 @@ export const AuthProvider: React.FC = ({ children }) => {
       value={{
         session,
         adminId,
+        firstName,
+        lastName,
         setSession,
         isFirstLogin,
         setIsFirstLogin,

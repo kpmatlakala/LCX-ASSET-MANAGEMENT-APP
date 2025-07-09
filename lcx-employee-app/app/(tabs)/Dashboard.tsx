@@ -21,15 +21,20 @@ import {
   ArchiveBook,
   Notification,
 } from "iconsax-react-native";
+
 import { useAssets } from "@/context/AssetContext";
 import { router } from "expo-router";
 import { images } from "@/constants";
+import { useAuth } from "@/context/AuthContext";
 
 export default function AssetManagementDashboard() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const { assets, myAssetRequests, loading } = useAssets();
   const [filteredAssets, setFilteredAssets] = useState([]);
-    const [expandedActionId, setExpandedActionId] = useState(null);
+  const [expandedActionId, setExpandedActionId] = useState(null);
+  const { session, firstName, lastName } = useAuth();
+  const userName = session?.user?.user_metadata?.full_name || session?.user?.email || "User";
+  const displayName = (firstName && lastName) ? `${firstName}` : userName;
 
   const greetUser = (): string => {
     const hours = new Date().getHours();
@@ -107,7 +112,9 @@ export default function AssetManagementDashboard() {
       <StatusBar backgroundColor="#f8f9fa" barStyle="dark-content" />
 
       {/* Dashboard Title */}
-      <Text className="text-3xl font-medium mx-5 mb-2 text-gray-6+00">{greetUser()}, Frankie</Text>
+      <Text className="text-3xl font-medium mx-5 mb-2 text-gray-6+00">
+        {greetUser()}, {displayName}
+      </Text>
 
       {loading ? (
         <View className="flex-1 justify-center items-center">
