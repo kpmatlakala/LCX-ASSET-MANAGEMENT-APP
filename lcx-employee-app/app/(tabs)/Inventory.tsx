@@ -7,6 +7,7 @@ import {
   StatusBar,
   TouchableOpacity,
   TextInput,
+  StyleSheet,
 } from "react-native";
 import { MaterialIcons, MaterialCommunityIcons, Ionicons, Feather } from '@expo/vector-icons';
 import { router } from "expo-router";
@@ -87,7 +88,7 @@ export default function AssetInventoryScreen() {
   });
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#f8f9fa' }}>
       <StatusBar backgroundColor="#fff" barStyle="dark-content" />
 
       {/* Assets Inventory section title with Request Asset button */}
@@ -266,3 +267,34 @@ export default function AssetInventoryScreen() {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  iconBox: {
+    backgroundColor: '#f5f7e8',
+    borderRadius: 12,
+    padding: 8,
+    marginRight: 16,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#0d1a31',
+  },
+  cardSubtitle: {
+    fontSize: 14,
+    color: '#8E8E93',
+    marginTop: 2,
+  },
+});

@@ -7,7 +7,8 @@ import {
   TouchableOpacity,
   Modal,
   Pressable,
-  Dimensions
+  Dimensions,
+  Image
 } from "react-native";
 import {
   Notification,
@@ -16,11 +17,20 @@ import {
   ClipboardText,
   AddCircle,
   ClipboardTick,
+  More,
+  Setting2,
+  MessageQuestion,
+  Message,
+  InfoCircle,
+  Moon,
+  Logout,
 } from "iconsax-react-native";
 import { Tabs } from "expo-router";
 import { router } from "expo-router";
 import { supabase } from "@/lib/supabase";
 import { useNotifications } from '@/context/NotificationContext';
+import CustomTabBar from "@/components/CustomTabBar";
+import logo from "@/assets/images/logo.png";
 
 export default function TabLayout() {
   const {
@@ -48,32 +58,57 @@ export default function TabLayout() {
   const ProfileDropdownMenu = () => {
     return (
       <View style={styles.dropdownContainer}>
-        <TouchableOpacity 
-          style={styles.dropdownItem}
-          onPress={() => {
-            router.push("/Profile");
-            setIsProfileDropdownVisible(false);
-          }}
-        >
-          <Text style={styles.dropdownItemText}>Profile</Text>
+        <TouchableOpacity style={styles.dropdownItem} onPress={() => { router.push("/Profile"); setIsProfileDropdownVisible(false); }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <User size={20} color="#b8ca41" />
+            <Text style={[styles.dropdownItemText, { marginLeft: 10 }]}>Profile</Text>
+          </View>
         </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.dropdownItem}
-          onPress={() => {
-            router.push("/Settings");
-            setIsProfileDropdownVisible(false);
-          }}
-        >
-          <Text style={styles.dropdownItemText}>Settings</Text>
+        <TouchableOpacity style={styles.dropdownItem} onPress={() => { router.push("/Settings"); setIsProfileDropdownVisible(false); }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Setting2 size={20} color="#b8ca41" />
+            <Text style={[styles.dropdownItemText, { marginLeft: 10 }]}>Settings</Text>
+          </View>
         </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.dropdownItem}
-          onPress={() => {
-            setIsProfileDropdownVisible(false);
-            handleSignOut();
-          }}
-        >
-          <Text style={styles.dropdownItemText}>Sign Out</Text>
+        <TouchableOpacity style={styles.dropdownItem} onPress={() => { router.push("/Notifications"); setIsProfileDropdownVisible(false); }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Notification size={20} color="#b8ca41" />
+            <Text style={[styles.dropdownItemText, { marginLeft: 10 }]}>Notifications</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.dropdownItem} onPress={() => { /* TODO: Help & Support */ setIsProfileDropdownVisible(false); }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <MessageQuestion size={20} color="#b8ca41" />
+            <Text style={[styles.dropdownItemText, { marginLeft: 10 }]}>Help & Support</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.dropdownItem} onPress={() => { /* TODO: Feedback */ setIsProfileDropdownVisible(false); }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Message size={20} color="#b8ca41" />
+            <Text style={[styles.dropdownItemText, { marginLeft: 10 }]}>Feedback</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.dropdownItem} onPress={() => { /* TODO: App Info */ setIsProfileDropdownVisible(false); }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <InfoCircle size={20} color="#b8ca41" />
+            <Text style={[styles.dropdownItemText, { marginLeft: 10 }]}>App Info</Text>
+          </View>
+        </TouchableOpacity>
+        <View style={[styles.dropdownItem, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]}> 
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Moon size={20} color="#b8ca41" />
+            <Text style={[styles.dropdownItemText, { marginLeft: 10 }]}>Dark Mode</Text>
+          </View>
+          {/* Replace with your dark mode state/toggle logic */}
+          <View style={{ marginLeft: 8 }}>
+            <Text style={{ color: '#b8ca41', fontWeight: 'bold' }}>[toggle]</Text>
+          </View>
+        </View>
+        <TouchableOpacity style={styles.dropdownItem} onPress={handleSignOut}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Logout size={20} color="#FF6B6B" />
+            <Text style={[styles.dropdownItemText, { color: '#FF6B6B', marginLeft: 10 }]}>Logout</Text>
+          </View>
         </TouchableOpacity>
       </View>
     );
@@ -82,22 +117,11 @@ export default function TabLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Tabs
+        tabBar={props => <CustomTabBar {...props} />}
         screenOptions={({ route }) => ({
-          tabBarActiveTintColor: "#b8ca41", 
-          tabBarInactiveTintColor: "#8E8E93",
-          tabBarStyle: {
-            height: 90,
-            paddingTop: 4,
-            paddingBottom: 4,
-            borderTopWidth: 1,
-            borderColor: "#f3f4f6",
-            backgroundColor: '#FFFFFF',
-            elevation: 0,
-            shadowColor: '#000000',
-            shadowOffset: { width: 0, height: 0 },
-            shadowOpacity: 0,
-            shadowRadius: 0,
-          },
+          headerLeft: () => (
+            <Image source={logo} style={{ width: 86, height: 64, resizeMode: 'contain', marginLeft: 16 }} />
+          ),
           headerRight: () => (
             <View style={styles.headerRight}>
               <TouchableOpacity
@@ -119,17 +143,12 @@ export default function TabLayout() {
                 style={styles.headerButton}
                 onPress={() => setIsProfileDropdownVisible(!isProfileDropdownVisible)}
               >
-                <User size={24} color="#4d4d4d" variant="Bold"/>
+                <View style={{ transform: [{ rotate: '90deg' }] }}>
+                  <More size={24} color="#4d4d4d" />
+                </View>
               </TouchableOpacity>
             </View>
           ),
-          tabBarItemStyle: {
-            paddingVertical: 5,
-          },
-          tabBarLabelStyle: {
-            fontSize: 12,
-            fontWeight: '500',
-          },
           headerShadowVisible: false,
         })}
       >

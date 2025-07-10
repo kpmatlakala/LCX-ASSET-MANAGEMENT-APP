@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
 import { Input, Button } from "@rneui/themed";
-import { ArrowDown2, SearchNormal1, Briefcase, Calendar } from "iconsax-react-native";
+import { ArrowDown2, SearchNormal1, Briefcase, Calendar, Add } from "iconsax-react-native";
 import { useAssets } from '@/context/AssetContext';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { AntDesign } from "@expo/vector-icons";
@@ -123,158 +123,162 @@ const RequestAssets = () => {
   };
 
   return (
-    <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Request Asset</Text>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#f8f9fa' }}>
+      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32 }}>
+        {/* Example card section for request asset form or items */}
+        <View style={styles.card}>
+          <View style={styles.iconBox}>
+            <Add size={24} color="#b8ca41" variant="Bold" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.cardTitle}>Request New Asset</Text>
+            <Text style={styles.cardSubtitle}>Fill out the form below to request an asset.</Text>
+          </View>
+        </View>
+        {/* Asset Selection */}
+        <View style={styles.formContainer}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Select Asset</Text>
+            <View style={styles.sectionDivider} />
+          </View>
+
+          <TouchableOpacity 
+            onPress={() => setDropdownVisible(!dropdownVisible)} 
+            style={styles.dropdownContainer}
+          >
+            <Text style={styles.dropdownText}>
+              {selectedAsset ? selectedAsset.asset_name : "Select an asset"}
+            </Text>
+            <ArrowDown2 size="20" color="#333" />
+          </TouchableOpacity>
+
+          {dropdownVisible && (
+            <View style={styles.dropdownList}>
+              <View style={styles.searchContainer}>
+                {/* <SearchNormal1 size="18" color="#666" /> */}
+                <Input
+                  value={search}
+                  onChangeText={(text) => handleInputChange("search", text)}
+                  placeholder="Search assets"
+                  containerStyle={styles.searchInputContainer}
+                  inputContainerStyle={styles.searchInput}
+                  inputStyle={styles.searchInputText}
+                />
+              </View>
+              
+              <ScrollView style={styles.assetScrollView}>
+                {filteredAssets.length > 0 ? (
+                  filteredAssets.map((asset) => (
+                    <TouchableOpacity
+                      key={asset.asset_id}
+                      style={styles.assetItem}
+                      onPress={() => {
+                        setSelectedAsset(asset);
+                        setDropdownVisible(false);
+                      }}
+                    >
+                      <Text style={styles.assetName}>{asset.asset_name}</Text>
+                      <Text style={styles.assetCode}>{asset.asset_code}</Text>
+                    </TouchableOpacity>
+                  ))
+                ) : (
+                  <Text style={styles.noAssetsText}>No assets found</Text>
+                )}
+              </ScrollView>
+            </View>
+          )}
         </View>
 
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-          <View style={styles.contentContainer}>
-            {/* Asset Selection */}
-            <View style={styles.formContainer}>
-              <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Select Asset</Text>
-                <View style={styles.sectionDivider} />
-              </View>
+        {/* Purpose */}
+        <View style={styles.formContainer}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Purpose</Text>
+            <View style={styles.sectionDivider} />
+          </View>
 
-              <TouchableOpacity 
-                onPress={() => setDropdownVisible(!dropdownVisible)} 
-                style={styles.dropdownContainer}
-              >
-                <Text style={styles.dropdownText}>
-                  {selectedAsset ? selectedAsset.asset_name : "Select an asset"}
-                </Text>
-                <ArrowDown2 size="20" color="#333" />
-              </TouchableOpacity>
+          <Input
+            value={purpose}
+            onChangeText={(text) => handleInputChange("purpose", text)}
+            placeholder="Why do you need this asset?"
+            leftIcon={<Briefcase size="20" color="#b8ca41" variant="Bold" />}
+            labelStyle={styles.inputLabel}
+            containerStyle={styles.inputContainer}
+            inputContainerStyle={styles.input}
+          />
+        </View>
 
-              {dropdownVisible && (
-                <View style={styles.dropdownList}>
-                  <View style={styles.searchContainer}>
-                    <SearchNormal1 size="18" color="#666" />
-                    <Input
-                      value={search}
-                      onChangeText={(text) => handleInputChange("search", text)}
-                      placeholder="Search assets"
-                      containerStyle={styles.searchInputContainer}
-                      inputContainerStyle={styles.searchInput}
-                      inputStyle={styles.searchInputText}
-                    />
-                  </View>
-                  
-                  <ScrollView style={styles.assetScrollView}>
-                    {filteredAssets.length > 0 ? (
-                      filteredAssets.map((asset) => (
-                        <TouchableOpacity
-                          key={asset.asset_id}
-                          style={styles.assetItem}
-                          onPress={() => {
-                            setSelectedAsset(asset);
-                            setDropdownVisible(false);
-                          }}
-                        >
-                          <Text style={styles.assetName}>{asset.asset_name}</Text>
-                          <Text style={styles.assetCode}>{asset.asset_code}</Text>
-                        </TouchableOpacity>
-                      ))
-                    ) : (
-                      <Text style={styles.noAssetsText}>No assets found</Text>
-                    )}
-                  </ScrollView>
-                </View>
-              )}
+        {/* Return Date */}
+        <View style={styles.formContainer}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Expected Return Date</Text>
+            <View style={styles.sectionDivider} />
+          </View>
+
+          <TouchableOpacity 
+            onPress={showDatePickerModal}
+            style={styles.datePickerContainer}
+          >
+            <View style={styles.datePickerContent}>
+              <Calendar size="20" color="#b8ca41" variant="Bold" />
+              <Text style={styles.datePickerText}>
+                {duration || "Select a return date"}
+              </Text>
             </View>
-
-            {/* Purpose */}
-            <View style={styles.formContainer}>
-              <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Purpose</Text>
-                <View style={styles.sectionDivider} />
-              </View>
-
-              <Input
-                value={purpose}
-                onChangeText={(text) => handleInputChange("purpose", text)}
-                placeholder="Why do you need this asset?"
-                leftIcon={<Briefcase size="20" color="#b8ca41" variant="Bold" />}
-                labelStyle={styles.inputLabel}
-                containerStyle={styles.inputContainer}
-                inputContainerStyle={styles.input}
-              />
-            </View>
-
-            {/* Return Date */}
-            <View style={styles.formContainer}>
-              <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Expected Return Date</Text>
-                <View style={styles.sectionDivider} />
-              </View>
-
-              <TouchableOpacity 
-                onPress={showDatePickerModal}
-                style={styles.datePickerContainer}
-              >
-                <View style={styles.datePickerContent}>
-                  <Calendar size="20" color="#b8ca41" variant="Bold" />
-                  <Text style={styles.datePickerText}>
-                    {duration || "Select a return date"}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-              
-              {showDatePicker && (
-                <DateTimePicker
-                  value={returnDate}
-                  mode="date"
-                  display="default"
-                  onChange={handleDateChange}
-                  minimumDate={new Date()}
-                />
-              )}
-            </View>
-
-            {/* Submit Button */}
-            <Button
-              title="Submit Request"
-              onPress={submitRequest}
-              loading={isSubmitting}
-              disabled={isSubmitting}
-              buttonStyle={styles.submitButton}
-              titleStyle={styles.buttonTitle}
-              containerStyle={styles.buttonContainer}
-              loadingProps={{ color: "white" }}
+          </TouchableOpacity>
+          
+          {showDatePicker && (
+            <DateTimePicker
+              value={returnDate}
+              mode="date"
+              display="default"
+              onChange={handleDateChange}
+              minimumDate={new Date()}
             />
-          </View>
-        </ScrollView>
+          )}
+        </View>
 
-        {/* Modal with ReturnForm */}
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={handleCloseModal}
-        >
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Return Asset</Text>
-                <TouchableOpacity onPress={handleCloseModal}>
-                  <AntDesign name="close" size={24} color="#333" />
-                </TouchableOpacity>
-              </View>
+        {/* Submit Button */}
+        <Button
+          title="Submit Request"
+          onPress={submitRequest}
+          loading={isSubmitting}
+          disabled={isSubmitting}
+          buttonStyle={styles.submitButton}
+          titleStyle={styles.buttonTitle}
+          containerStyle={styles.buttonContainer}
+          loadingProps={{ color: "white" }}
+        />
+      </ScrollView>
 
-              {selectedAsset && (
-                <View style={styles.modalBody}>
-                  <ReturnForm
-                    assetName={selectedAsset.asset_name}
-                    assetId={selectedAsset.asset_sn}
-                    onClose={handleCloseModal}
-                  />
-                </View>
-              )}
+      {/* Modal with ReturnForm */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={handleCloseModal}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Return Asset</Text>
+              <TouchableOpacity onPress={handleCloseModal}>
+                <AntDesign name="close" size={24} color="#333" />
+              </TouchableOpacity>
             </View>
+
+            {selectedAsset && (
+              <View style={styles.modalBody}>
+                <ReturnForm
+                  assetName={selectedAsset.asset_name}
+                  assetId={selectedAsset.asset_sn}
+                  onClose={handleCloseModal}
+                />
+              </View>
+            )}
           </View>
-        </Modal>
-    </View>
+        </View>
+      </Modal>
+    </SafeAreaView>
   );
 };
 
@@ -353,7 +357,7 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   dropdownList: {
-    marginTop: 10,
+    marginTop: 8,
     borderWidth: 1,
     borderColor: "#eee",
     borderRadius: 12,
@@ -361,17 +365,20 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     flexDirection: "row",
-    alignItems: "center",
+    // alignItems:"flex-start",
     paddingHorizontal: 10,
     paddingVertical: 5,
     backgroundColor: "#f5f5f5",
+    gap: 2
   },
   searchInputContainer: {
     flex: 1,
     paddingHorizontal: 0,
+    margin: 0,
   },
   searchInput: {
-    borderBottomWidth: 0,
+    borderBottomWidth: 1,
+    
   },
   searchInputText: {
     fontSize: 16,
@@ -462,43 +469,32 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   card: {
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 20,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 2,
   },
-  cardIconContainer: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: "#333",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 15,
+  iconBox: {
+    backgroundColor: '#f5f7e8',
+    borderRadius: 12,
+    padding: 8,
+    marginRight: 16,
   },
   cardTitle: {
     fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 10,
-    color: "#333",
+    fontWeight: 'bold',
+    color: '#0d1a31',
   },
-  cardText: {
-    textAlign: "center",
-    marginBottom: 20,
-    color: "#666",
-    lineHeight: 20,
-  },
-  cardButton: {
-    borderColor: "#333",
-    borderRadius: 12,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderWidth: 2,
+  cardSubtitle: {
+    fontSize: 14,
+    color: '#8E8E93',
+    marginTop: 2,
   },
   modalContainer: {
     flex: 1,
