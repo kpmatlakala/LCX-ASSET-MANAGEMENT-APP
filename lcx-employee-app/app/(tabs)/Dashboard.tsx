@@ -160,7 +160,7 @@ export default function AssetManagementDashboard() {
         {/* Main Stats Cards */}
         <View className="mt-2">
           {/* Borrowed Assets Card */}
-          <View className="bg-[#ffffff69] rounded-xl p-4 mb-3 flex-row-reverse items-center justify-between border border-[#e6e6e6] mx-5 shadow-md">
+          <View className="bg-[white] rounded-xl p-4 mb-3 flex-row-reverse items-center justify-between border border-[#e6e6e6] mx-5 shadow-md">
             <View className="bg-[#e3f0fa] rounded-lg p-3 mr-3">
               <Box size={25} color="#b8ca41" variant="Bold" />
             </View>
@@ -170,7 +170,7 @@ export default function AssetManagementDashboard() {
             </View>
           </View>
           {/* Pending Card */}
-          <View className="bg-[#ffffff69] rounded-xl p-4 mb-3 flex-row-reverse items-center justify-between border border-[#e6e6e6] mx-5 shadow-md">
+          <View className="bg-[white] rounded-xl p-4 mb-3 flex-row-reverse items-center justify-between border border-[#e6e6e6] mx-5 shadow-md">
             <View className="bg-[#e3f0fa] rounded-lg p-3 mr-3">
               <Clock size={25} color="#4a90e2" variant="Bold" />
             </View>
@@ -180,7 +180,7 @@ export default function AssetManagementDashboard() {
             </View>
           </View>
           {/* Overdue Card */}
-          <View className="bg-[#ffffff69] rounded-xl p-4 mb-3 flex-row-reverse items-center justify-between border border-[#e6e6e6] mx-5 shadow-md">
+          <View className="bg-[white] rounded-xl p-4 mb-3 flex-row-reverse items-center justify-between border border-[#e6e6e6] mx-5 shadow-md">
             <View className="bg-[#ffeaea] rounded-lg p-3 mr-3">
               <Danger size={25} color="#FF6B6B" variant="Bold" />
             </View>

@@ -28,7 +28,7 @@ const ReturnForm: React.FC<ReturnFormProps> = ({ assetName = "Dell XPS 15 Laptop
       if (onClose) {
         onClose(); // Close the modal if function is provided
       } else {
-        router.push("/Verify"); // Otherwise use router
+        router.push("/(tabs)/MyAssets"); // Otherwise use router
       }
     }, 1500);
   };

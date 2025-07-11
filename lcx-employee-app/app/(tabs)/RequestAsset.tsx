@@ -155,7 +155,7 @@ const RequestAssets = () => {
           {dropdownVisible && (
             <View style={styles.dropdownList}>
               <View style={styles.searchContainer}>
-                {/* <SearchNormal1 size="18" color="#666" /> */}
+                <SearchNormal1 size="18" color="#666" />
                 <Input
                   value={search}
                   onChangeText={(text) => handleInputChange("search", text)}

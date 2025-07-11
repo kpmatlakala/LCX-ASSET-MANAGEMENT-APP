@@ -328,6 +328,19 @@ export default function MyAssetsScreen() {
                   </View>
                 </View>
               )}
+              <View className="mt-3 flex-row justify-end">
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: '#b8ca41',
+                    borderRadius: 8,
+                    paddingVertical: 8,
+                    paddingHorizontal: 16,
+                  }}
+                  onPress={() => router.push({ pathname: '/AssetDetails', params: { assetId: request.asset_id } })}
+                >
+                  <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 14 }}>Asset Details</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           ))
         ) : (
