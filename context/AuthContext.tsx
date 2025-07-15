@@ -67,6 +67,11 @@ export const AuthProvider: React.FC = ({ children }) => {
         setIsFirstLogin(data.is_first_login);
         setFirstName(data.first_name);
         setLastName(data.last_name);
+        // Update last_login timestamp
+        await supabase
+          .from('admins')
+          .update({ last_login: new Date().toISOString() })
+          .eq('adminId', user.id);
       }
     } catch (error) {
       console.error(error);
